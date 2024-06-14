@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "299191069889",
+    "project_id": "daring-keep-410204",
+    "storage_bucket": "daring-keep-410204.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:299191069889:android:dfd1295ea049e869bbb840",
+        "android_client_info": {
+          "package_name": "com.example.glass_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "299191069889-jm8q0h5m80c69stdd6llrgk7jghc79lp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCww3i3W9a54v1wVExKlpq7NMPHWiFca6c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "299191069889-jm8q0h5m80c69stdd6llrgk7jghc79lp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
