@@ -65,23 +65,4 @@ public class ProductsActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, new AppBarConfiguration.Builder(navController.getGraph()).build())
                 || super.onSupportNavigateUp();
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (!isFirstTime) {
-            // Check if user is signed in (non-null) and update UI accordingly.
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            if (currentUser == null) {
-                // If user somehow logs out while in ProductsActivity, handle it here
-                Log.d("ProductsActivity", "User logged out, redirecting to MainActivity");
-                Intent loginIntent = new Intent(this, MainActivity.class);
-                loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear back stack
-                startActivity(loginIntent);
-                finish();
-            }
-        } else {
-            isFirstTime = false;
-        }
-    }
 }
