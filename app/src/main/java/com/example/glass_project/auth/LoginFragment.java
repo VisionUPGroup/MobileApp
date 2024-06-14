@@ -36,6 +36,7 @@ public class LoginFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final int RC_SIGN_IN = 9001;
     private FirebaseAuth auth;
+
     public LoginFragment() {
         // Required empty public constructor
     }
@@ -71,12 +72,10 @@ public class LoginFragment extends Fragment {
 
         FirebaseUser currentUser = auth.getCurrentUser();
 
-
-
         if (currentUser != null) {
-            Intent intent = new Intent(getActivity(), MainActivity.class);
+            Intent intent = new Intent(getActivity(), ProductsActivity.class);
             startActivity(intent);
-
+            requireActivity().finish();
         }
 
         Button btnGoogleLogin = view.findViewById(R.id.btnGoogleLogin);
