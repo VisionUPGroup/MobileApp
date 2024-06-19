@@ -1,5 +1,6 @@
 package com.example.glass_project.product;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,11 +18,14 @@ import com.example.glass_project.databinding.ActivityProductsBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.List;
+
 public class ProductsActivity extends AppCompatActivity {
 
+    private Context  context;
+//    private List<>
     private ActivityProductsBinding binding;
     private FirebaseAuth mAuth;
-    private boolean isFirstTime = true; // Flag to check if it's the first time onStart() is called
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
