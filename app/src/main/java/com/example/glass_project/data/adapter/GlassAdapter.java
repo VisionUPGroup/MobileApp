@@ -1,5 +1,6 @@
 package com.example.glass_project.data.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -12,20 +13,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.data.model.Glass;
+import com.example.glass_project.data.model.EyeGlass;
 import com.example.glass_project.detail.DetailGlassActivity;
 
 import java.util.List;
 
 public class GlassAdapter extends RecyclerView.Adapter<GlassAdapter.GlassViewHolder> {
-    private Context context;
-    private List<Glass> glassList;
 
-    public GlassAdapter(Context context, List<Glass> glassList) {
+    private final Context context;
+    private final List<EyeGlass> glassList;
+
+    public GlassAdapter(Context context, List<EyeGlass> glassList) {
         this.context = context;
         this.glassList = glassList;
     }
-
 
     @NonNull
     @Override
@@ -34,18 +35,17 @@ public class GlassAdapter extends RecyclerView.Adapter<GlassAdapter.GlassViewHol
         return new GlassViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull GlassViewHolder holder, int position) {
-        Glass glass = glassList.get(position);
-        holder.title.setText(glass.getNameGlass());
+        EyeGlass glass = glassList.get(position);
+        holder.title.setText(glass.getName());
         holder.price.setText("Price: $" + glass.getPrice());
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, DetailGlassActivity.class);
-
-            }
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DetailGlassActivity.class);
+            intent.putExtra("glass_id", glass.getId());
+            context.startActivity(intent);
         });
     }
 
@@ -55,7 +55,7 @@ public class GlassAdapter extends RecyclerView.Adapter<GlassAdapter.GlassViewHol
         return glassList.size();
     }
 
-    public static class GlassViewHolder extends RecyclerView.ViewHolder{
+    public static class GlassViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
         TextView title;
         TextView price;
