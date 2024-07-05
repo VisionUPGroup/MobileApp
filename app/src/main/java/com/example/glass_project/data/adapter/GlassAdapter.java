@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.glass_project.R;
 import com.example.glass_project.data.model.EyeGlass;
 import com.example.glass_project.detail.DetailGlassActivity;
@@ -40,11 +41,19 @@ public class GlassAdapter extends RecyclerView.Adapter<GlassAdapter.GlassViewHol
     public void onBindViewHolder(@NonNull GlassViewHolder holder, int position) {
         EyeGlass glass = glassList.get(position);
         holder.title.setText(glass.getName());
-        holder.price.setText("Price: $" + glass.getPrice());
+        holder.price.setText("$" + glass.getPrice());
+        holder.ratingTotal.setText(String.valueOf(glass.getRateCount()));
+        if (glass.getEyeGlassImages() != null && !glass.getEyeGlassImages().isEmpty()) {
+            String imageUrl = glass.getEyeGlassImages().get(0).getUrl();
+            Glide.with(context)
+                    .load(imageUrl)
+                    .into(holder.image);
+        }
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, DetailGlassActivity.class);
             intent.putExtra("glass_id", glass.getId());
+            intent.putExtra("glass_type", glass.getEyeGlassTypeID());
             context.startActivity(intent);
         });
     }
@@ -59,6 +68,7 @@ public class GlassAdapter extends RecyclerView.Adapter<GlassAdapter.GlassViewHol
         ImageView image;
         TextView title;
         TextView price;
+        TextView ratingTotal;
 
 
         public GlassViewHolder(@NonNull View itemView) {
@@ -66,6 +76,7 @@ public class GlassAdapter extends RecyclerView.Adapter<GlassAdapter.GlassViewHol
             image = itemView.findViewById(R.id.imageView);
             title = itemView.findViewById(R.id.titleView);
             price = itemView.findViewById(R.id.priceView);
+            ratingTotal = itemView.findViewById(R.id.ratingText);
         }
 
     }
