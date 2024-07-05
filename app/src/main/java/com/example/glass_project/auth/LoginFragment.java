@@ -1,6 +1,5 @@
 package com.example.glass_project.auth;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,8 +18,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.ApiService;
-import com.example.glass_project.config.RetrofitInstance;
 import com.example.glass_project.config.repositories.AuthRepositories;
 import com.example.glass_project.config.services.AuthServices;
 import com.example.glass_project.data.model.Login;
@@ -39,7 +36,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class LoginFragment extends Fragment {
 
