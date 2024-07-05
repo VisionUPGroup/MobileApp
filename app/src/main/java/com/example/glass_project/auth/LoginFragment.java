@@ -3,6 +3,7 @@ package com.example.glass_project.auth;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -10,10 +11,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
+import com.example.glass_project.config.ApiService;
+import com.example.glass_project.config.RetrofitInstance;
+import com.example.glass_project.data.model.Login;
+import com.example.glass_project.data.model.LoginResponse;
 import com.example.glass_project.product.ProductsActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -25,31 +30,24 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link LoginFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+
 public class LoginFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
     private static final int RC_SIGN_IN = 9001;
     private FirebaseAuth auth;
+    private EditText username, password;
+
+    private ApiService apiService;
 
     public LoginFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment LoginFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static LoginFragment newInstance(String param1, String param2) {
         LoginFragment fragment = new LoginFragment();
         Bundle args = new Bundle();
@@ -71,6 +69,8 @@ public class LoginFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
 
         FirebaseUser currentUser = auth.getCurrentUser();
+        Retrofit retrofit = RetrofitInstance.getRetrofitInstance();
+        apiService = retrofit.create(ApiService.class);
 
         if (currentUser != null) {
             Intent intent = new Intent(getActivity(), ProductsActivity.class);
@@ -78,10 +78,47 @@ public class LoginFragment extends Fragment {
             requireActivity().finish();
         }
 
+        // Get input fields
+        username = view.findViewById(R.id.editTextTextEmailAddress);
+        password = view.findViewById(R.id.editTextTextPassword);
+
+        // Get buttons
+        Button btnLogin = view.findViewById(R.id.button);
         Button btnGoogleLogin = view.findViewById(R.id.btnGoogleLogin);
+
+        // Set on click listeners
         btnGoogleLogin.setOnClickListener(v -> signIn());
+        btnLogin.setOnClickListener(v -> login());
 
         return view;
+    }
+
+    private void login() {
+        String email = username.getText().toString();
+        String pass = password.getText().toString();
+
+        if (email.isEmpty() || pass.isEmpty()) {
+            Toast.makeText(getActivity(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Login login = new Login(email, pass);
+        apiService.login(login).enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
+                    navigateToMainActivity();
+                } else {
+                    Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable throwable) {
+               Toast.makeText(getActivity(), "An error occurred: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void signIn() {

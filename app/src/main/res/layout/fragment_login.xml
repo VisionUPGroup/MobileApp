@@ -20,11 +20,11 @@
             android:layout_height="wrap_content"
             android:background="@drawable/edit_text_background"
             android:ems="10"
-            android:hint="Email"
+            android:hint="Username"
             android:inputType="textEmailAddress"
             android:padding="10dp"
             android:textColorHint="@color/hintText"
-            tools:ignore="Autofill,HardcodedText,TouchTargetSizeCheck,TextContrastCheck" />
+            tools:ignore="Autofill,HardcodedText,LabelFor,TextContrastCheck,TouchTargetSizeCheck" />
 
         <!-- Password EditText -->
         <EditText
