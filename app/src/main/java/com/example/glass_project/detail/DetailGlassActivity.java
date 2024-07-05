@@ -62,7 +62,7 @@ public class DetailGlassActivity extends AppCompatActivity {
         // Handle the back button click
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-        // Intent is used to    pass data between activities
+        // Intent is used to pass data between activities
         int glassId = getIntent().getIntExtra("glass_id", -1);
         int GlassType = getIntent().getIntExtra("glass_type", -1);
 

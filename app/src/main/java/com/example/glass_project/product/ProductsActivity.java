@@ -2,8 +2,11 @@ package com.example.glass_project.product;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,17 +18,16 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
 import com.example.glass_project.databinding.ActivityProductsBinding;
+import com.example.glass_project.product.ui.profile.ProfileActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.List;
-
 public class ProductsActivity extends AppCompatActivity {
 
-    private Context  context;
-//    private List<>
     private ActivityProductsBinding binding;
     private FirebaseAuth mAuth;
+    private SharedPreferences sharedPreferences;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,11 +38,12 @@ public class ProductsActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
 
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if (currentUser == null) {
-            // Redirect to login activity if user is not logged in
-            Log.d("ProductsActivity", "User not logged in, redirecting to MainActivity");
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+
+        if (!hasToken()) {
+            // Redirect to login activity if token is not available
+            Log.d("ProductsActivity", "Token not found, redirecting to MainActivity");
             Intent loginIntent = new Intent(this, MainActivity.class);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear back stack
             startActivity(loginIntent);
@@ -49,14 +52,24 @@ public class ProductsActivity extends AppCompatActivity {
         }
 
         setupNavigation();
+
+        ImageView userIcon = findViewById(R.id.user_icon);
+        userIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchProfileActivity();
+            }
+        });
+    }
+
+    private boolean hasToken() {
+        SharedPreferences sharedPreferences = getSharedPreferences("Tên_Tệp_Lưu_Token", Context.MODE_PRIVATE);
+        return sharedPreferences.getString("token", null) != null;
     }
 
     private void setupNavigation() {
-        findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                 R.id.navigation_home, R.id.navigation_notifications)
+                R.id.navigation_home, R.id.navigation_notifications)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_products);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -68,5 +81,15 @@ public class ProductsActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_products);
         return NavigationUI.navigateUp(navController, new AppBarConfiguration.Builder(navController.getGraph()).build())
                 || super.onSupportNavigateUp();
+    }
+
+    private void launchProfileActivity() {
+        Intent profileIntent = new Intent(this, ProfileActivity.class);
+        startActivity(profileIntent);
+    }
+
+    private boolean isLoggedIn() {
+        // Check if token exists in SharedPreferences
+        return sharedPreferences.contains("token");
     }
 }

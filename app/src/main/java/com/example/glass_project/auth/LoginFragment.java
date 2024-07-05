@@ -1,12 +1,16 @@
 package com.example.glass_project.auth;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +21,8 @@ import android.widget.Toast;
 import com.example.glass_project.R;
 import com.example.glass_project.config.ApiService;
 import com.example.glass_project.config.RetrofitInstance;
+import com.example.glass_project.config.repositories.AuthRepositories;
+import com.example.glass_project.config.services.AuthServices;
 import com.example.glass_project.data.model.Login;
 import com.example.glass_project.data.model.LoginResponse;
 import com.example.glass_project.product.ProductsActivity;
@@ -41,8 +47,8 @@ public class LoginFragment extends Fragment {
     private static final int RC_SIGN_IN = 9001;
     private FirebaseAuth auth;
     private EditText username, password;
+    private AuthServices apiService;
 
-    private ApiService apiService;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -69,8 +75,7 @@ public class LoginFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
 
         FirebaseUser currentUser = auth.getCurrentUser();
-        Retrofit retrofit = RetrofitInstance.getRetrofitInstance();
-        apiService = retrofit.create(ApiService.class);
+        apiService = AuthRepositories.getAuthServices();
 
         if (currentUser != null) {
             Intent intent = new Intent(getActivity(), ProductsActivity.class);
@@ -106,8 +111,13 @@ public class LoginFragment extends Fragment {
         apiService.login(login).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
+                    LoginResponse loginResponse = response.body();
+                    String token = loginResponse.getPassword();
+                    Log.e("LoginFragment", "Login successful: " + loginResponse.getPassword());
+                    saveToken(token);
+
                     navigateToMainActivity();
                 } else {
                     Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
@@ -116,7 +126,7 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable throwable) {
-               Toast.makeText(getActivity(), "An error occurred: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "An error occurred: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -153,6 +163,10 @@ public class LoginFragment extends Fragment {
                     if (task.isSuccessful()) {
                         FirebaseUser user = auth.getCurrentUser();
                         Toast.makeText(getActivity(), "Signed in as " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+
+                        // Lưu token từ Google SignIn vào SharedPreferences
+                        saveToken(idToken);
+
                         navigateToMainActivity();
                     } else {
                         Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
@@ -161,9 +175,16 @@ public class LoginFragment extends Fragment {
     }
 
     private void navigateToMainActivity() {
+        Log.d("LoginFragment", "Navigating to ProductsActivity");
         Intent intent = new Intent(getActivity(), ProductsActivity.class);
         startActivity(intent);
         requireActivity().finish();
     }
 
+    private void saveToken(String token) {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Tên_Tệp_Lưu_Token", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("token", token);
+        editor.apply();
+    }
 }
