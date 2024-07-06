@@ -41,9 +41,9 @@ public class ProductsActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
 
-        if (!hasToken()) {
-            // Redirect to login activity if token is not available
-            Log.d("ProductsActivity", "Token not found, redirecting to MainActivity");
+        if (!hasUserDetails()) {
+            // Redirect to login activity if user details are not available
+            Log.d("ProductsActivity", "User details not found, redirecting to MainActivity");
             Intent loginIntent = new Intent(this, MainActivity.class);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear back stack
             startActivity(loginIntent);
@@ -62,9 +62,13 @@ public class ProductsActivity extends AppCompatActivity {
         });
     }
 
-    private boolean hasToken() {
-        SharedPreferences sharedPreferences = getSharedPreferences("Tên_Tệp_Lưu_Token", Context.MODE_PRIVATE);
-        return sharedPreferences.getString("token", null) != null;
+    private boolean hasUserDetails() {
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        String id = sharedPreferences.getString("id", null);
+        String username = sharedPreferences.getString("username", null);
+        String email = sharedPreferences.getString("email", null);
+
+        return id != null && username != null && email != null;
     }
 
     private void setupNavigation() {
@@ -88,8 +92,5 @@ public class ProductsActivity extends AppCompatActivity {
         startActivity(profileIntent);
     }
 
-    private boolean isLoggedIn() {
-        // Check if token exists in SharedPreferences
-        return sharedPreferences.contains("token");
-    }
+
 }

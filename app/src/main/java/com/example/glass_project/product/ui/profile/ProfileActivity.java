@@ -1,6 +1,8 @@
 package com.example.glass_project.product.ui.profile;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -43,6 +45,14 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void signOutAndStartSignInActivity() {
         mAuth.signOut();
+
+        // Clear user session
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove("id");
+        editor.remove("username");
+        editor.remove("email");
+        editor.apply();
 
         mGoogleSignInClient.signOut().addOnCompleteListener(this, task -> {
             // Optional: Update UI or show a message to the user

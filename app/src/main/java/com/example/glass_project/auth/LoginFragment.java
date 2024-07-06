@@ -1,5 +1,6 @@
 package com.example.glass_project.auth;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -110,9 +111,10 @@ public class LoginFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
                     LoginResponse loginResponse = response.body();
-                    String token = loginResponse.getPassword();
+
                     Log.e("LoginFragment", "Login successful: " + loginResponse.getPassword());
-                    saveToken(token);
+//                    saveToken();
+                    saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
 
                     navigateToMainActivity();
                 } else {
@@ -161,7 +163,7 @@ public class LoginFragment extends Fragment {
                         Toast.makeText(getActivity(), "Signed in as " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
 
                         // Lưu token từ Google SignIn vào SharedPreferences
-                        saveToken(idToken);
+                        saveUserDetails(user.getUid(), user.getDisplayName(), user.getEmail());
 
                         navigateToMainActivity();
                     } else {
@@ -177,10 +179,12 @@ public class LoginFragment extends Fragment {
         requireActivity().finish();
     }
 
-    private void saveToken(String token) {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Tên_Tệp_Lưu_Token", Context.MODE_PRIVATE);
+    private void saveUserDetails(String id, String username, String email) {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("token", token);
+        editor.putString("id", id);
+        editor.putString("username", username);
+        editor.putString("email", email);
         editor.apply();
     }
 }
