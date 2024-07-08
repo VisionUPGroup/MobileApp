@@ -17,6 +17,8 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.glass_project.R;
 import com.example.glass_project.config.ApiService;
 import com.example.glass_project.config.RetrofitInstance;
+import com.example.glass_project.config.repositories.EyeGlassRepositories;
+import com.example.glass_project.config.services.EyeGlassServices;
 import com.example.glass_project.data.adapter.ImageSliderAdapter;
 import com.example.glass_project.data.model.EyeGlass;
 import com.example.glass_project.data.model.EyeGlassImage;
@@ -60,11 +62,11 @@ public class DetailGlassActivity extends AppCompatActivity {
         // Handle the back button click
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-        // Intent is used to    pass data between activities
+        // Intent is used to pass data between activities
         int glassId = getIntent().getIntExtra("glass_id", -1);
         int GlassType = getIntent().getIntExtra("glass_type", -1);
 
-        ApiService apiService = RetrofitInstance.getRetrofitInstance().create(ApiService.class);
+        EyeGlassServices apiService = EyeGlassRepositories.getEyeGlassServices();
         Call<EyeGlass> eyeGlassCall = apiService.getGlassById(glassId);
         Call<List<EyeGlassImage>> eyeGlassImageCall = apiService.getGlassImageById(glassId);
         Call<EyeGlassType> eyeGlassTypeCall = apiService.getGlassTypeById(GlassType);

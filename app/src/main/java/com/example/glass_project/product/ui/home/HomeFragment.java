@@ -11,8 +11,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.glass_project.config.ApiService;
-import com.example.glass_project.config.RetrofitInstance;
+import com.example.glass_project.config.repositories.EyeGlassRepositories;
+import com.example.glass_project.config.services.EyeGlassServices;
 import com.example.glass_project.data.adapter.GlassAdapter;
 import com.example.glass_project.data.model.EyeGlass;
 import com.example.glass_project.data.model.ResponseData;
@@ -21,7 +21,6 @@ import com.example.glass_project.databinding.FragmentHomeBinding;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.Retrofit;
 
 public class HomeFragment extends Fragment {
 
@@ -29,8 +28,8 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        Retrofit retrofit = RetrofitInstance.getRetrofitInstance();
-        ApiService apiService = retrofit.create(ApiService.class);
+
+        EyeGlassServices eyeGlassServices = EyeGlassRepositories.getEyeGlassServices();
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -38,7 +37,7 @@ public class HomeFragment extends Fragment {
         RecyclerView recyclerView = binding.recyclerView;
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
-        Call<ResponseData> call = apiService.getGlasses();
+        Call<ResponseData> call = eyeGlassServices.getGlasses();
 
         // This is the retrofit2 call to get the list of glasses
         call.enqueue(new retrofit2.Callback<ResponseData>() {
