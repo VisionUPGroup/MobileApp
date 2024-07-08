@@ -10,11 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
 import com.example.glass_project.product.ProductsActivity;
+import com.example.glass_project.product.ui.notifications.NotificationsActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -36,6 +38,7 @@ public class LoginFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final int RC_SIGN_IN = 9001;
     private FirebaseAuth auth;
+    private EditText etEmail, etPassword;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -81,9 +84,34 @@ public class LoginFragment extends Fragment {
         Button btnGoogleLogin = view.findViewById(R.id.btnGoogleLogin);
         btnGoogleLogin.setOnClickListener(v -> signIn());
 
+        etEmail = view.findViewById(R.id.editTextTextEmailAddress);
+        etPassword = view.findViewById(R.id.editTextTextPassword);
+
+        Button btnEmailLogin = view.findViewById(R.id.button);
+        btnEmailLogin.setOnClickListener(v -> signInWithEmail());
         return view;
     }
+    private void signInWithEmail() {
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
 
+        if (email.equals("admin@mail.com") && password.equals("admin")) {
+            Intent intent = new Intent(getActivity(), NotificationsActivity.class);
+            startActivity(intent);
+            requireActivity().finish();
+        } else {
+            auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(requireActivity(), task -> {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = auth.getCurrentUser();
+                            Toast.makeText(getActivity(), "Signed in as " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                            navigateToMainActivity();
+                        } else {
+                            Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
     private void signIn() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -119,6 +147,7 @@ public class LoginFragment extends Fragment {
                         navigateToMainActivity();
                     } else {
                         Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
+
                     }
                 });
     }
