@@ -57,4 +57,9 @@
     <string name="subTitle">Popular frame! 313 people have their eyes on this frame.</string>
     <string name="star">star</string>
     <string name="user_icon_desc">user_icon_desc</string>
+    <string name="proceed_to_checkout">Proceed to checkout</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="gland_total">Gland Total</string>
+    <string name="shipment_cost">Shipment cost</string>
+    <string name="vnd">VND</string>
 </resources>
