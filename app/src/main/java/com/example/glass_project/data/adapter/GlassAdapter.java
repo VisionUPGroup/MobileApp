@@ -3,6 +3,7 @@ package com.example.glass_project.data.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +44,8 @@ public class GlassAdapter extends RecyclerView.Adapter<GlassAdapter.GlassViewHol
         holder.title.setText(glass.getName());
         holder.price.setText("$" + glass.getPrice());
         holder.ratingTotal.setText(String.valueOf(glass.getRateCount()));
+
+
         if (glass.getEyeGlassImages() != null && !glass.getEyeGlassImages().isEmpty()) {
             String imageUrl = glass.getEyeGlassImages().get(0).getUrl();
             Glide.with(context)
@@ -51,7 +54,12 @@ public class GlassAdapter extends RecyclerView.Adapter<GlassAdapter.GlassViewHol
         }
 
         holder.itemView.setOnClickListener(v -> {
+            SharedPreferences sharedPreferences = context.getSharedPreferences("GlassDetails", Context.MODE_PRIVATE);
+            @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPreferences.edit();
+
             Intent intent = new Intent(context, DetailGlassActivity.class);
+            editor.putString("glass_id", String.valueOf(glass.getId()));
+            editor.apply();
             intent.putExtra("glass_id", glass.getId());
             intent.putExtra("glass_type", glass.getEyeGlassTypeID());
             context.startActivity(intent);

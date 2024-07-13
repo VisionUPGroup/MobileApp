@@ -1,8 +1,10 @@
 package com.example.glass_project.detail;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,8 +17,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.ApiService;
-import com.example.glass_project.config.RetrofitInstance;
 import com.example.glass_project.config.repositories.EyeGlassRepositories;
 import com.example.glass_project.config.services.EyeGlassServices;
 import com.example.glass_project.data.adapter.ImageSliderAdapter;
@@ -46,6 +46,7 @@ public class DetailGlassActivity extends AppCompatActivity {
         TextView nameView = findViewById(R.id.glass_name);
         TextView priceView = findViewById(R.id.glass_price);
         TextView typeView = findViewById(R.id.glass_type);
+        Button addToCartButton = findViewById(R.id.selectLenses);
         ratingStars = findViewById(R.id.ratingStars);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -119,6 +120,9 @@ public class DetailGlassActivity extends AppCompatActivity {
             }
         });
 
+        // Handle the add to cart button click
+        addToCartButton.setOnClickListener(v -> addToCart());
+
     }
 
     private void setRatingStars(int rating) {
@@ -148,5 +152,14 @@ public class DetailGlassActivity extends AppCompatActivity {
         super.onBackPressed();
         // Additional custom behavior if needed
     }
+
+    private void addToCart() {
+        Intent intent = new Intent(this, SelectLensActivity.class);
+
+        // Pass the glass id to the next activity
+        intent.putExtra("glass_id", getIntent().getIntExtra("glass_id", -1));
+        startActivity(intent);
+    }
+
 
 }
