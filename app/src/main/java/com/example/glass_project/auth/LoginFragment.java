@@ -1,15 +1,9 @@
 package com.example.glass_project.auth;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +11,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.example.glass_project.R;
 import com.example.glass_project.config.repositories.AuthRepositories;
@@ -34,6 +32,13 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,13 +46,12 @@ import retrofit2.Response;
 
 public class LoginFragment extends Fragment {
 
-
     private static final int RC_SIGN_IN = 9001;
     private FirebaseAuth auth;
     private EditText etEmail, etPassword;
     private EditText username, password;
     private AuthServices apiService;
-
+    private FirebaseFirestore db; // Firebase Firestore instance
 
     public LoginFragment() {
         // Required empty public constructor
@@ -63,34 +67,27 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        db = FirebaseFirestore.getInstance(); // Initialize Firebase Firestore instance
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
-        // Inflate the layout for this fragment
         auth = FirebaseAuth.getInstance();
-
-        FirebaseUser currentUser = auth.getCurrentUser();
         apiService = AuthRepositories.getAuthServices();
 
+        FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
-            Intent intent = new Intent(getActivity(), ProductsActivity.class);
-            startActivity(intent);
-            requireActivity().finish();
+            navigateToMainActivity();
         }
 
-        // Get input fields
         username = view.findViewById(R.id.editTextTextEmailAddress);
         password = view.findViewById(R.id.editTextTextPassword);
 
-        // Get buttons
         Button btnLogin = view.findViewById(R.id.button);
         Button btnGoogleLogin = view.findViewById(R.id.btnGoogleLogin);
 
-        // Set on click listeners
         btnGoogleLogin.setOnClickListener(v -> signIn());
         btnLogin.setOnClickListener(v -> login());
 
@@ -99,8 +96,10 @@ public class LoginFragment extends Fragment {
 
         Button btnEmailLogin = view.findViewById(R.id.button);
         btnEmailLogin.setOnClickListener(v -> signInWithEmail());
+
         return view;
     }
+
     private void signInWithEmail() {
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
@@ -115,6 +114,7 @@ public class LoginFragment extends Fragment {
                         if (task.isSuccessful()) {
                             FirebaseUser user = auth.getCurrentUser();
                             Toast.makeText(getActivity(), "Signed in as " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                            saveDeviceTokenToFirestore(user.getUid()); // Save DEVICE_TOKEN to Firestore
                             navigateToMainActivity();
                         } else {
                             Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
@@ -122,6 +122,7 @@ public class LoginFragment extends Fragment {
                     });
         }
     }
+
     private void login() {
         String email = username.getText().toString();
         String pass = password.getText().toString();
@@ -139,10 +140,7 @@ public class LoginFragment extends Fragment {
                     Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
                     LoginResponse loginResponse = response.body();
 
-                    Log.e("LoginFragment", "Login successful: " + loginResponse.getPassword());
-//                    saveToken();
                     saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
-
                     navigateToMainActivity();
                 } else {
                     Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
@@ -189,16 +187,58 @@ public class LoginFragment extends Fragment {
                         FirebaseUser user = auth.getCurrentUser();
                         Toast.makeText(getActivity(), "Signed in as " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
 
-                        // Lưu token từ Google SignIn vào SharedPreferences
-                        saveUserDetails(user.getUid(), user.getDisplayName(), user.getEmail());
+                        // Save DEVICE_TOKEN to Firestore
+                        saveDeviceTokenToFirestore(user.getUid());
 
                         navigateToMainActivity();
                     } else {
                         Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
-
                     }
                 });
     }
+
+    private void saveDeviceTokenToFirestore(String userId) {
+        // Get FCM registration token
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("LoginFragment", "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+
+                    // Get new FCM registration token
+                    String token = task.getResult();
+
+                    if (token != null) {
+                        // Check if token already exists in Firestore
+                        Query query = db.collection("DeviceToken").whereEqualTo("token", token).limit(1);
+                        query.get().addOnCompleteListener(queryTask -> {
+                            if (queryTask.isSuccessful()) {
+                                QuerySnapshot snapshot = queryTask.getResult();
+                                if (snapshot != null && !snapshot.isEmpty()) {
+                                    // Token already exists, do not save again
+                                    Log.d("LoginFragment", "Device token already exists in Firestore");
+                                } else {
+                                    // Token does not exist, save it to Firestore
+                                    Map<String, Object> tokenData = new HashMap<>();
+                                    tokenData.put("token", token);
+
+                                    db.collection("DeviceToken").document(userId)
+                                            .set(tokenData)
+                                            .addOnSuccessListener(aVoid -> Log.d("LoginFragment", "Device token saved to Firestore"))
+                                            .addOnFailureListener(e -> Log.e("LoginFragment", "Failed to save device token: " + e.getMessage()));
+                                }
+                            } else {
+                                Log.e("LoginFragment", "Error checking device token existence: ", queryTask.getException());
+                            }
+                        });
+                    } else {
+                        Log.e("LoginFragment", "FCM token is null");
+                    }
+                });
+    }
+
+
 
     private void navigateToMainActivity() {
         Log.d("LoginFragment", "Navigating to ProductsActivity");

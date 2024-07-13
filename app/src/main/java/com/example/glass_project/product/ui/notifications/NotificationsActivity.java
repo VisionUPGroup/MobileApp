@@ -1,6 +1,7 @@
 package com.example.glass_project.product.ui.notifications;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,24 +17,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class NotificationsActivity extends AppCompatActivity {
 
     private EditText etTitle, etMessage;
     private Button btnSendNotification;
+
     private FirebaseFirestore db;
-    private static final String FCM_URL = "https://fcm.googleapis.com/v1/projects/daring-keep-410204/messages:send";
-    private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,10 +38,7 @@ public class NotificationsActivity extends AppCompatActivity {
         etTitle = findViewById(R.id.etNotificationTitle);
         etMessage = findViewById(R.id.etNotificationMessage);
         btnSendNotification = findViewById(R.id.btnSendNotification);
-
-        // Initialize Firestore
         db = FirebaseFirestore.getInstance();
-
         btnSendNotification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,21 +51,64 @@ public class NotificationsActivity extends AppCompatActivity {
         String title = etTitle.getText().toString().trim();
         String message = etMessage.getText().toString().trim();
         long timestamp = System.currentTimeMillis();
-
         if (title.isEmpty() || message.isEmpty()) {
             Toast.makeText(this, "Title and message cannot be empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 1. Gửi tin nhắn qua Firebase Cloud Messaging
-        try {
-            sendFCMNotification(title, message);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Failed to get access token", Toast.LENGTH_SHORT).show();
-        }
+        // Define API endpoint
+        String apiUrl = "https://localhost:7100/api/Notification/send";
 
-        // 2. Lưu thông báo vào Firestore
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL(apiUrl);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setDoOutput(true);
+
+                    // Create JSON object with title and body
+                    JSONObject jsonInput = new JSONObject();
+                    jsonInput.put("title", title);
+                    jsonInput.put("body", message);
+
+                    // Write JSON data to output stream
+                    try (OutputStream os = conn.getOutputStream()) {
+                        byte[] input = jsonInput.toString().getBytes("utf-8");
+                        os.write(input, 0, input.length);
+                    }
+
+                    // Check response code
+                    int responseCode = conn.getResponseCode();
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        // Read response body
+                        String responseBody = conn.getResponseMessage();
+                        //saveNotificationToFirestore(title, message, timestamp);
+                        Log.d("NotificationsActivity", "Response body: " + responseBody);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(NotificationsActivity.this, "Notification sent successfully", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        Log.e("NotificationsActivity", "Failed to send notification. Response code: " + responseCode);
+                        showErrorToast("Failed to send notification. Response code: " + responseCode);
+                    }
+
+                    conn.disconnect();
+                } catch (IOException | JSONException e) {
+                    Log.e("NotificationsActivity", "Error sending notification: " + e.getMessage());
+                    showErrorToast("Error sending notification: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void saveNotificationToFirestore(String title, String message, long timestamp) {
         Map<String, Object> notification = new HashMap<>();
         notification.put("title", title);
         notification.put("message", message);
@@ -82,50 +117,29 @@ public class NotificationsActivity extends AppCompatActivity {
         db.collection("notifications")
                 .add(notification)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Notification sent and saved", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(NotificationsActivity.this, "Notification saved", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Error saving notification", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(NotificationsActivity.this, "Error saving notification", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 });
     }
 
-    private void sendFCMNotification(String title, String message) throws IOException {
-        OkHttpClient client = new OkHttpClient();
-
-        JSONObject json = new JSONObject();
-        try {
-            json.put("to", "/topics/all");  // Change this to target specific devices
-            JSONObject notification = new JSONObject();
-            notification.put("title", title);
-            notification.put("body", message);
-            json.put("notification", notification);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-//        String accessToken = AccessTokenUtil.getAccessToken();
-//
-//        RequestBody body = RequestBody.create(json.toString(), JSON);
-//        Request request = new Request.Builder()
-//                .url(FCM_URL)
-//                .post(body)
-//                .addHeader("Authorization", "Bearer " + accessToken)
-//                .build();
-
-//        client.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                runOnUiThread(() -> {
-//                    Toast.makeText(NotificationsActivity.this, "Failed to send notification", Toast.LENGTH_SHORT).show();
-//                });
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                runOnUiThread(() -> {
-//                    Toast.makeText(NotificationsActivity.this, "Notification sent", Toast.LENGTH_SHORT).show();
-//                });
-//            }
-//        });
+    private void showErrorToast(String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(NotificationsActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
