@@ -103,29 +103,29 @@ public class NotificationsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        String accessToken = AccessTokenUtil.getAccessToken();
+//        String accessToken = AccessTokenUtil.getAccessToken();
+//
+//        RequestBody body = RequestBody.create(json.toString(), JSON);
+//        Request request = new Request.Builder()
+//                .url(FCM_URL)
+//                .post(body)
+//                .addHeader("Authorization", "Bearer " + accessToken)
+//                .build();
 
-        RequestBody body = RequestBody.create(json.toString(), JSON);
-        Request request = new Request.Builder()
-                .url(FCM_URL)
-                .post(body)
-                .addHeader("Authorization", "Bearer " + accessToken)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(() -> {
-                    Toast.makeText(NotificationsActivity.this, "Failed to send notification", Toast.LENGTH_SHORT).show();
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                runOnUiThread(() -> {
-                    Toast.makeText(NotificationsActivity.this, "Notification sent", Toast.LENGTH_SHORT).show();
-                });
-            }
-        });
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                runOnUiThread(() -> {
+//                    Toast.makeText(NotificationsActivity.this, "Failed to send notification", Toast.LENGTH_SHORT).show();
+//                });
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException {
+//                runOnUiThread(() -> {
+//                    Toast.makeText(NotificationsActivity.this, "Notification sent", Toast.LENGTH_SHORT).show();
+//                });
+//            }
+//        });
     }
 }
