@@ -6,6 +6,7 @@ import com.example.glass_project.data.model.response.CartResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -18,4 +19,7 @@ public interface CartServices {
 
     @GET(CART + "/{accountId}")
     Call<CartSummaryResponse> getbyaccountid(@Path("accountId") Object accountId);
+
+    @DELETE(CART + "/{accountId}/{productId}")
+    Call<Boolean> deleteItem(@Path("accountId") int accountId, @Path("productId") int productId);
 }

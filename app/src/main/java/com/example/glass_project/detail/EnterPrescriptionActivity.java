@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -49,8 +48,6 @@ public class EnterPrescriptionActivity extends AppCompatActivity {
 
         accountID = sharedPreferences.getString("id", null);
         glassID = glassPreferences.getString("glass_id", null);
-
-        Log.d("GlassId", "onCreate: " + glassID);
 
         setSupportActionBar(toolbar);
 
