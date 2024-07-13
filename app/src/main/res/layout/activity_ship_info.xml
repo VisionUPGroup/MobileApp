@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".product.ui.order.ShipInfo">
+
+    <TextView
+        android:id="@+id/txtAddress"
+        style="@android:style/Widget.DeviceDefault.Light.TextView.SpinnerItem"
+        android:layout_width="85dp"
+        android:layout_height="26dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="76dp"
+        android:text="Address:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDistrict" />
+
+    <EditText
+        android:id="@+id/edtDistrict"
+        style="Widget.AppCompat.AutoCompleteTextView"
+        android:layout_width="204dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="50dp"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/txtDistrict"
+        app:layout_constraintTop_toBottomOf="@+id/edtCity" />
+
+    <EditText
+        android:id="@+id/edtAddress"
+        style="Widget.AppCompat.AutoCompleteTextView"
+        android:layout_width="204dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="52dp"
+        android:layout_marginEnd="50dp"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/txtAddress"
+        app:layout_constraintTop_toBottomOf="@+id/edtDistrict" />
+
+    <EditText
+        android:id="@+id/edtCity"
+        style="Widget.AppCompat.AutoCompleteTextView"
+        android:layout_width="204dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="44dp"
+        android:layout_marginEnd="50dp"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/txtCity"
+        app:layout_constraintTop_toBottomOf="@+id/edtCountry" />
+
+    <EditText
+        android:id="@+id/edtCountry"
+        style="@style/Widget.AppCompat.AutoCompleteTextView"
+        android:layout_width="198dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="52dp"
+        android:layout_marginEnd="50dp"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/txtCountry"
+        app:layout_constraintTop_toBottomOf="@+id/txtTitle" />
+
+    <TextView
+        android:id="@+id/txtDistrict"
+        style="@android:style/Widget.DeviceDefault.Light.TextView.SpinnerItem"
+        android:layout_width="85dp"
+        android:layout_height="26dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="64dp"
+        android:text="District:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtCity" />
+
+    <TextView
+        android:id="@+id/txtCity"
+        style="@android:style/Widget.DeviceDefault.Light.TextView.SpinnerItem"
+        android:layout_width="85dp"
+        android:layout_height="26dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="64dp"
+        android:text="City:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtCountry" />
+
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:text="Delivery Address"
+        android:textSize="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtCountry"
+        style="@android:style/Widget.DeviceDefault.Light.TextView.SpinnerItem"
+        android:layout_width="85dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="60dp"
+        android:text="Country:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtTitle" />
+
+    <Button
+        android:id="@+id/btnSaveDeliveryInfo"
+        style="@style/Widget.Material3.ExtendedFloatingActionButton.Secondary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="116dp"
+        android:layout_marginEnd="160dp"
+        android:text="Save"
+        android:gravity="center"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edtAddress"
+        app:rippleColor="@color/design_default_color_secondary" />
+</androidx.constraintlayout.widget.ConstraintLayout>

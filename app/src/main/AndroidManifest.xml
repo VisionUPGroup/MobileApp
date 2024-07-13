@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -29,14 +31,18 @@
             android:exported="false"
             android:label="@string/title_activity_products" />
         <activity
-            android:name=".MainActivity"
+            android:name=".product.ui.order.OrderSummary"
+            android:exported="false" />
+
+        <activity android:name=".product.ui.notifications.NotificationsActivity"/>
+
+        <service
+            android:name=".product.ui.notifications.MyFirebaseMessagingService"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </activity>
-    </application>
+        </service>
 
+    </application>
 </manifest>
