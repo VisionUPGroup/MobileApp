@@ -15,35 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GlassProject"
         tools:targetApi="31">
+        <activity android:name=".product.ui.profile.ProfileActivity" />
 
-        <activity android:name=".product.ui.profile.ProfileActivity"/>
-        <activity android:name=".detail.SelectLensActivity"/>
         <activity
-            android:name=".product.ui.order.Payment"
-            android:exported="false" />
-        <activity
-            android:name=".product.ui.payment.PaymentStatus"
-            android:exported="true">
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-                <data android:host="visionup.id.vn"/>
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".product.ui.order.ShipInfo"
-            android:exported="false" />
+            android:name=".detail.EnterPrescriptionActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".detail.SelectLensActivity" />
+
         <activity
             android:name=".detail.DetailGlassActivity"
             android:exported="false"

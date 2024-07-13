@@ -41,16 +41,6 @@ public class ProductsActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
 
-        if (!hasUserDetails()) {
-            // Redirect to login activity if user details are not available
-            Log.d("ProductsActivity", "User details not found, redirecting to MainActivity");
-            Intent loginIntent = new Intent(this, MainActivity.class);
-            loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear back stack
-            startActivity(loginIntent);
-            finish();
-            return;
-        }
-
         setupNavigation();
 
         ImageView userIcon = findViewById(R.id.user_icon);
@@ -60,15 +50,6 @@ public class ProductsActivity extends AppCompatActivity {
                 launchProfileActivity();
             }
         });
-    }
-
-    private boolean hasUserDetails() {
-        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String id = sharedPreferences.getString("id", null);
-        String username = sharedPreferences.getString("username", null);
-        String email = sharedPreferences.getString("email", null);
-
-        return id != null && username != null && email != null;
     }
 
     private void setupNavigation() {
