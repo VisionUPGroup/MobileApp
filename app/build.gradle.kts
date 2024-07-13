@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.firestore)
+    implementation(libs.databinding.runtime)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
