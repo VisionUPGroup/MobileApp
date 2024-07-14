@@ -90,8 +90,6 @@ public class LoginFragment extends Fragment {
         btnGoogleLogin.setOnClickListener(v -> signIn());
         btnLogin.setOnClickListener(v -> login());
 
-
-
         return view;
     }
 
