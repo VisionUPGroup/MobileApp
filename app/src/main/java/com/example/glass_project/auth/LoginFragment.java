@@ -22,6 +22,7 @@ import com.example.glass_project.config.services.AuthServices;
 import com.example.glass_project.data.GoogleSignInCallback;
 import com.example.glass_project.data.model.Login;
 import com.example.glass_project.data.model.LoginResponse;
+import com.example.glass_project.data.model.request.RegisterRequest;
 import com.example.glass_project.product.ProductsActivity;
 import com.example.glass_project.product.ui.notifications.NotificationsActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -98,7 +99,7 @@ public class LoginFragment extends Fragment {
             @Override
             public void onGoogleSignInSuccess(String username, String email) {
                 // Handle Google sign in success
-                login(username, "123456");
+                login(username, "123456", email);
             }
 
             @Override
@@ -108,7 +109,7 @@ public class LoginFragment extends Fragment {
         }));
 
         // Set click listener for Email/Password login button
-        btnLogin.setOnClickListener(v -> login(username.toString(), password.toString())); // Handle login with email and password
+        btnLogin.setOnClickListener(v -> login(username.toString(), password.toString(), null));
 
         return view;
     }
@@ -120,6 +121,7 @@ public class LoginFragment extends Fragment {
         if (requestCode == RC_SIGN_IN) {
             try {
                 GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
+
                 if (account != null) {
                     String email = account.getEmail();
                     String displayName = account.getDisplayName();
@@ -153,13 +155,13 @@ public class LoginFragment extends Fragment {
         this.googleSignInCallback = callback;
     }
 
-    private void login(String email, String pass) {
-        if (email.isEmpty() || pass.isEmpty()) {
+    private void login(String username, String pass, String email) {
+        if (username.isEmpty() || pass.isEmpty()) {
             Toast.makeText(getActivity(), "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Login login = new Login(email, pass);
+        Login login = new Login(username, pass);
         apiService.login(login).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
@@ -170,7 +172,31 @@ public class LoginFragment extends Fragment {
                     saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
                     navigateToMainActivity();
                 } else {
-                    Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
+                    RegisterRequest registerRequest = new RegisterRequest(username, pass, email);
+
+                    register(registerRequest);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable throwable) {
+                Toast.makeText(getActivity(), "An error occurred: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void register(RegisterRequest registerRequest) {
+        apiService.register(registerRequest).enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(getActivity(), "Register successful", Toast.LENGTH_SHORT).show();
+                    LoginResponse loginResponse = response.body();
+
+                    saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
+                    navigateToMainActivity();
+                } else {
+                    Toast.makeText(getActivity(), "Register failed", Toast.LENGTH_SHORT).show();
                 }
             }
 

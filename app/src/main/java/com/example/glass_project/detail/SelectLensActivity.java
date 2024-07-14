@@ -3,6 +3,8 @@ package com.example.glass_project.detail;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -31,6 +33,7 @@ public class SelectLensActivity extends AppCompatActivity {
 
     private final List<LensType> lensTypeList = new ArrayList<>();
     private LensAdapter adapter;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,7 @@ public class SelectLensActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         RecyclerView recyclerView = findViewById(R.id.rv_select_lens);
+        progressBar = findViewById(R.id.progressBar);
 
         setSupportActionBar(toolbar);
 
@@ -57,6 +61,8 @@ public class SelectLensActivity extends AppCompatActivity {
     }
 
     private void fetchLensData() {
+        progressBar.setVisibility(View.VISIBLE);
+
         LensServices lensServices = LensRepositories.getLensServices();
 
         lensServices.getLensType().enqueue(new Callback<List<LensType>>() {
@@ -104,6 +110,7 @@ public class SelectLensActivity extends AppCompatActivity {
                         lensType.setLens(assignedLensList);
                     }
 
+                    progressBar.setVisibility(View.GONE);
                     adapter.notifyDataSetChanged();  // Update adapter with new data
                 } else {
                     Log.e("API Error", "Response unsuccessful or empty");
