@@ -20,15 +20,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Check if user session exists
-        if (hasUserDetails()) {
-            // Redirect to ProductsActivity if user details are available
-            Intent intent = new Intent(this, ProductsActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear back stack
-            startActivity(intent);
-            finish();
-            return;
-        }
 
         setContentView(R.layout.activity_main);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
@@ -50,12 +41,5 @@ public class MainActivity extends AppCompatActivity {
                 }).attach();
     }
 
-    private boolean hasUserDetails() {
-        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String id = sharedPreferences.getString("id", null);
-        String username = sharedPreferences.getString("username", null);
-        String email = sharedPreferences.getString("email", null);
 
-        return id != null && username != null && email != null;
-    }
 }
