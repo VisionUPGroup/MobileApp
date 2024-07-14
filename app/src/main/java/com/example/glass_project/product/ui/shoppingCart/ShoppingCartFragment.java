@@ -1,6 +1,7 @@
 package com.example.glass_project.product.ui.shoppingCart;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,7 @@ import com.example.glass_project.config.repositories.CartRepositories;
 import com.example.glass_project.config.services.CartServices;
 import com.example.glass_project.data.adapter.OrderDetailAdapter;
 import com.example.glass_project.databinding.FragmentShoppingCartBinding;
+import com.example.glass_project.product.ui.order.OrderSummary;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -86,9 +88,14 @@ public class ShoppingCartFragment extends Fragment {
                         binding.paymentDetailsBox.buttonProceedToCheckout.setOnClickListener(v -> {
                             // Proceed to checkout
                             Toast.makeText(getContext(), "Proceed to checkout", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(getContext(), OrderSummary.class);
+//                            intent.putExtra("totalPrice", grandTotal);
+                            startActivity(intent);
                         });
 
                         binding.textNoShoppingCart.setVisibility(View.GONE);
+
+
 
                         // Update payment details
                     } else {
