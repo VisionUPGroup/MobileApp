@@ -1,0 +1,17 @@
+<!-- notification_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Rounded corners -->
+    <corners android:radius="8dp" />
+
+    <!-- Gray background color -->
+    <solid android:color="#E0E0E0" /> <!-- You can adjust the color code as needed -->
+
+    <!-- Padding -->
+    <padding android:left="8dp"
+        android:top="8dp"
+        android:right="8dp"
+        android:bottom="8dp" />
+
+</shape>
