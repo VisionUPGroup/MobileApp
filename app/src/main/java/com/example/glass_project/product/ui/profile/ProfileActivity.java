@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -14,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
 import com.example.glass_project.databinding.ActivityProductsBinding;
+import com.example.glass_project.product.ui.order.history.ListOrderHistoryActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -32,6 +34,17 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+
+        TextView usernameView = findViewById(R.id.username);
+        TextView emailView = findViewById(R.id.email);
+        Button userOrdersButton = findViewById(R.id.user_order);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        String username = sharedPreferences.getString("username", "");
+        String email = sharedPreferences.getString("email", "");
+
+        usernameView.setText(username);
+        emailView.setText(email);
 
         setSupportActionBar(toolbar);
 
@@ -53,6 +66,11 @@ public class ProfileActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         logoutButton.setOnClickListener(v -> signOutAndStartSignInActivity());
+
+        userOrdersButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, ListOrderHistoryActivity.class);
+            startActivity(intent);
+        });
 
     }
 

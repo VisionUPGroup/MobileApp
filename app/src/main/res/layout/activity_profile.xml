@@ -13,31 +13,79 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="?attr/homeAsUpIndicator"
-        app:title=""
+        app:title="Your Profile"
         app:titleTextColor="@android:color/black" />
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:id="@+id/profile_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Your Profile"
-        android:textSize="16sp"
+        android:layout_marginTop="72dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        tools:ignore="HardcodedText,MissingConstraints" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        <ImageView
+            android:id="@+id/profile_image"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_gravity="center"
+            android:layout_margin="4dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:adjustViewBounds="true"
+            android:background="@drawable/circle"
+            android:contentDescription="profile_image"
+            android:cropToPadding="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/baseline_account_circle_24"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:text="Username"
+            android:textSize="20sp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="user@example.com"
+            android:textColor="@color/gray"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/user_order"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="User order"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/black"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_sign_out"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="596dp"
+        android:layout_marginTop="368dp"
         android:backgroundTint="@color/blue"
         android:text="Sign Out"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title"
+        app:layout_constraintTop_toBottomOf="@+id/profile_layout"
         tools:ignore="HardcodedText,MissingConstraints" />
 
 
