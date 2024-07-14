@@ -73,4 +73,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.google.auth:google-auth-library-oauth2-http:1.2.1")
+    implementation ("org.osmdroid:osmdroid-android:6.1.18")
+    implementation ("org.osmdroid:osmdroid-mapsforge:6.1.18")
+
 }
