@@ -90,12 +90,32 @@ public class LoginFragment extends Fragment {
         btnGoogleLogin.setOnClickListener(v -> signIn());
         btnLogin.setOnClickListener(v -> login());
 
+
+
         return view;
     }
 
-
+    private void signInWithEmail() {
+//        String email = etEmail.getText().toString().trim();
+//        String password = etPassword.getText().toString().trim();
+//
+//        if (email.equals("admin@mail.com") && password.equals("admin")) {
+//            Intent intent = new Intent(getActivity(), NotificationsActivity.class);
+//            startActivity(intent);
+//            requireActivity().finish();
+//        } else {
+//            auth.signInWithEmailAndPassword(email, password)
+//                    .addOnCompleteListener(requireActivity(), task -> {
+//                        if (task.isSuccessful()) {
+//                            FirebaseUser user = auth.getCurrentUser();
+//                            Toast.makeText(getActivity(), "Signed in as " + user.getEmail(), Toast.LENGTH_SHORT).show();
+//                            navigateToMainActivity();
+//                        } else {
+//                            Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//        }
     }
-
     private void login() {
         String email = username.getText().toString();
         String pass = password.getText().toString();

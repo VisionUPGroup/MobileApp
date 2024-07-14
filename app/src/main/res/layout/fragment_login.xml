@@ -93,11 +93,10 @@
             android:id="@+id/btnGoogleLogin"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/white"
-            android:shadowColor="@color/blue"
+            android:backgroundTint="@color/black"
             android:drawableLeft="@drawable/google_logo"
             android:text="Sign in by Google"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             tools:ignore="HardcodedText,RtlHardcoded" />
 
     </LinearLayout>
