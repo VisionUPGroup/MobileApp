@@ -17,6 +17,7 @@
         android:theme="@style/Theme.GlassProject"
         tools:targetApi="31">
         <activity android:name=".product.ui.profile.ProfileActivity" />
+        <activity android:name=".product.ProductsActivity" />
 
         <activity
             android:name=".detail.EnterPrescriptionActivity"
@@ -42,10 +43,6 @@
             android:name=".product.ui.order.OrderSummary"
             android:exported="false" />
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-        
 
         <activity android:name=".product.ui.notifications.NotificationsActivity" />
 
@@ -56,7 +53,7 @@
             <!--            <intent-filter>-->
             <!--                <action android:name="com.google.firebase.MESSAGING_EVENT" />-->
             <!--            </intent-filter>-->
-         
+
         </service>
 
     </application>
