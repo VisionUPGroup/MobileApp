@@ -25,7 +25,20 @@
             android:textColorHint="@color/hintText"
             tools:ignore="Autofill,HardcodedText,TouchTargetSizeCheck,TextContrastCheck" />
 
-        <!-- Password EditText -->
+        <!-- Username EditText -->
+        <EditText
+            android:id="@+id/editUsername"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/edit_text_background"
+            android:inputType="text"
+            android:ems="10"
+            android:hint="Username"
+            android:padding="10dp"
+            android:textColorHint="@color/hintText"
+            tools:ignore="Autofill,HardcodedText,TouchTargetSizeCheck,TextContrastCheck,VisualLintOverlap" />
+
         <EditText
             android:id="@+id/editPassword"
             android:layout_width="300dp"
@@ -39,22 +52,8 @@
             android:textColorHint="@color/hintText"
             tools:ignore="Autofill,HardcodedText,TouchTargetSizeCheck,TextContrastCheck,VisualLintOverlap" />
 
-        <EditText
-            android:id="@+id/editConfirmPassword"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/edit_text_background"
-            android:ems="10"
-            android:hint="Confirm password"
-            android:inputType="textPassword"
-            android:padding="10dp"
-            android:textColorHint="@color/hintText"
-            tools:ignore="Autofill,HardcodedText,TouchTargetSizeCheck,TextContrastCheck,VisualLintOverlap" />
-
-
         <Button
-            android:id="@+id/button"
+            android:id="@+id/btn_sign_up"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
@@ -102,10 +101,10 @@
             android:id="@+id/btnGoogleLogin"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="@color/black"
             android:drawableLeft="@drawable/google_logo"
-            android:text="Sign in by Google"
-            android:textColor="@color/black"
+            android:text="Sign up by Google"
+            android:textColor="@color/white"
             tools:ignore="HardcodedText,RtlHardcoded" />
 
     </LinearLayout>
