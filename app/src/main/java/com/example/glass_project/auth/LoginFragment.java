@@ -44,7 +44,6 @@ public class LoginFragment extends Fragment {
 
     private static final int RC_SIGN_IN = 9001;
     private FirebaseAuth auth;
-    private EditText etEmail, etPassword;
     private EditText username, password;
     private AuthServices apiService;
 
@@ -94,34 +93,9 @@ public class LoginFragment extends Fragment {
         btnGoogleLogin.setOnClickListener(v -> signIn());
         btnLogin.setOnClickListener(v -> login());
 
-        etEmail = view.findViewById(R.id.editTextTextEmailAddress);
-        etPassword = view.findViewById(R.id.editTextTextPassword);
-
-        Button btnEmailLogin = view.findViewById(R.id.button);
-        btnEmailLogin.setOnClickListener(v -> signInWithEmail());
         return view;
     }
-    private void signInWithEmail() {
-        String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
 
-        if (email.equals("admin@mail.com") && password.equals("admin")) {
-            Intent intent = new Intent(getActivity(), NotificationsActivity.class);
-            startActivity(intent);
-            requireActivity().finish();
-        } else {
-            auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(requireActivity(), task -> {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = auth.getCurrentUser();
-                            Toast.makeText(getActivity(), "Signed in as " + user.getEmail(), Toast.LENGTH_SHORT).show();
-                            navigateToMainActivity();
-                        } else {
-                            Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
-    }
     private void login() {
         String email = username.getText().toString();
         String pass = password.getText().toString();

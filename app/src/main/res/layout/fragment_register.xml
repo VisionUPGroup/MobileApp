@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
     tools:context=".auth.RegisterFragment">
 
     <LinearLayout
@@ -78,7 +77,7 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="@color/white" />
+                android:background="@color/black" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -86,7 +85,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="OR"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
@@ -95,7 +94,7 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="@color/white" />
+                android:background="@color/black" />
 
         </LinearLayout>
 
