@@ -36,16 +36,6 @@ public class ProductsActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
-        // Check if user session exists
-        if (!hasUserDetails()) {
-            // Redirect to ProductsActivity if user details are available
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear back stack
-            startActivity(intent);
-            finish();
-            return;
-        }
-
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -83,14 +73,7 @@ public class ProductsActivity extends AppCompatActivity {
         startActivity(profileIntent);
     }
 
-    private boolean hasUserDetails() {
-        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String id = sharedPreferences.getString("id", null);
-        String username = sharedPreferences.getString("username", null);
-        String email = sharedPreferences.getString("email", null);
 
-        return id != null && username != null && email != null;
-    }
 
 
 }
