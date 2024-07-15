@@ -6,7 +6,7 @@
     <corners android:radius="8dp" />
 
     <!-- Gray background color -->
-    <solid android:color="#E0E0E0" /> <!-- You can adjust the color code as needed -->
+    <solid android:color="#E8E8E8" /> <!-- You can adjust the color code as needed -->
 
     <!-- Padding -->
     <padding android:left="8dp"

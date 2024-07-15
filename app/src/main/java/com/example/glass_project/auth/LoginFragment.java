@@ -24,7 +24,6 @@ import com.example.glass_project.data.model.Login;
 import com.example.glass_project.data.model.LoginResponse;
 import com.example.glass_project.data.model.request.RegisterRequest;
 import com.example.glass_project.product.ProductsActivity;
-import com.example.glass_project.product.ui.notifications.NotificationsActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -33,12 +32,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -194,11 +187,6 @@ public class LoginFragment extends Fragment {
             Toast.makeText(getActivity(), "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (username.equals("admin") && pass.equals("admin")) {
-            // Navigate to NotificationsActivity
-            Intent intent = new Intent(getActivity(), NotificationsActivity.class);
-            startActivity(intent);
-        } else {
 
         Login login = new Login(username, pass);
         apiService.login(login).enqueue(new Callback<LoginResponse>() {
@@ -216,17 +204,15 @@ public class LoginFragment extends Fragment {
                     Log.d("LoginFragment", "Login successful: " + loginResponse.getUsername() + " " + loginResponse.getEmail() + " " + loginResponse.getId());
 
                     saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
-                    saveDeviceTokenToFirestore(loginResponse.getEmail());
                     navigateToMainActivity();
                 }
             }
 
-                @Override
-                public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable throwable) {
-                    Toast.makeText(getActivity(), "An error occurred: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+            @Override
+            public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable throwable) {
+                Toast.makeText(getActivity(), "An error occurred: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void register(RegisterRequest registerRequest) {
@@ -251,54 +237,117 @@ public class LoginFragment extends Fragment {
         });
     }
 
+
+    // Method to initiate Google sign in flow
+//    private void signIn(GoogleSignInCallback callback) {
+//        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+////                .requestIdToken(getString(R.string.default_web_client_id))
+//                .requestEmail()
+//                .build();
+//
+//        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
+//        Intent signInIntent = googleSignInClient.getSignInIntent();
+//        startActivityForResult(signInIntent, RC_SIGN_IN);
+//
+//        // Save the callback to handle Google sign in result
+//        this.googleSignInCallback = callback;
+//    }
+
+    // Handle Google sign in result
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == RC_SIGN_IN) {
+//            try {
+//                GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
+//                if (account != null) {
+//                    firebaseAuthWithGoogle(account.getIdToken()); // Authenticate with Firebase using Google credentials
+//                    if (googleSignInCallback != null) {
+//                        googleSignInCallback.onGoogleSignInSuccess(account.getDisplayName(), account.getEmail()); // Callback on success
+//                    }
+//                }
+//            } catch (ApiException e) {
+//                Toast.makeText(getActivity(), "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                if (googleSignInCallback != null) {
+//                    googleSignInCallback.onGoogleSignInFailure("Google sign in failed"); // Callback on failure
+//                }
+//            }
+//        }
+//    }
+
+//    // Authenticate with Firebase using Google credentials
+//    private void firebaseAuthWithGoogle(String idToken) {
+//        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+//        auth.signInWithCredential(credential)
+//                .addOnCompleteListener(requireActivity(), task -> {
+//                    if (task.isSuccessful()) {
+//                        FirebaseUser user = auth.getCurrentUser();
+//                        Toast.makeText(getActivity(), "Signed in as " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+//
+//                        // Save DEVICE_TOKEN to Firestore
+////                        saveDeviceTokenToFirestore(user.getUid());
+//
+//                        navigateToMainActivity();
+//                    } else {
+//                        Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//    }
+
+    // Handle login with email and password
+
     // Save FCM token to Firestore
-    private void saveDeviceTokenToFirestore(String userId) {
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        Log.w("LoginFragment", "Fetching FCM registration token failed", task.getException());
-                        return;
-                    }
+//    private void saveDeviceTokenToFirestore(String userId) {
+//        FirebaseMessaging.getInstance().getToken()
+//                .addOnCompleteListener(task -> {
+//                    if (!task.isSuccessful()) {
+//                        Log.w("LoginFragment", "Fetching FCM registration token failed", task.getException());
+//                        return;
+//                    }
+//
+//                    String token = task.getResult();
+//                    if (token != null) {
+//                        Query query = db.collection("DeviceToken").whereEqualTo("token", token).limit(1);
+//                        query.get().addOnCompleteListener(queryTask -> {
+//                            if (queryTask.isSuccessful()) {
+//                                QuerySnapshot snapshot = queryTask.getResult();
+//                                if (snapshot != null && !snapshot.isEmpty()) {
+//                                    Log.d("LoginFragment", "Device token already exists in Firestore");
+//                                } else {
+//                                    Map<String, Object> tokenData = new HashMap<>();
+//                                    tokenData.put("token", token);
+//
+//                                    db.collection("DeviceToken").document(userId)
+//                                            .set(tokenData)
+//                                            .addOnSuccessListener(aVoid -> Log.d("LoginFragment", "Device token saved to Firestore"))
+//                                            .addOnFailureListener(e -> Log.e("LoginFragment", "Failed to save device token: " + e.getMessage()));
+//                                }
+//                            } else {
+//                                Log.e("LoginFragment", "Error checking device token existence: ", queryTask.getException());
+//                            }
+//                        });
+//                    } else {
+//                        Log.e("LoginFragment", "FCM token is null");
+//                    }
+//                });
+//    }
 
-                    String token = task.getResult();
-                    if (token != null) {
-                        Query query = db.collection("DeviceToken").whereEqualTo("token", token).limit(1);
-                        query.get().addOnCompleteListener(queryTask -> {
-                            if (queryTask.isSuccessful()) {
-                                QuerySnapshot snapshot = queryTask.getResult();
-                                if (snapshot != null && !snapshot.isEmpty()) {
-                                    Log.d("LoginFragment", "Device token already exists in Firestore");
-                                } else {
-                                    Map<String, Object> tokenData = new HashMap<>();
-                                    tokenData.put("token", token);
-
-                                    db.collection("DeviceToken").document(userId)
-                                            .set(tokenData)
-                                            .addOnSuccessListener(aVoid -> Log.d("LoginFragment", "Device token saved to Firestore"))
-                                            .addOnFailureListener(e -> Log.e("LoginFragment", "Failed to save device token: " + e.getMessage()));
-                                }
-                            } else {
-                                Log.e("LoginFragment", "Error checking device token existence: ", queryTask.getException());
-                            }
-                        });
-                    } else {
-                        Log.e("LoginFragment", "FCM token is null");
-                    }
-                });
+    // Navigate to main activity
+    private void navigateToMainActivity() {
+        Log.d("LoginFragment", "Navigating to ProductsActivity");
+        Intent intent = new Intent(getActivity(), ProductsActivity.class);
+        startActivity(intent);
+        requireActivity().finish();
     }
 
-    private void saveUserDetails(String userId, String username, String email) {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_details", Context.MODE_PRIVATE);
+    // Save user details to SharedPreferences
+    private void saveUserDetails(String id, String username, String email) {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("userId", userId);
+        editor.putString("id", id);
         editor.putString("username", username);
         editor.putString("email", email);
         editor.apply();
-    }
-
-    private void navigateToMainActivity() {
-        Intent intent = new Intent(getActivity(), ProductsActivity.class);
-        startActivity(intent);
-        getActivity().finish();
     }
 }

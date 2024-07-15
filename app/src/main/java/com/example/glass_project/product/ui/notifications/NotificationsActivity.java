@@ -11,16 +11,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.glass_project.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class NotificationsActivity extends AppCompatActivity {
@@ -39,6 +40,7 @@ public class NotificationsActivity extends AppCompatActivity {
         etMessage = findViewById(R.id.etNotificationMessage);
         btnSendNotification = findViewById(R.id.btnSendNotification);
         db = FirebaseFirestore.getInstance();
+
         btnSendNotification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,56 +58,43 @@ public class NotificationsActivity extends AppCompatActivity {
             return;
         }
 
-        // Define API endpoint
-        String apiUrl = "https://visionup.azurewebsites.net/api/Notification/send";
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URL url = new URL(apiUrl);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Content-Type", "application/json");
-                    conn.setDoOutput(true);
-
-                    // Create JSON object with title and body
-                    JSONObject jsonInput = new JSONObject();
-                    jsonInput.put("title", title);
-                    jsonInput.put("body", message);
-
-                    // Write JSON data to output stream
-                    try (OutputStream os = conn.getOutputStream()) {
-                        byte[] input = jsonInput.toString().getBytes("utf-8");
-                        os.write(input, 0, input.length);
-                    }
-
-                    // Check response code
-                    int responseCode = conn.getResponseCode();
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        // Read response body
-                        String responseBody = conn.getResponseMessage();
-                        //saveNotificationToFirestore(title, message, timestamp);
-                        Log.d("NotificationsActivity", "Response body: " + responseBody);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(NotificationsActivity.this, "Notification sent successfully", Toast.LENGTH_SHORT).show();
+        // Lấy tất cả device tokens từ Firestore
+        db.collection("DeviceToken")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<String> deviceTokens = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                deviceTokens.add(document.getString("token"));
                             }
-                        });
-                    } else {
-                        Log.e("NotificationsActivity", "Failed to send notification. Response code: " + responseCode);
-                        showErrorToast("Failed to send notification. Response code: " + responseCode);
+                            // Gửi thông báo đến từng device token
+                            for (String token : deviceTokens) {
+                                sendNotificationToDevice(token, title, message);
+                            }
+                            //saveNotificationToFirestore(title, message, timestamp);
+                        } else {
+                            Log.w("NotificationsActivity", "Error getting documents.", task.getException());
+                            Toast.makeText(NotificationsActivity.this, "Error getting device tokens", Toast.LENGTH_SHORT).show();
+                        }
                     }
+                });
+    }
 
-                    conn.disconnect();
-                } catch (IOException | JSONException e) {
-                    Log.e("NotificationsActivity", "Error sending notification: " + e.getMessage());
-                    showErrorToast("Error sending notification: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+    private void sendNotificationToDevice(String token, String title, String message) {
+        FirebaseMessaging fm = FirebaseMessaging.getInstance();
+        RemoteMessage.Builder messageBuilder = new RemoteMessage.Builder(token)
+                .setMessageId(Integer.toString(getMessageId()))
+                .addData("title", title)
+                .addData("message", message);
+
+        fm.send(messageBuilder.build());
+    }
+
+    private static int msgId = 0;
+    private static int getMessageId() {
+        return msgId++;
     }
 
     private void saveNotificationToFirestore(String title, String message, long timestamp) {
