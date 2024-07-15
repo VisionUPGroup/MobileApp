@@ -1,6 +1,6 @@
 package com.example.glass_project.data.model;
 
-import com.example.glass_project.model.OrderDetail;
+import com.example.glass_project.DTO.OrderDetailDTO.OrderDetailDTO;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,9 +18,9 @@ public class OrderHistoryItem {
     private String code;
     private double total;
     private int process; // Process status enum or integer
-    private List<OrderDetail> orderDetails; // List of order details
+    private List<OrderDetailDTO> orderDetails; // List of order details
 
-    public OrderHistoryItem(int id, int accountID, String orderDate, boolean status, String senderAddress, String receiverAddress, String code, double total, int process, List<OrderDetail> orderDetails) {
+    public OrderHistoryItem(int id, int accountID, String orderDate, boolean status, String senderAddress, String receiverAddress, String code, double total, int process, List<OrderDetailDTO> orderDetails) {
         this.id = id;
         this.accountID = accountID;
         this.orderDate = orderDate;
@@ -105,11 +105,11 @@ public class OrderHistoryItem {
         this.process = process;
     }
 
-    public List<OrderDetail> getOrderDetails() {
+    public List<OrderDetailDTO> getOrderDetails() {
         return orderDetails;
     }
 
-    public void setOrderDetails(List<OrderDetail> orderDetails) {
+    public void setOrderDetails(List<OrderDetailDTO> orderDetails) {
         this.orderDetails = orderDetails;
     }
 

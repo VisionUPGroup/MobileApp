@@ -12,14 +12,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.glass_project.DTO.OrderDetailDTO.OrderDetailDTO;
 import com.example.glass_project.R;
 import com.example.glass_project.data.model.OrderHistoryItem;
-import com.example.glass_project.model.OrderDetail;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class OrderHistoryAdapter extends ArrayAdapter<OrderHistoryItem> {
 
@@ -60,10 +62,9 @@ public class OrderHistoryAdapter extends ArrayAdapter<OrderHistoryItem> {
             textViewSenderAddress.setText("Sender Address: " + currentItem.getSenderAddress());
             textViewReceiverAddress.setText("Receiver Address: " + currentItem.getReceiverAddress());
             textViewCode.setText("Code: " + currentItem.getCode());
-            textViewTotal.setText("Total: " + currentItem.getTotal());
+            textViewTotal.setText("Total: " + formatCurrency(currentItem.getTotal()) + " VND");
             textViewProcess.setText("Process: " + formatProcess(currentItem.getProcess()));
-            textViewOrderDetails.setText("Order Details: " + formatOrderDetails(currentItem.getOrderDetails()));
-            // Set other TextViews or views based on your OrderHistoryItem fields
+            textViewOrderDetails.setText(formatOrderDetails(currentItem.getOrderDetails()));
 
             // Set color based on process status
             int color = getColorForProcess(currentItem.getProcess());
@@ -104,13 +105,15 @@ public class OrderHistoryAdapter extends ArrayAdapter<OrderHistoryItem> {
         }
     }
 
-    private String formatOrderDetails(List<OrderDetail> orderDetails) {
+    private String formatOrderDetails(List<OrderDetailDTO> orderDetails) {
         StringBuilder details = new StringBuilder();
-        for (OrderDetail detail : orderDetails) {
+        for (OrderDetailDTO detail : orderDetails) {
             details.append("\n")
-                    .append("ID: ").append(detail.getId())
-                    .append(", Product ID: ").append(detail.getProductGlassId())
-                    .append(", Quantity: ").append(detail.getQuantity());
+                    .append("Eye Glass Name: ").append(detail.getEyeGlassName()).append("\n")
+                    .append("Eye Glass Price: ").append(formatCurrency(detail.getEyeGlassPrice())).append(" VND\n")
+                    .append("Lens Name: ").append(detail.getLensName()).append("\n")
+                    .append("Lens Price: ").append(formatCurrency(detail.getLensPrice())).append(" VND\n")
+                    .append("Quantity: ").append(detail.getQuantity()).append("\n");
         }
         return details.toString();
     }
@@ -133,5 +136,10 @@ public class OrderHistoryAdapter extends ArrayAdapter<OrderHistoryItem> {
             default:
                 return Color.BLACK; // Default color
         }
+    }
+
+    private String formatCurrency(double amount) {
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        return formatter.format(amount).replace(NumberFormat.getCurrencyInstance().getCurrency().getSymbol(), "").trim();
     }
 }

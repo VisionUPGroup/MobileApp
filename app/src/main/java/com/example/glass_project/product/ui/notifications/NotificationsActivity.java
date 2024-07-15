@@ -57,7 +57,7 @@ public class NotificationsActivity extends AppCompatActivity {
         }
 
         // Define API endpoint
-        String apiUrl = "https://localhost:7100/api/Notification/send";
+        String apiUrl = "https://visionup.azurewebsites.net/api/Notification/send";
 
         new Thread(new Runnable() {
             @Override

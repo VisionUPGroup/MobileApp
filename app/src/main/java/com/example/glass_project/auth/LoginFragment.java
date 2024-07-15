@@ -23,16 +23,13 @@ import com.example.glass_project.data.GoogleSignInCallback;
 import com.example.glass_project.data.model.Login;
 import com.example.glass_project.data.model.LoginResponse;
 import com.example.glass_project.product.ProductsActivity;
-import com.example.glass_project.product.ui.notifications.NotificationsActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -168,6 +165,7 @@ public class LoginFragment extends Fragment {
                     LoginResponse loginResponse = response.body();
 
                     saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
+                    saveDeviceTokenToFirestore(loginResponse.getEmail());
                     navigateToMainActivity();
                 } else {
                     Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
@@ -242,40 +240,40 @@ public class LoginFragment extends Fragment {
     // Handle login with email and password
 
     // Save FCM token to Firestore
-//    private void saveDeviceTokenToFirestore(String userId) {
-//        FirebaseMessaging.getInstance().getToken()
-//                .addOnCompleteListener(task -> {
-//                    if (!task.isSuccessful()) {
-//                        Log.w("LoginFragment", "Fetching FCM registration token failed", task.getException());
-//                        return;
-//                    }
-//
-//                    String token = task.getResult();
-//                    if (token != null) {
-//                        Query query = db.collection("DeviceToken").whereEqualTo("token", token).limit(1);
-//                        query.get().addOnCompleteListener(queryTask -> {
-//                            if (queryTask.isSuccessful()) {
-//                                QuerySnapshot snapshot = queryTask.getResult();
-//                                if (snapshot != null && !snapshot.isEmpty()) {
-//                                    Log.d("LoginFragment", "Device token already exists in Firestore");
-//                                } else {
-//                                    Map<String, Object> tokenData = new HashMap<>();
-//                                    tokenData.put("token", token);
-//
-//                                    db.collection("DeviceToken").document(userId)
-//                                            .set(tokenData)
-//                                            .addOnSuccessListener(aVoid -> Log.d("LoginFragment", "Device token saved to Firestore"))
-//                                            .addOnFailureListener(e -> Log.e("LoginFragment", "Failed to save device token: " + e.getMessage()));
-//                                }
-//                            } else {
-//                                Log.e("LoginFragment", "Error checking device token existence: ", queryTask.getException());
-//                            }
-//                        });
-//                    } else {
-//                        Log.e("LoginFragment", "FCM token is null");
-//                    }
-//                });
-//    }
+    private void saveDeviceTokenToFirestore(String userId) {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("LoginFragment", "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+
+                    String token = task.getResult();
+                    if (token != null) {
+                        Query query = db.collection("DeviceToken").whereEqualTo("token", token).limit(1);
+                        query.get().addOnCompleteListener(queryTask -> {
+                            if (queryTask.isSuccessful()) {
+                                QuerySnapshot snapshot = queryTask.getResult();
+                                if (snapshot != null && !snapshot.isEmpty()) {
+                                    Log.d("LoginFragment", "Device token already exists in Firestore");
+                                } else {
+                                    Map<String, Object> tokenData = new HashMap<>();
+                                    tokenData.put("token", token);
+
+                                    db.collection("DeviceToken").document(userId)
+                                            .set(tokenData)
+                                            .addOnSuccessListener(aVoid -> Log.d("LoginFragment", "Device token saved to Firestore"))
+                                            .addOnFailureListener(e -> Log.e("LoginFragment", "Failed to save device token: " + e.getMessage()));
+                                }
+                            } else {
+                                Log.e("LoginFragment", "Error checking device token existence: ", queryTask.getException());
+                            }
+                        });
+                    } else {
+                        Log.e("LoginFragment", "FCM token is null");
+                    }
+                });
+    }
 
     // Navigate to main activity
     private void navigateToMainActivity() {
