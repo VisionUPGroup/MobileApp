@@ -9,12 +9,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.glass_project.R;
@@ -40,6 +42,8 @@ public class RegisterFragment extends Fragment {
     private AuthServices authServices;
     private GoogleSignInClient googleSignInClient;
     private GoogleSignInCallback googleSignInCallback;
+    private ImageView imgTogglePassword;
+    private boolean isPasswordVisible = false;
 
     public RegisterFragment() {
         // Required empty public constructor
@@ -71,10 +75,12 @@ public class RegisterFragment extends Fragment {
 
         Button register = view.findViewById(R.id.btn_sign_up);
         Button registerGoogle = view.findViewById(R.id.btnGoogleLogin);
+        imgTogglePassword = view.findViewById(R.id.imgTogglePassword);
 
         username = view.findViewById(R.id.editUsername);
         password = view.findViewById(R.id.editPassword);
         EditText email = view.findViewById(R.id.editEmailAddress);
+        imgTogglePassword.setOnClickListener(v -> togglePasswordVisibility());
 
         register.setOnClickListener(v -> registerUser(username.getText().toString(), password.getText().toString(), email.getText().toString()));
         registerGoogle.setOnClickListener(v -> registerGoogleUser(new GoogleSignInCallback() {
@@ -90,6 +96,18 @@ public class RegisterFragment extends Fragment {
         }));
 
         return view;
+    }
+
+    private void togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            imgTogglePassword.setImageResource(R.drawable.baseline_remove_red_eye_24);
+        } else {
+            password.setInputType(InputType.TYPE_CLASS_TEXT);
+            imgTogglePassword.setImageResource(R.drawable.eye_open); // Add an icon for eye off
+        }
+        isPasswordVisible = !isPasswordVisible;
+        password.setSelection(password.length()); // Move the cursor to the end
     }
 
     @Override

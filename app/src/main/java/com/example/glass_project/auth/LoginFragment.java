@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -50,9 +52,11 @@ public class LoginFragment extends Fragment {
     private FirebaseAuth auth;
     private EditText username, password;
     private AuthServices apiService;
-    private FirebaseFirestore db;
     private GoogleSignInClient googleSignInClient;
-    private GoogleSignInCallback googleSignInCallback; // Callback for Google sign in
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private GoogleSignInCallback googleSignInCallback;
+    private ImageView imgTogglePassword;
+    private boolean isPasswordVisible = false;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -68,7 +72,7 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db = FirebaseFirestore.getInstance(); // Initialize Firebase Firestore instance
+
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
 
@@ -88,9 +92,11 @@ public class LoginFragment extends Fragment {
 
         username = view.findViewById(R.id.editTextTextEmailAddress);
         password = view.findViewById(R.id.editTextTextPassword);
+        imgTogglePassword = view.findViewById(R.id.imgTogglePassword);
 
         Button btnLogin = view.findViewById(R.id.button);
         Button btnGoogleLogin = view.findViewById(R.id.btnGoogleLogin);
+        imgTogglePassword.setOnClickListener(v -> togglePasswordVisibility());
 
         // Set click listener for Google login button
         btnGoogleLogin.setOnClickListener(v -> loginWithGoogle(new GoogleSignInCallback() {
@@ -113,6 +119,18 @@ public class LoginFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            imgTogglePassword.setImageResource(R.drawable.baseline_remove_red_eye_24);
+        } else {
+            password.setInputType(InputType.TYPE_CLASS_TEXT);
+            imgTogglePassword.setImageResource(R.drawable.eye_open); // Add an icon for eye off
+        }
+        isPasswordVisible = !isPasswordVisible;
+        password.setSelection(password.length()); // Move the cursor to the end
     }
 
     @Override
