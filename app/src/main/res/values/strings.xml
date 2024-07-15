@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">Glass-Project</string>
+    <string name="app_name">VisionUP</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_products">ProductsActivity</string>
+    <string name="title_activity_products">VisionUp</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
@@ -62,4 +62,6 @@
     <string name="gland_total">Gland Total</string>
     <string name="shipment_cost">Shipment cost</string>
     <string name="vnd">VND</string>
+    <string name="select_user">Select User</string>
+    <string name="app_name1">App Name</string>
 </resources>

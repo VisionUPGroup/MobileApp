@@ -7,7 +7,7 @@ public class OrderDetail implements Serializable {
 
     private int orderId;
 
-    private int productGlassId;
+    private int productGlassID;
 
     private int quantity;
 
@@ -16,7 +16,7 @@ public class OrderDetail implements Serializable {
     public OrderDetail(int id, int orderId, int productGlassId, int quantity, boolean status) {
         this.id = id;
         this.orderId = orderId;
-        this.productGlassId = productGlassId;
+        this.productGlassID = productGlassId;
         this.quantity = quantity;
         this.status = status;
     }
@@ -39,11 +39,11 @@ public class OrderDetail implements Serializable {
     }
 
     public int getProductGlassId() {
-        return productGlassId;
+        return productGlassID;
     }
 
     public void setProductGlassId(int productGlassId) {
-        this.productGlassId = productGlassId;
+        this.productGlassID = productGlassId;
     }
 
     public int getQuantity() {
