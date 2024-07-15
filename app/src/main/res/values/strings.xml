@@ -62,4 +62,6 @@
     <string name="gland_total">Gland Total</string>
     <string name="shipment_cost">Shipment cost</string>
     <string name="vnd">VND</string>
+    <string name="select_user">Select User</string>
+    <string name="app_name1">App Name</string>
 </resources>
