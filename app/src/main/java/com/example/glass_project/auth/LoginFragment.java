@@ -107,7 +107,10 @@ public class LoginFragment extends Fragment {
         }));
 
         // Set click listener for Email/Password login button
-        btnLogin.setOnClickListener(v -> login(username.getText().toString(), password.getText().toString(), null));
+        btnLogin.setOnClickListener(v -> {
+
+            login(username.getText().toString(), password.getText().toString(), "");
+        });
 
         return view;
     }
@@ -153,6 +156,39 @@ public class LoginFragment extends Fragment {
         this.googleSignInCallback = callback;
     }
 
+    private void loginAccount(String username, String password) {
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(getActivity(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Login login = new Login(username, password);
+
+        Call<LoginResponse> call = apiService.login(login);
+
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
+                LoginResponse loginResponse = response.body();
+
+                if (response.isSuccessful() && loginResponse != null) {
+                    Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
+                    saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
+                    navigateToMainActivity();
+                } else {
+                    Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable throwable) {
+                Toast.makeText(getActivity(), "An error occurred: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+
     private void login(String username, String pass, String email) {
         if (username.isEmpty() || pass.isEmpty()) {
             Toast.makeText(getActivity(), "Please fill all fields", Toast.LENGTH_SHORT).show();
@@ -163,22 +199,27 @@ public class LoginFragment extends Fragment {
             Intent intent = new Intent(getActivity(), NotificationsActivity.class);
             startActivity(intent);
         } else {
-            Login login = new Login(username, pass);
-            apiService.login(login).enqueue(new Callback<LoginResponse>() {
-                @Override
-                public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
-                        LoginResponse loginResponse = response.body();
 
-                        saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
-                        saveDeviceTokenToFirestore(loginResponse.getEmail());
-                        navigateToMainActivity();
-                    } else {
-                        RegisterRequest registerRequest = new RegisterRequest(username, pass, email);
-                        register(registerRequest);
-                    }
+        Login login = new Login(username, pass);
+        apiService.login(login).enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
+                if (!response.isSuccessful() && response.body() == null) {
+                    RegisterRequest registerRequest = new RegisterRequest(username, pass, email);
+
+                    register(registerRequest);
                 }
+
+                if (response.body() != null && response.isSuccessful()) {
+                    Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
+                    LoginResponse loginResponse = response.body();
+                    Log.d("LoginFragment", "Login successful: " + loginResponse.getUsername() + " " + loginResponse.getEmail() + " " + loginResponse.getId());
+
+                    saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
+                    saveDeviceTokenToFirestore(loginResponse.getEmail());
+                    navigateToMainActivity();
+                }
+            }
 
                 @Override
                 public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable throwable) {

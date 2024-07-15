@@ -17,67 +17,68 @@
 
         <TextView
             android:id="@+id/textSubtotal"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:text="@string/subtotal"
             android:textSize="16sp"
-            app:layout_constraintEnd_toStartOf="@+id/textSubtotalValue"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textSubtotalValue"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:text="@string/vnd"
             android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/textShipmentCostValue"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textSubtotal" />
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/textSubtotal"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textShipmentCost"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:text="@string/shipment_cost"
             android:textSize="16sp"
-            app:layout_constraintEnd_toStartOf="@+id/textShipmentCostValue"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textSubtotal" />
 
         <TextView
             android:id="@+id/textShipmentCostValue"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginStart="198dp"
             android:text="@string/vnd"
             android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/textGrandTotalValue"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/textShipmentCost"
             app:layout_constraintTop_toTopOf="@+id/textShipmentCost" />
 
         <TextView
             android:id="@+id/textGrandTotal"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="@string/gland_total"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/textGrandTotalValue"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textShipmentCost" />
 
         <TextView
             android:id="@+id/textGrandTotalValue"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:text="@string/vnd"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/textGrandTotal"
             app:layout_constraintTop_toTopOf="@+id/textGrandTotal" />
 
         <Button

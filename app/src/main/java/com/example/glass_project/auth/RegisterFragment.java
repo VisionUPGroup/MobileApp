@@ -113,7 +113,7 @@ public class RegisterFragment extends Fragment {
                 }
             } catch (ApiException e) {
                 Log.w("RegisterFragment", "Google sign in failed", e);
-                Toast.makeText(getActivity(), "Google sign in failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Registered account already exists", Toast.LENGTH_SHORT).show();
                 // Gọi callback với lỗi đăng nhập
                 if (googleSignInCallback != null) {
                     googleSignInCallback.onGoogleSignInFailure("Google sign in failed");

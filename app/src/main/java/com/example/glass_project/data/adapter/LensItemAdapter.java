@@ -18,7 +18,9 @@ import com.example.glass_project.R;
 import com.example.glass_project.data.model.Lens;
 import com.example.glass_project.detail.EnterPrescriptionActivity;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class LensItemAdapter extends RecyclerView.Adapter<LensItemAdapter.ViewHolder> {
     private final Context context;
@@ -40,11 +42,12 @@ public class LensItemAdapter extends RecyclerView.Adapter<LensItemAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Lens lens = lensList.get(position);
-        Log.i("Lens Item", "Data: " + lens.getLensName() + " " + lens.getLensDescription() + " " + lens.getLensPrice());
 
         holder.tvName.setText(lens.getLensName());
         holder.tvDescription.setText(lens.getLensDescription());
-        holder.tvPrice.setText("$" + lens.getLensPrice());
+
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+        holder.tvPrice.setText(formatter.format(lens.getLensPrice()) + " VND");
 
         holder.constraint.setOnClickListener(v -> {
             Log.i("Lens Item", "Clicked: " + lens.getLensName());
