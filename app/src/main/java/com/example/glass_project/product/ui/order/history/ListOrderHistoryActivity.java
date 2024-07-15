@@ -1,9 +1,12 @@
 package com.example.glass_project.product.ui.order.history;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -38,22 +41,27 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
         orderHistoryItems = new ArrayList<>();
         orderHistoryAdapter = new OrderHistoryAdapter(this, orderHistoryItems);
         listViewOrderHistory.setAdapter(orderHistoryAdapter);
+        TextView textViewEmpty = findViewById(R.id.textViewEmpty);
+        // Get accountId from SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("user_details", Context.MODE_PRIVATE);
+        String accountId = sharedPreferences.getString("userId", "");
 
         // Call your API to fetch order history data
-        new FetchOrderHistoryTask().execute();
+        new FetchOrderHistoryTask().execute(accountId);
     }
 
 
-    private class FetchOrderHistoryTask extends AsyncTask<Void, Void, List<OrderHistoryItem>> {
+    private class FetchOrderHistoryTask extends AsyncTask<String, Void, List<OrderHistoryItem>> {
 
         @Override
-        protected List<OrderHistoryItem> doInBackground(Void... voids) {
+        protected List<OrderHistoryItem> doInBackground(String... params) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String orderHistoryJsonStr;
+            String accountId = params[0]; // Get accountId from params
 
             try {
-                URL url = new URL("https://visionup.azurewebsites.net/api/Order/account/80/mobile");
+                URL url = new URL("https://visionup.azurewebsites.net/api/Order/account/" + accountId + "/mobile");
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -103,14 +111,17 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<OrderHistoryItem> orders) {
-            if (orders != null) {
+            if (orders != null && !orders.isEmpty()) {
                 orderHistoryItems.addAll(orders);
                 orderHistoryAdapter.notifyDataSetChanged();
+                listViewOrderHistory.setVisibility(View.VISIBLE);
+                findViewById(R.id.textViewEmpty).setVisibility(View.GONE);
             } else {
-                // Handle error case
-                Toast.makeText(ListOrderHistoryActivity.this, "Error fetching data", Toast.LENGTH_SHORT).show();
+                // Handle case where orders list is empty or null
+                listViewOrderHistory.setVisibility(View.GONE);
+                findViewById(R.id.textViewEmpty).setVisibility(View.VISIBLE);
             }
         }
+
     }
 }
-
