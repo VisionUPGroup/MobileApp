@@ -14,7 +14,9 @@ import com.example.glass_project.R;
 import com.example.glass_project.model.Order;
 import com.example.glass_project.model.ProductGlass;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class CustomAdapter extends BaseAdapter {
     private Context context;
@@ -54,16 +56,17 @@ public class CustomAdapter extends BaseAdapter {
         TextView textPrice = convertView.findViewById(R.id.tvPrice);
         TextView textQuantity = convertView.findViewById(R.id.tvQuantity);
 
+
         CartDetailResponse item = items.get(position);
-        if (!item.getEyeGlassImages().isEmpty()){
+        if (item.getEyeGlassImages() != null && !item.getEyeGlassImages().isEmpty()){
             Glide.with(context).load(item.getEyeGlassImages().get(0).getUrl()).into(imageView);
         }
 
         textGlassName.setText(item.getEyeGlassName());
         textQuantity.setText(String.valueOf(item.getQuantity()));
         textLensName.setText(item.getLensName());
-        textPrice.setText(String.valueOf(item.getTotalPriceProductGlass()));
-
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+        textPrice.setText(formatter.format(item.getTotalPriceProductGlass()) + " VND");
         return convertView;
     }
 }

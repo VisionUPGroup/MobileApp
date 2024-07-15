@@ -19,6 +19,7 @@ import com.example.glass_project.R;
 import com.example.glass_project.config.OrderService;
 import com.example.glass_project.config.RetrofitInstance;
 import com.example.glass_project.model.Order;
+import com.example.glass_project.product.ProductsActivity;
 import com.example.glass_project.product.ui.home.HomeFragment;
 
 import retrofit2.Call;
@@ -43,7 +44,7 @@ public class PaymentStatus extends AppCompatActivity {
         btnContinueShopping.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(PaymentStatus.this, HomeFragment.class);
+                Intent intent = new Intent(PaymentStatus.this, ProductsActivity.class);
                 startActivity(intent);
                 finish();
             }
