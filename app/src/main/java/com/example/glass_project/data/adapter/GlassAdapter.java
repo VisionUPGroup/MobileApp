@@ -18,7 +18,9 @@ import com.example.glass_project.R;
 import com.example.glass_project.data.model.EyeGlass;
 import com.example.glass_project.detail.DetailGlassActivity;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class GlassAdapter extends RecyclerView.Adapter<GlassAdapter.GlassViewHolder> {
 
@@ -42,9 +44,12 @@ public class GlassAdapter extends RecyclerView.Adapter<GlassAdapter.GlassViewHol
     public void onBindViewHolder(@NonNull GlassViewHolder holder, int position) {
         EyeGlass glass = glassList.get(position);
         holder.title.setText(glass.getName());
-        holder.price.setText("$" + glass.getPrice());
-        holder.ratingTotal.setText(String.valueOf(glass.getRateCount()));
 
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+        holder.price.setText(formatter.format(glass.getPrice()) + " VND");
+
+
+        holder.ratingTotal.setText(String.valueOf(glass.getRateCount()));
 
         if (glass.getEyeGlassImages() != null && !glass.getEyeGlassImages().isEmpty()) {
             String imageUrl = glass.getEyeGlassImages().get(0).getUrl();
