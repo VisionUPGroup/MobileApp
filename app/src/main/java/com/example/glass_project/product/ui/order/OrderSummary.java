@@ -1,6 +1,7 @@
 package com.example.glass_project.product.ui.order;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,7 +17,9 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -33,16 +36,21 @@ import com.example.glass_project.config.CartService;
 import com.example.glass_project.config.OrderService;
 import com.example.glass_project.config.PaymentService;
 import com.example.glass_project.config.RetrofitInstance;
+import com.example.glass_project.config.repositories.CartRepositories;
+import com.example.glass_project.config.repositories.OrderRepositories;
+import com.example.glass_project.config.services.CartServices;
 import com.example.glass_project.model.Order;
 import com.example.glass_project.model.ProductGlass;
 import com.google.gson.Gson;
 
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import retrofit2.Call;
@@ -55,6 +63,8 @@ public class OrderSummary extends AppCompatActivity {
     ImageView btnEditShipping;
     TextView txtAddress;
     Button btnConfirmAllItems;
+    Toolbar toolbar;
+    OrderService orderService;
     private ActivityResultLauncher<Intent> shipInfoResultLauncher;
     CartSummaryResponse cartSummaryResponse;
     ArrayList<CartDetailResponse> itemList = new ArrayList<>();
@@ -69,11 +79,23 @@ public class OrderSummary extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        orderService = OrderRepositories.getOrderServices();
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         listViewGlass = (ListView) findViewById(R.id.lsViewGlass);
         btnEditShipping = (ImageView) findViewById(R.id.btnEditShipping);
         txtAddress = (TextView) findViewById(R.id.tvDeliveryAddress);
         btnConfirmAllItems = (Button) findViewById(R.id.btnConfirmAllItems);
-        fetchItems(99);
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", 0);
+        String accountId = sharedPreferences.getString("id", null);
+        fetchItems(Integer.parseInt(accountId));
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
         shipInfoResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -109,12 +131,6 @@ public class OrderSummary extends AppCompatActivity {
         });
     }
 
-    private String getCurrentDateAndTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return sdf.format(new Date());
-    }
-
     private void createOrderProduct(){
         try{
             List<OrderDetailRequest> orderDetailRequests = new ArrayList<>();
@@ -136,14 +152,12 @@ public class OrderSummary extends AppCompatActivity {
             orderWithOrderDetailRequest.setTotal(cartSummaryResponse.getTotalPrice().doubleValue());
             orderWithOrderDetailRequest.setStatus(true);
             orderWithOrderDetailRequest.setOrderDetails(orderDetailRequests);
-            Retrofit retrofit = RetrofitInstance.getRetrofitInstance();
-            OrderService orderService = retrofit.create(OrderService.class);
             Call<OrderResponse> call = orderService.create(orderWithOrderDetailRequest);
             call.enqueue(new Callback<OrderResponse>() {
                 @Override
                 public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
                     if(response.body() != null){
-                        payment(response.body().getTotal().doubleValue() * 24000, response.body().getAccountID(), response.body().getId());
+                        payment(response.body().getTotal().doubleValue(), response.body().getAccountID(), response.body().getId());
                     }
                 }
 
@@ -175,7 +189,8 @@ public class OrderSummary extends AppCompatActivity {
                         itemList.add(cartDetailResponse);
                     }
                     TextView txtOrderTotal = findViewById(R.id.tvOrderTotalAll);
-                    txtOrderTotal.setText("Order Total: $" + cartSummaryResponse.getTotalPrice());
+                    NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+                    txtOrderTotal.setText("Order Total: " + formatter.format(cartSummaryResponse.getTotalPrice()) + " VND");
                     CustomAdapter adapter = new CustomAdapter(OrderSummary.this, itemList);
                     listViewGlass.setAdapter(adapter);
                 }
