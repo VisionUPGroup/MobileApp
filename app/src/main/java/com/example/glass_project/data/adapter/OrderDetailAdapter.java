@@ -19,6 +19,7 @@ import com.example.glass_project.DTO.CartDTO.CartDetailResponse;
 import com.example.glass_project.R;
 import com.example.glass_project.config.repositories.CartRepositories;
 import com.example.glass_project.config.services.CartServices;
+import com.example.glass_project.product.ui.shoppingCart.ShoppingCartFragment;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -33,10 +34,12 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
 
     private final Context context;
     private final List<CartDetailResponse> cartDetailsList;
+    private final ShoppingCartFragment fragment;
 
-    public OrderDetailAdapter(Context context, List<CartDetailResponse> cartDetailsList) {
+    public OrderDetailAdapter(Context context, List<CartDetailResponse> cartDetailsList, ShoppingCartFragment fragment) {
         this.context = context;
         this.cartDetailsList = cartDetailsList;
+        this.fragment = fragment;
     }
 
     @NonNull
@@ -64,7 +67,6 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
         holder.textLensType.setText(String.format("Lens: %s x %d", cartDetail.getLensName(), 2));
         holder.textLensPrice.setText(String.format("Lens Price: %s VND", formattedLensPrice));
 
-
         if (cartDetail.getEyeGlassImages() != null && !cartDetail.getEyeGlassImages().isEmpty()) {
             String imageUrl = cartDetail.getEyeGlassImages().get(0).getUrl();
             Glide.with(context)
@@ -73,20 +75,6 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
         }
 
         holder.buttonDelete.setOnClickListener(v -> deleteItem(cartDetail.getAccountID(), cartDetail.getProductGlassID(), position));
-
-//        holder.buttonMinus.setOnClickListener(v -> {
-//            int quantity = cartDetail.getQuantity();
-//            if (quantity > 1) {
-//                cartDetail.setQuantity(quantity - 1);
-//                notifyItemChanged(position);
-//            }
-//        });
-//
-//        holder.buttonPlus.setOnClickListener(v -> {
-//            int quantity = cartDetail.getQuantity();
-//            cartDetail.setQuantity(quantity + 1);
-//            notifyItemChanged(position);
-//        });
     }
 
     private void deleteItem(int accountId, int productId, int position) {
@@ -102,12 +90,12 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
                     notifyItemRemoved(position);
                     notifyItemRangeChanged(position, cartDetailsList.size());
 
+                    fragment.updatePaymentDetails(cartDetailsList);
+
                     Toast.makeText(context, "Item deleted successfully", Toast.LENGTH_SHORT).show();
                 } else {
                     // Handle unsuccessful deletion
                     Log.e("Delete Item", "Failed to delete item: " + response.message());
-                    // Show error message or handle as needed
-
                     Toast.makeText(context, "Failed to delete item", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -115,9 +103,6 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
             @Override
             public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
                 Log.e("Delete Item", "Error deleting item", t);
-                // Handle failure
-                // Show error message or handle as needed
-
                 Toast.makeText(context, "Error deleting item", Toast.LENGTH_SHORT).show();
             }
         });
@@ -145,6 +130,4 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
             buttonPlus = itemView.findViewById(R.id.buttonPlus);
         }
     }
-
-    
 }
