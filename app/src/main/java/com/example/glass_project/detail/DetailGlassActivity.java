@@ -24,7 +24,9 @@ import com.example.glass_project.data.model.EyeGlass;
 import com.example.glass_project.data.model.EyeGlassImage;
 import com.example.glass_project.data.model.EyeGlassType;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -95,7 +97,9 @@ public class DetailGlassActivity extends AppCompatActivity {
                 EyeGlass eyeGlass = response.body();
                 assert eyeGlass != null;
                 nameView.setText(eyeGlass.getName());
-                priceView.setText("$ " + eyeGlass.getPrice());
+
+                NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+                priceView.setText(formatter.format(eyeGlass.getPrice()) + " VND");
                 setRatingStars(eyeGlass.getRate());
             }
 

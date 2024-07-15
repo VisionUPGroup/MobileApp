@@ -58,6 +58,7 @@ public class OrderSummary extends AppCompatActivity {
     private ActivityResultLauncher<Intent> shipInfoResultLauncher;
     CartSummaryResponse cartSummaryResponse;
     ArrayList<CartDetailResponse> itemList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -216,4 +217,5 @@ public class OrderSummary extends AppCompatActivity {
             Toast.makeText(OrderSummary.this, "Can't pay", Toast.LENGTH_LONG).show();
         }
     }
+
 }
