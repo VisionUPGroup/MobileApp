@@ -1,0 +1,127 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layoutRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginTop="15dp"
+    android:layout_marginBottom="15dp"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    android:background="@drawable/orderhistory_background">
+
+    <TextView
+        android:id="@+id/textViewOrderId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="8dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="4dp"
+        android:text="Order ID: "
+        android:textAlignment="center"
+        android:textColor="#53DFCF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewOrderDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Order Date: 01/01/2023"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewOrderId"
+        app:layout_constraintBottom_toTopOf="@id/textViewSenderAddress"/>
+
+    <TextView
+        android:id="@+id/textViewSenderAddress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Sender Address: 123 Main St"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewOrderDate"
+        app:layout_constraintBottom_toTopOf="@id/textViewReceiverAddress"/>
+
+    <TextView
+        android:id="@+id/textViewReceiverAddress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Receiver Address: 456 Elm St"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewSenderAddress"
+        app:layout_constraintBottom_toTopOf="@id/textViewCode"/>
+
+    <TextView
+        android:id="@+id/textViewCode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Code: XYZ123"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewReceiverAddress"
+        app:layout_constraintBottom_toTopOf="@id/textViewTotal"/>
+
+    <TextView
+        android:id="@+id/textViewTotal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Total: $123.45"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewCode"
+        app:layout_constraintBottom_toTopOf="@id/textViewProcess"/>
+
+    <TextView
+        android:id="@+id/textViewProcess"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Process: Pending"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewTotal"
+        app:layout_constraintBottom_toTopOf="@id/textViewOrderDetail"/>
+
+    <TextView
+        android:id="@+id/textViewOrderDetail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Order Details:"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewProcess"
+        app:layout_constraintBottom_toTopOf="@id/textViewOrderDetails"/>
+
+    <TextView
+        android:id="@+id/textViewOrderDetails"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="ID: 1\nQuantity: 2\nEye Glass Name: Classic\nEye Glass Price: $50.0\nLens Name: Blue Light\nLens Price: $20.0"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewOrderDetail"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

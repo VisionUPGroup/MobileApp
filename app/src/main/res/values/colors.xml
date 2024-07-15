@@ -9,4 +9,10 @@
     <color name="red">#FF0000</color>
     <color name="gray">#808080</color>
     <color name="green">#0e9f6e</color>
+    <color name="pendingColor">#2DCCFF</color> <!-- Orange -->
+    <color name="processingColor">#FAD800</color> <!-- Red -->
+    <color name="shippingColor">#FFAF3D</color> <!-- Green -->
+    <color name="deliveredColor">#A0ED22</color> <!-- Blue -->
+    <color name="completedColor">#00FF00</color> <!-- Yellow -->
+    <color name="canceledColor">#FF0000</color> <!-- Gray -->
 </resources>
