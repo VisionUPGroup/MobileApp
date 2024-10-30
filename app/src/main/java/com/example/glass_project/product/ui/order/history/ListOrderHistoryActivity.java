@@ -8,7 +8,9 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.glass_project.R;
 import com.example.glass_project.data.adapter.OrderHistoryAdapter;
@@ -37,15 +39,24 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_order_history);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+
         listViewOrderHistory = findViewById(R.id.listViewOrderHistory);
         orderHistoryItems = new ArrayList<>();
         orderHistoryAdapter = new OrderHistoryAdapter(this, orderHistoryItems);
         listViewOrderHistory.setAdapter(orderHistoryAdapter);
         TextView textViewEmpty = findViewById(R.id.textViewEmpty);
         // Get accountId from SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("user_details", Context.MODE_PRIVATE);
-        String accountId = sharedPreferences.getString("userId", "");
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        String accountId = sharedPreferences.getString("id", "");
 
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
         // Call your API to fetch order history data
         new FetchOrderHistoryTask().execute(accountId);
     }

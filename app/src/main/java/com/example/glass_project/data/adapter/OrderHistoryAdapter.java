@@ -3,10 +3,12 @@ package com.example.glass_project.data.adapter;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,6 +18,9 @@ import com.example.glass_project.DTO.OrderDetailDTO.OrderDetailDTO;
 import com.example.glass_project.R;
 import com.example.glass_project.data.model.OrderHistoryItem;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -55,6 +60,7 @@ public class OrderHistoryAdapter extends ArrayAdapter<OrderHistoryItem> {
         TextView textViewTotal = listItemView.findViewById(R.id.textViewTotal);
         TextView textViewProcess = listItemView.findViewById(R.id.textViewProcess);
         TextView textViewOrderDetails = listItemView.findViewById(R.id.textViewOrderDetails);
+        Button buttonCompleteOrder = listItemView.findViewById(R.id.buttonCompleteOrder);
 
         if (currentItem != null) {
             textViewOrderId.setText("Order ID: " + currentItem.getId());
@@ -69,6 +75,19 @@ public class OrderHistoryAdapter extends ArrayAdapter<OrderHistoryItem> {
             // Set color based on process status
             int color = getColorForProcess(currentItem.getProcess());
             textViewProcess.setTextColor(color);
+
+            // Set button visibility based on process status
+            if (currentItem.getProcess() == 3) {
+                buttonCompleteOrder.setVisibility(View.VISIBLE);
+                buttonCompleteOrder.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new CompleteOrderTask(currentItem).execute();
+                    }
+                });
+            } else {
+                buttonCompleteOrder.setVisibility(View.GONE);
+            }
         }
 
         return listItemView;
@@ -141,5 +160,60 @@ public class OrderHistoryAdapter extends ArrayAdapter<OrderHistoryItem> {
     private String formatCurrency(double amount) {
         NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
         return formatter.format(amount).replace(NumberFormat.getCurrencyInstance().getCurrency().getSymbol(), "").trim();
+    }
+
+    private class CompleteOrderTask extends AsyncTask<Void, Void, Boolean> {
+        private OrderHistoryItem order;
+
+        public CompleteOrderTask(OrderHistoryItem order) {
+            this.order = order;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            HttpURLConnection urlConnection = null;
+            try {
+                URL url = new URL("https://visionup.azurewebsites.net/api/Order");
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("PUT");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setDoOutput(true);
+
+                String jsonInputString = String.format(
+                        "{\"id\": %d, \"status\": true, \"senderAddress\": \"%s\", \"receiverAddress\": \"%s\", \"code\": \"%s\", \"process\": 4}",
+                        order.getId(),
+                        order.getSenderAddress(),
+                        order.getReceiverAddress(),
+                        order.getCode()
+                );
+
+                try (OutputStream os = urlConnection.getOutputStream()) {
+                    byte[] input = jsonInputString.getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+
+                int responseCode = urlConnection.getResponseCode();
+                return responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NO_CONTENT;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                // Update the process status to "Completed"
+                order.setProcess(4);
+                notifyDataSetChanged();
+            } else {
+                // Handle the failure case (e.g., show a toast message)
+            }
+        }
     }
 }

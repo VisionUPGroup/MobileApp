@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -21,8 +19,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +40,7 @@ public class NotificationsFragment extends Fragment {
         binding = FragmentNotificationsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        recyclerView = root.findViewById(com.example.glass_project.R.id.recycler_view_notifications);
+        recyclerView = root.findViewById(R.id.recycler_view_notifications);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         notificationList = new ArrayList<>();
@@ -57,6 +55,7 @@ public class NotificationsFragment extends Fragment {
     private void fetchNotifications() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("notifications")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
