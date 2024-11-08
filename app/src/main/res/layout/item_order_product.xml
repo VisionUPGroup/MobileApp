@@ -1,0 +1,47 @@
+<!-- File: item_order_product.xml -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <!-- Hình ảnh sản phẩm -->
+    <ImageView
+        android:id="@+id/imgProduct"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/default_image"/>
+
+    <!-- Tên sản phẩm -->
+    <TextView
+        android:id="@+id/txtProductName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Product Name"
+        android:textColor="@android:color/black"
+        android:layout_toEndOf="@id/imgProduct"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="8dp"/>
+
+    <!-- Số lượng sản phẩm (ngang hàng với tên sản phẩm và căn phải) -->
+    <TextView
+        android:id="@+id/txtProductQuantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="x1"
+        android:textColor="@android:color/darker_gray"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@id/txtProductName"/>
+
+    <!-- Giá sản phẩm (nằm dưới số lượng sản phẩm và căn phải) -->
+    <TextView
+        android:id="@+id/txtProductPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Price"
+        android:textColor="@android:color/black"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/txtProductQuantity"
+        android:layout_marginTop="4dp"/>
+</RelativeLayout>

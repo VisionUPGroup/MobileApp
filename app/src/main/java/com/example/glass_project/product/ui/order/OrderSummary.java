@@ -36,17 +36,11 @@ import com.example.glass_project.config.CartService;
 import com.example.glass_project.config.OrderService;
 import com.example.glass_project.config.PaymentService;
 import com.example.glass_project.config.RetrofitInstance;
-import com.example.glass_project.config.repositories.CartRepositories;
 import com.example.glass_project.config.repositories.OrderRepositories;
-import com.example.glass_project.config.services.CartServices;
-import com.example.glass_project.model.Order;
-import com.example.glass_project.model.ProductGlass;
-import com.google.gson.Gson;
 
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

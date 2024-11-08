@@ -1,45 +1,37 @@
 package com.example.glass_project.data.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.glass_project.DTO.CartDTO.CartDetailResponse;
 import com.example.glass_project.R;
-import com.example.glass_project.config.repositories.CartRepositories;
-import com.example.glass_project.config.services.CartServices;
-import com.example.glass_project.product.ui.shoppingCart.ShoppingCartFragment;
+import com.example.glass_project.data.model.order.OrderDetail;
+import com.example.glass_project.data.model.order.OrderPaymentDetail;
+import com.example.glass_project.data.model.order.Lens;
+import com.example.glass_project.data.model.order.ProductGlassPayment;
+import com.example.glass_project.data.model.order.ProductGlasses;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
+import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Locale;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.ViewHolder> {
 
-    private final Context context;
-    private final List<CartDetailResponse> cartDetailsList;
-    private final ShoppingCartFragment fragment;
+    private Context context;
+    private List<OrderDetail> orderDetailsList;
+    private OrderPaymentDetail orderPaymentDetail;
+    private DecimalFormat decimalFormat = new DecimalFormat("#,###");
 
-    public OrderDetailAdapter(Context context, List<CartDetailResponse> cartDetailsList, ShoppingCartFragment fragment) {
+    public OrderDetailAdapter(Context context, List<OrderDetail> orderDetailsList, OrderPaymentDetail orderPaymentDetail) {
         this.context = context;
-        this.cartDetailsList = cartDetailsList;
-        this.fragment = fragment;
+        this.orderDetailsList = orderDetailsList;
+        this.orderPaymentDetail = orderPaymentDetail;
     }
 
     @NonNull
@@ -49,85 +41,104 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
         return new ViewHolder(view);
     }
 
-    @SuppressLint({"SetTextI18n", "DefaultLocale"})
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        CartDetailResponse cartDetail = cartDetailsList.get(position);
+        OrderDetail orderDetail = orderDetailsList.get(position);
+        ProductGlasses productGlassDetail = orderDetail.getProductGlass().getProductGlassDetail();
 
-        Log.d("CartDetail", "onBindViewHolder: " + cartDetail.getEyeGlassName());
+        // Set product name and price
+        holder.txtProductName.setText(orderDetail.getProductGlass().getEyeGlass().getName());
+        holder.txtPrice.setText("đ" + decimalFormat.format(orderDetail.getProductGlass().getTotal()));
+        holder.txtQuantity.setText("Số lượng: " + orderDetail.getQuantity());
 
-        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
-        String formattedEyeGlassPrice = formatter.format(cartDetail.getEyeGlassPrice());
-
-        BigDecimal lensPrice = cartDetail.getLensPrice().multiply(BigDecimal.valueOf(2));
-        String formattedLensPrice = formatter.format(lensPrice);
-
-        holder.textGlassName.setText(cartDetail.getEyeGlassName());
-        holder.textGlassPrice.setText(String.format("Price: %s VND", formattedEyeGlassPrice));
-        holder.textLensType.setText(String.format("Lens: %s x %d", cartDetail.getLensName(), 2));
-        holder.textLensPrice.setText(String.format("Lens Price: %s VND", formattedLensPrice));
-
-        if (cartDetail.getEyeGlassImages() != null && !cartDetail.getEyeGlassImages().isEmpty()) {
-            String imageUrl = cartDetail.getEyeGlassImages().get(0).getUrl();
-            Glide.with(context)
-                    .load(imageUrl)
-                    .into(holder.imageGlasses);
+        // Load product image
+        if (orderDetail.getProductGlass().getEyeGlass().getEyeGlassImages() != null &&
+                !orderDetail.getProductGlass().getEyeGlass().getEyeGlassImages().isEmpty()) {
+            String imageUrl = orderDetail.getProductGlass().getEyeGlass().getEyeGlassImages().get(0).getUrl();
+            Glide.with(context).load(imageUrl).into(holder.imgProduct);
         }
 
-        holder.buttonDelete.setOnClickListener(v -> deleteItem(cartDetail.getAccountID(), cartDetail.getProductGlassID(), position));
-    }
+        // Calculate and set left and right lens prices
+        double lensPrice = (orderDetail.getProductGlass().getTotal() - orderDetail.getProductGlass().getEyeGlass().getPrice()) / 2;
+        holder.txtLeftLensPrice.setText("đ" + decimalFormat.format(lensPrice));
+        holder.txtRightLensPrice.setText("đ" + decimalFormat.format(lensPrice));
 
-    private void deleteItem(int accountId, int productId, int position) {
-        CartServices cartServices = CartRepositories.cartServices();
+        // Match and display left and right lens images and names
+        if (orderPaymentDetail != null && orderPaymentDetail.getProductGlassPayments() != null) {
+            for (ProductGlassPayment paymentDetail : orderPaymentDetail.getProductGlassPayments()) {
+                if (paymentDetail.getProductGlassID() == orderDetail.getProductGlass().getId()) {
+                    Lens leftLens = paymentDetail.getLeftLens();
+                    Lens rightLens = paymentDetail.getRightLens();
 
-        Call<Boolean> call = cartServices.deleteItem(accountId, productId);
-        call.enqueue(new Callback<Boolean>() {
-            @Override
-            public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
-                if (response.isSuccessful() && response.body() != null && response.body()) {
-                    // Item deleted successfully
-                    cartDetailsList.remove(position);
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, cartDetailsList.size());
+                    // Set left lens details
+                    if (leftLens != null) {
+                        holder.txtLeftLensName.setText( leftLens.getLensName());
+                        Glide.with(context).load(leftLens.getLensImage()).into(holder.imgLeftLens);
+                    } else {
+                        holder.txtLeftLensName.setText("Tên Lens Trái: Không có");
+                        holder.imgLeftLens.setImageResource(R.drawable.default_image);
+                    }
 
-                    fragment.updatePaymentDetails(cartDetailsList);
-
-                    Toast.makeText(context, "Item deleted successfully", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Handle unsuccessful deletion
-                    Log.e("Delete Item", "Failed to delete item: " + response.message());
-                    Toast.makeText(context, "Failed to delete item", Toast.LENGTH_SHORT).show();
+                    // Set right lens details
+                    if (rightLens != null) {
+                        holder.txtRightLensName.setText( rightLens.getLensName());
+                        Glide.with(context).load(rightLens.getLensImage()).into(holder.imgRightLens);
+                    } else {
+                        holder.txtRightLensName.setText("Tên Lens Phải: Không có");
+                        holder.imgRightLens.setImageResource(R.drawable.default_image);
+                    }
+                    break; // Found matching productGlassID, break loop
                 }
             }
+        }
 
-            @Override
-            public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
-                Log.e("Delete Item", "Error deleting item", t);
-                Toast.makeText(context, "Error deleting item", Toast.LENGTH_SHORT).show();
-            }
-        });
+        // Display sphere, cylinder, axis, add, and PD values for OD and OS
+        if (productGlassDetail != null) {
+            holder.txtSphereOD.setText("Sphere OD: " + productGlassDetail.getSphereOD());
+            holder.txtCylinderOD.setText("Cylinder OD: " + productGlassDetail.getCylinderOD());
+            holder.txtAxisOD.setText("Axis OD: " + productGlassDetail.getAxisOD());
+            holder.txtSphereOS.setText("Sphere OS: " + productGlassDetail.getSphereOS());
+            holder.txtCylinderOS.setText("Cylinder OS: " + productGlassDetail.getCylinderOS());
+            holder.txtAxisOS.setText("Axis OS: " + productGlassDetail.getAxisOS());
+            holder.txtAddOD.setText("Add OD: " + productGlassDetail.getAddOD());
+            holder.txtAddOS.setText("Add OS: " + productGlassDetail.getAddOS());
+            holder.txtPd.setText("PD: " + productGlassDetail.getPd());
+        }
     }
 
     @Override
     public int getItemCount() {
-        return cartDetailsList.size();
+        return orderDetailsList.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageGlasses;
-        TextView textGlassName, textLensType, textGlassPrice, textLensPrice;
-        Button buttonDelete, buttonMinus, buttonPlus;
+        TextView txtProductName, txtPrice, txtQuantity, txtLeftLensPrice, txtRightLensPrice;
+        TextView txtLeftLensName, txtRightLensName;
+        ImageView imgProduct, imgLeftLens, imgRightLens;
+        TextView txtSphereOD, txtCylinderOD, txtAxisOD, txtSphereOS, txtCylinderOS, txtAxisOS, txtAddOD, txtAddOS, txtPd;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageGlasses = itemView.findViewById(R.id.imageGlasses);
-            textGlassName = itemView.findViewById(R.id.textGlassName);
-            textLensType = itemView.findViewById(R.id.textLensType);
-            textGlassPrice = itemView.findViewById(R.id.textGlassPrice);
-            textLensPrice = itemView.findViewById(R.id.textLensPrice);
-            buttonDelete = itemView.findViewById(R.id.buttonDelete);
-            buttonMinus = itemView.findViewById(R.id.buttonMinus);
-            buttonPlus = itemView.findViewById(R.id.buttonPlus);
+            txtProductName = itemView.findViewById(R.id.txtProductName);
+            txtPrice = itemView.findViewById(R.id.txtPrice);
+            txtQuantity = itemView.findViewById(R.id.txtQuantity);
+            txtLeftLensName = itemView.findViewById(R.id.txtLeftLensName);
+            txtRightLensName = itemView.findViewById(R.id.txtRightLensName);
+            imgProduct = itemView.findViewById(R.id.imgProduct);
+            imgLeftLens = itemView.findViewById(R.id.imgLeftLens);
+            imgRightLens = itemView.findViewById(R.id.imgRightLens);
+
+            txtSphereOD = itemView.findViewById(R.id.txtSphereOD);
+            txtCylinderOD = itemView.findViewById(R.id.txtCylinderOD);
+            txtAxisOD = itemView.findViewById(R.id.txtAxisOD);
+            txtSphereOS = itemView.findViewById(R.id.txtSphereOS);
+            txtCylinderOS = itemView.findViewById(R.id.txtCylinderOS);
+            txtAxisOS = itemView.findViewById(R.id.txtAxisOS);
+            txtAddOD = itemView.findViewById(R.id.txtAddOD);
+            txtAddOS = itemView.findViewById(R.id.txtAddOS);
+            txtPd = itemView.findViewById(R.id.txtPD);
+            txtLeftLensPrice = itemView.findViewById(R.id.txtLeftLensPrice);
+            txtRightLensPrice = itemView.findViewById(R.id.txtRightLensPrice);
         }
     }
 }

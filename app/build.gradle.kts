@@ -21,6 +21,7 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+
         }
     }
     compileOptions {
@@ -66,6 +67,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.database)
     implementation(libs.databinding.runtime)
+    implementation(libs.play.services.maps)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -75,5 +77,7 @@ dependencies {
     implementation("com.google.auth:google-auth-library-oauth2-http:1.2.1")
     implementation ("org.osmdroid:osmdroid-android:6.1.18")
     implementation ("org.osmdroid:osmdroid-mapsforge:6.1.18")
+    implementation("androidx.cardview:cardview:1.0.0")
+
 
 }

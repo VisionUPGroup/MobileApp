@@ -76,7 +76,7 @@ public class ShoppingCartFragment extends Fragment {
                         }
 
                         cartDetailsList = cartSummaryResponse.getCartDetails();
-                        orderDetailAdapter = new OrderDetailAdapter(getContext(), cartDetailsList, ShoppingCartFragment.this);
+                        //orderDetailAdapter = new OrderDetailAdapter(getContext(), cartDetailsList, ShoppingCartFragment.this);
                         recyclerView.setVisibility(View.VISIBLE);
                         recyclerView.setAdapter(orderDetailAdapter);
 

@@ -1,16 +1,11 @@
 package com.example.glass_project.auth;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.text.InputType;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,184 +14,179 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.glass_project.R;
-import com.example.glass_project.config.repositories.AuthRepositories;
-import com.example.glass_project.config.services.AuthServices;
-import com.example.glass_project.data.GoogleSignInCallback;
-import com.example.glass_project.data.model.LoginResponse;
-import com.example.glass_project.data.model.request.RegisterRequest;
-import com.example.glass_project.product.ProductsActivity;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
-import retrofit2.Call;
+import com.example.glass_project.R;
+import com.example.glass_project.product.ProductsActivity;
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class RegisterFragment extends Fragment {
 
-    private static final int RC_SIGN_IN = 9001;
-    private EditText username;
-    private EditText password;
-    private AuthServices authServices;
-    private GoogleSignInClient googleSignInClient;
-    private GoogleSignInCallback googleSignInCallback;
+    private EditText username, password, email, phoneNumber;
     private ImageView imgTogglePassword;
     private boolean isPasswordVisible = false;
+    private static final String TAG = "RegisterFragment";
 
-    public RegisterFragment() {
-        // Required empty public constructor
-    }
-
-    public static RegisterFragment newInstance(String param1, String param2) {
-        RegisterFragment fragment = new RegisterFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-
-        googleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
-        authServices = AuthRepositories.getAuthServices();
-
-        Button register = view.findViewById(R.id.btn_sign_up);
-        Button registerGoogle = view.findViewById(R.id.btnGoogleLogin);
-        imgTogglePassword = view.findViewById(R.id.imgTogglePassword);
 
         username = view.findViewById(R.id.editUsername);
         password = view.findViewById(R.id.editPassword);
-        EditText email = view.findViewById(R.id.editEmailAddress);
+        email = view.findViewById(R.id.editEmailAddress);
+        phoneNumber = view.findViewById(R.id.editPhoneNumber);
+        Button registerButton = view.findViewById(R.id.btn_sign_up);
+        imgTogglePassword = view.findViewById(R.id.imgTogglePassword);
+
+        // Toggle password visibility
         imgTogglePassword.setOnClickListener(v -> togglePasswordVisibility());
 
-        register.setOnClickListener(v -> registerUser(username.getText().toString(), password.getText().toString(), email.getText().toString()));
-        registerGoogle.setOnClickListener(v -> registerGoogleUser(new GoogleSignInCallback() {
-            @Override
-            public void onGoogleSignInSuccess(String username, String email) {
-                registerUser(username, "123456", email);
+        // Register button click listener
+        registerButton.setOnClickListener(v -> {
+            if (validateInputs()) {
+                registerUser(
+                        username.getText().toString(),
+                        password.getText().toString(),
+                        email.getText().toString(),
+                        phoneNumber.getText().toString()
+                );
             }
-
-            @Override
-            public void onGoogleSignInFailure(String errorMessage) {
-                Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
-            }
-        }));
+        });
 
         return view;
     }
 
+    // Toggle password visibility method
     private void togglePasswordVisibility() {
         if (isPasswordVisible) {
             password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            imgTogglePassword.setImageResource(R.drawable.baseline_remove_red_eye_24);
+            imgTogglePassword.setImageResource(R.drawable.baseline_remove_red_eye_24); // Closed eye icon
         } else {
             password.setInputType(InputType.TYPE_CLASS_TEXT);
-            imgTogglePassword.setImageResource(R.drawable.eye_open); // Add an icon for eye off
+            imgTogglePassword.setImageResource(R.drawable.eye_open); // Open eye icon
         }
         isPasswordVisible = !isPasswordVisible;
-        password.setSelection(password.length()); // Move the cursor to the end
+        password.setSelection(password.length());
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    // Validate inputs method
+    private boolean validateInputs() {
+        String usernameInput = username.getText().toString().trim();
+        String passwordInput = password.getText().toString().trim();
+        String emailInput = email.getText().toString().trim();
+        String phoneInput = phoneNumber.getText().toString().trim();
 
-        if (requestCode == RC_SIGN_IN) {
+        if (usernameInput.isEmpty()) {
+            username.setError("Username is required");
+            return false;
+        }
+
+        if (emailInput.isEmpty()) {
+            email.setError("Email is required");
+            return false;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(emailInput).matches()) {
+            email.setError("Please enter a valid email address");
+            return false;
+        }
+
+        if (phoneInput.isEmpty()) {
+            phoneNumber.setError("Phone number is required");
+            return false;
+        } else if (!Patterns.PHONE.matcher(phoneInput).matches() || phoneInput.length() != 10) {
+            phoneNumber.setError("Please enter a valid 10-digit phone number");
+            return false;
+        }
+
+        if (passwordInput.isEmpty()) {
+            password.setError("Password is required");
+            return false;
+        } else if (passwordInput.length() < 6) {
+            password.setError("Password should be at least 6 characters");
+            return false;
+        }
+
+        return true;
+    }
+
+    // Call API to register the user
+    private void registerUser(String username, String password, String email, String phoneNumber) {
+        new RegisterUserTask().execute(username, password, email, phoneNumber);
+    }
+
+    // AsyncTask to handle API request in background
+    private class RegisterUserTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            String username = params[0];
+            String password = params[1];
+            String email = params[2];
+            String phoneNumber = params[3];
+
             try {
-                GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
-                if (account != null) {
-                    String email = account.getEmail();
-                    String displayName = account.getDisplayName();
+                String BaseUrl = baseUrl.BASE_URL;
+                String baseUrl = BaseUrl + "/api/accounts/register";
+                URL url = new URL(baseUrl);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setDoOutput(true);
 
-                    Log.d("RegisterFragment", "Email: " + email);
-                    Log.d("RegisterFragment", "Display Name: " + displayName);
+                // Request body
+                JSONObject jsonBody = new JSONObject();
+                jsonBody.put("username", username);
+                jsonBody.put("password", password);
+                jsonBody.put("email", email);
+                jsonBody.put("phoneNumber", phoneNumber);
 
-                    // Gọi callback với thông tin đăng nhập thành công
-                    if (googleSignInCallback != null) {
-                        googleSignInCallback.onGoogleSignInSuccess(displayName, email);
+                // Write data to output stream
+                try (OutputStream os = urlConnection.getOutputStream()) {
+                    byte[] input = jsonBody.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
+                    return "Registration successful";
+                } else {
+                    // Read error response from the server
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
+                    StringBuilder errorMessage = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        errorMessage.append(line);
                     }
+                    return "Registration failed: " + errorMessage.toString();
                 }
-            } catch (ApiException e) {
-                Log.w("RegisterFragment", "Google sign in failed", e);
-                Toast.makeText(getActivity(), "Registered account already exists", Toast.LENGTH_SHORT).show();
-                // Gọi callback với lỗi đăng nhập
-                if (googleSignInCallback != null) {
-                    googleSignInCallback.onGoogleSignInFailure("Google sign in failed");
-                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Exception: " + e.getMessage(), e);
+                return "Error during registration";
             }
-        } else {
-            Log.d("RegisterFragment", "onActivityResult: requestCode mismatch");
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
+            if (result.equals("Registration successful")) {
+                navigateToMainActivity();
+            }
         }
     }
 
-    private void registerGoogleUser(GoogleSignInCallback callback) {
-        Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-
-        // Lưu lại callback để sử dụng trong onActivityResult
-        this.googleSignInCallback = callback;
-    }
-
-    private void registerUser(String username, String password, String email) {
-        RegisterRequest register = new RegisterRequest(username, password, email);
-
-        Call<LoginResponse> call = authServices.register(register);
-
-        call.enqueue(new retrofit2.Callback<LoginResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<LoginResponse> call, @NonNull retrofit2.Response<LoginResponse> response) {
-                if (response.isSuccessful()) {
-                    LoginResponse loginResponse = response.body();
-                    if (loginResponse != null) {
-                        saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
-                        Toast.makeText(getActivity(), "Registration successful", Toast.LENGTH_SHORT).show();
-                        navigateToMainActivity();
-                    } else {
-                        Log.e("RegisterFragment", "Error registering user");
-                        Toast.makeText(getActivity(), "Error registering user", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Log.e("RegisterFragment", "Response not successful: " + response.errorBody().toString());
-                    Toast.makeText(getActivity(), "Response not successful", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
-                Log.e("RegisterFragment", "Error registering user", t);
-                Toast.makeText(getActivity(), "Error registering user", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
+    // Navigate to ProductsActivity after successful registration
     private void navigateToMainActivity() {
-        Log.d("RegisterFragment", "Navigating to ProductsActivity");
-        Intent intent = new Intent(getActivity(), ProductsActivity.class);
+        Intent intent = new Intent(requireContext(), ProductsActivity.class);
         startActivity(intent);
         requireActivity().finish();
     }
-
-    private void saveUserDetails(String id, String username, String email) {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("id", id);
-        editor.putString("username", username);
-        editor.putString("email", email);
-        editor.apply();
-    }
 }
-
-

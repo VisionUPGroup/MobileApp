@@ -1,0 +1,103 @@
+<!-- File: item_order_history.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/rounded_background_order"
+    android:layout_marginHorizontal="1dp"
+    android:layout_marginVertical="2dp"
+    android:padding="8dp">
+
+    <!-- Phần hiển thị ID đơn hàng và trạng thái đơn hàng -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- ID đơn hàng -->
+        <TextView
+            android:id="@+id/txtOrderId"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Order ID: 12345"
+            android:textSize="17dp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"/>
+
+        <!-- Trạng thái đơn hàng (Đang giao, Hoàn thành, v.v.) -->
+        <TextView
+            android:id="@+id/txtOrderStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trạng thái"
+            android:textColor="@android:color/holo_red_dark"/>
+    </LinearLayout>
+
+    <!-- Phần hiển thị trạng thái Đặt cọc và thời gian đặt hàng (nằm ngang hàng) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp">
+
+        <!-- Trạng thái Đặt cọc -->
+        <TextView
+            android:id="@+id/txtIsDeposit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đặt cọc"
+            android:textColor="@android:color/holo_blue_dark"/>
+
+        <!-- Thời gian đặt hàng (Căn phải ngoài cùng) -->
+        <TextView
+            android:id="@+id/txtOrderTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="2024-10-16 17:45"
+            android:textColor="@android:color/darker_gray"
+            android:gravity="end"/>
+    </LinearLayout>
+
+    <!-- RecyclerView để hiển thị danh sách sản phẩm trong đơn hàng -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewProducts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:nestedScrollingEnabled="false"/>
+
+    <!-- Tổng số tiền của đơn hàng (Căn phải) -->
+    <TextView
+        android:id="@+id/txtTotalAmount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Thành tiền: đ0"
+        android:paddingTop="8dp"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:gravity="end"/>
+
+    <!-- Phần hiển thị các nút hành động (Mua lại, Đánh giá) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:paddingTop="8dp">
+
+        <!-- Nút Đánh giá -->
+        <Button
+            android:id="@+id/btnReview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Đánh giá"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/blue"/>
+    </LinearLayout>
+</LinearLayout>

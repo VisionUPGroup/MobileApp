@@ -190,7 +190,7 @@ public class LoginFragment extends Fragment {
 
                 if (response.isSuccessful() && loginResponse != null) {
                     Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
-                    saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
+                    saveUserDetails(String.valueOf(loginResponse.getUser().getId()), loginResponse.getUser().getUsername(), loginResponse.getUser().getEmail(), loginResponse.getAccessToken(), loginResponse.getRefreshToken());
                     navigateToMainActivity();
                 } else {
                     Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
@@ -217,7 +217,7 @@ public class LoginFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 if (!response.isSuccessful() && response.body() == null) {
-                    RegisterRequest registerRequest = new RegisterRequest(username, pass, email);
+                    RegisterRequest registerRequest = new RegisterRequest(username, pass, email,"");
 
                     register(registerRequest);
                 }
@@ -225,10 +225,10 @@ public class LoginFragment extends Fragment {
                 if (response.body() != null && response.isSuccessful()) {
                     Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
                     LoginResponse loginResponse = response.body();
-                    saveDeviceTokenToFirestore(loginResponse.getEmail());
-                    Log.d("LoginFragment", "Login successful: " + loginResponse.getUsername() + " " + loginResponse.getEmail() + " " + loginResponse.getId());
+                    saveDeviceTokenToFirestore(loginResponse.getUser().getEmail());
+                    Log.d("LoginFragment", "Login successful: " + loginResponse.getUser().getUsername() + " " + loginResponse.getUser().getEmail() + " " + loginResponse.getUser().getId());
 
-                    saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
+                    saveUserDetails(String.valueOf(loginResponse.getUser().getId()), loginResponse.getUser().getUsername(), loginResponse.getUser().getEmail(), loginResponse.getAccessToken(), loginResponse.getRefreshToken());
                     navigateToMainActivity();
                 }
             }
@@ -248,8 +248,8 @@ public class LoginFragment extends Fragment {
                     Toast.makeText(getActivity(), "Register successful", Toast.LENGTH_SHORT).show();
                     LoginResponse loginResponse = response.body();
 
-                    saveUserDetails(String.valueOf(loginResponse.getId()), loginResponse.getUsername(), loginResponse.getEmail());
-                    saveDeviceTokenToFirestore(loginResponse.getEmail());
+                    saveUserDetails(String.valueOf(loginResponse.getUser().getId()), loginResponse.getUser().getUsername(), loginResponse.getUser().getEmail(), loginResponse.getAccessToken(), loginResponse.getRefreshToken());
+                    saveDeviceTokenToFirestore(loginResponse.getUser().getEmail());
                     navigateToMainActivity();
                 } else {
                     Toast.makeText(getActivity(), "Register failed", Toast.LENGTH_SHORT).show();
@@ -368,12 +368,28 @@ public class LoginFragment extends Fragment {
     }
 
     // Save user details to SharedPreferences
-    private void saveUserDetails(String id, String username, String email) {
+    private void saveUserDetails(String id, String username, String email, String accessToken, String refreshToken) {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        // Lưu dữ liệu vào SharedPreferences
         editor.putString("id", id);
         editor.putString("username", username);
         editor.putString("email", email);
+        editor.putString("accessToken", accessToken); // Lưu accessToken
+        editor.putString("refreshToken", refreshToken);
         editor.apply();
+
+        // Log ra thông tin đã lưu
+        Log.d("TAG1", "saveUserDetails: ID = " + id + ", Username = " + username + ", Email = " + email);
+
+        // Kiểm tra lại giá trị đã lưu
+        String savedId = sharedPreferences.getString("id", "No ID found");
+        String savedUsername = sharedPreferences.getString("username", "No Username found");
+        String savedEmail = sharedPreferences.getString("email", "No Email found");
+
+        // Log kết quả kiểm tra
+        Log.d("TAG1", "Check saved data: ID = " + savedId + ", Username = " + savedUsername + ", Email = " + savedEmail);
     }
+
 }

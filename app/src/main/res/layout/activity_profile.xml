@@ -3,38 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="?attr/homeAsUpIndicator"
-        app:title="Your Profile"
-        app:titleTextColor="@android:color/black" />
+    android:layout_height="match_parent"
+    tools:context=".product.ui.profile.ProfileActivity">
 
 
+    <!-- Profile Information Section -->
     <LinearLayout
         android:id="@+id/profile_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="30dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+        tools:ignore="MissingConstraints">
 
         <ImageView
             android:id="@+id/profile_image"
             android:layout_width="96dp"
             android:layout_height="96dp"
-            android:layout_gravity="center"
-            android:layout_margin="4dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:adjustViewBounds="true"
@@ -49,44 +37,102 @@
             android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginTop="8dp"
             android:text="Username"
             android:textSize="20sp"
+            android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:text="user@example.com"
             android:textColor="@color/gray"
             tools:ignore="HardcodedText" />
-
-        <Button
-            android:id="@+id/user_order"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="User order"
-            android:layout_marginTop="20dp"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/black"
-            tools:ignore="HardcodedText" />
     </LinearLayout>
 
+    <!-- Account Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/account_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/profile_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tài Khoản"
+                android:textSize="18sp"
+                android:paddingLeft="5dp"
+                android:paddingBottom="10dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/edit_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chỉnh sửa tài khoản"
+                android:drawableStart="@drawable/userpen"
+                android:textSize="16sp"
+                android:drawablePadding="15dp"
+                android:paddingVertical="8dp" />
+
+            <TextView
+                android:id="@+id/user_order"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lịch sử mua hàng"
+                android:textSize="16sp"
+                android:drawableStart="@drawable/overview"
+                android:drawablePadding="15dp"
+                android:paddingVertical="8dp" />
+
+            <TextView
+                android:id="@+id/notifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thông báo"
+                android:drawableStart="@drawable/globe"
+                android:textSize="16sp"
+                android:drawablePadding="15dp"
+                android:paddingVertical="8dp" />
+
+            <TextView
+                android:id="@+id/changepassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Đổi mật khẩu"
+                android:drawableStart="@drawable/userlock"
+                android:textSize="16sp"
+                android:drawablePadding="15dp"
+                android:paddingVertical="8dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Sign Out Button -->
     <Button
         android:id="@+id/btn_sign_out"
-        android:layout_width="350dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
         android:layout_marginBottom="56dp"
         android:backgroundTint="@color/blue"
-        android:text="Sign Out"
+        android:text="Đăng xuất tài khoản"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="HardcodedText,MissingConstraints" />
-
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

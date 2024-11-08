@@ -11,8 +11,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.glass_project.DTO.CartDTO.CartDetailResponse;
 import com.example.glass_project.R;
-import com.example.glass_project.model.Order;
-import com.example.glass_project.model.ProductGlass;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;

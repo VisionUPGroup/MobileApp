@@ -1,0 +1,88 @@
+<!-- kiosk_item.xml -->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Thông tin Kiosk -->
+        <TextView
+            android:id="@+id/kiosk_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kiosk Name"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textColor="@color/blue"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/kiosk_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kiosk Address"
+            android:layout_marginBottom="4dp"
+            android:paddingStart="10dp" />
+
+        <!-- Số điện thoại và email với các nút gọi và email -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/kiosk_phone_number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Phone Number"
+                android:paddingStart="10dp" />
+
+            <ImageButton
+                android:id="@+id/btn_call"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/phoneflip"
+                android:contentDescription="Call"
+                android:paddingRight="10dp"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/kiosk_email"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Email"
+                android:paddingStart="10dp" />
+
+            <ImageButton
+                android:id="@+id/btn_email"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/envelope"
+                android:contentDescription="Email"
+                android:paddingRight="10dp"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

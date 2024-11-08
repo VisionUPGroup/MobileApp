@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -15,12 +14,10 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
 import com.example.glass_project.databinding.ActivityProductsBinding;
 import com.example.glass_project.product.ui.profile.ProfileActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class ProductsActivity extends AppCompatActivity {
 
@@ -54,7 +51,7 @@ public class ProductsActivity extends AppCompatActivity {
 
     private void setupNavigation() {
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_notifications)
+                R.id.navigation_home, R.id.navigation_profile)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_products);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);

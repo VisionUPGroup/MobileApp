@@ -1,77 +1,201 @@
 package com.example.glass_project.product.ui.map;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.caverock.androidsvg.BuildConfig;
 import com.example.glass_project.R;
+import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.data.adapter.KioskAdapter;
+import com.example.glass_project.data.model.Kiosk;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.osmdroid.config.Configuration;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.Marker;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class MapFragment extends Fragment {
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
-    private MapView mapView;
-    private Marker marker;
-    private GeoPoint markerPoint = new GeoPoint(10.87573, 106.80291); // Coordinates of Ho Chi Minh City
+public class MapFragment extends Fragment implements OnMapReadyCallback {
+
+    private GoogleMap mMap;
+    private RecyclerView recyclerView;
+    private KioskAdapter adapter;
+    private List<Kiosk> kioskList = new ArrayList<>();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        // Configure OSMDroid User Agent
-        Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
+        // Initialize RecyclerView
+        recyclerView = view.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialize MapView
-        mapView = view.findViewById(R.id.mapView);
-        mapView.setTileSource(TileSourceFactory.MAPNIK);
-        mapView.setBuiltInZoomControls(true);
-        mapView.setMultiTouchControls(true);
+        // Load the map
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapView);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
 
-        // Set the initial zoom level and center the map on Ho Chi Minh City
-        mapView.getController().setZoom(14.0);
-        mapView.getController().setCenter(markerPoint);
-
-        // Add a marker at the specified location
-        addMarker(markerPoint, "Vision Up", "Địa Chỉ Nhà Văn Hóa Sinh Viên Dĩ An Bình Dương");
+        // Fetch data from API
+        new FetchKiosksTask().execute();
 
         return view;
     }
 
-    private void addMarker(GeoPoint geoPoint, String title, String snippet) {
-        // Remove existing marker if exists
-        if (marker != null) {
-            mapView.getOverlays().remove(marker);
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+    }
+
+    private class FetchKiosksTask extends AsyncTask<Void, Void, List<Kiosk>> {
+        @Override
+        protected List<Kiosk> doInBackground(Void... voids) {
+            try {
+                SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
+                String BaseUrl = baseUrl.BASE_URL;
+
+                URL url = new URL(BaseUrl + "/api/kiosks");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+                urlConnection.setRequestProperty("accept", "*/*");
+
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    return parseKiosksData(response.toString());
+                } else {
+                    Log.e("API_ERROR", "Failed to fetch data. Response Code: " + responseCode);
+                }
+
+            } catch (Exception e) {
+                Log.e("API_ERROR", "Exception: " + e.getMessage(), e);
+            }
+            return null;
         }
 
-        marker = new Marker(mapView);
-        marker.setPosition(geoPoint);
-        marker.setTitle(title);
-        marker.setSnippet(snippet);
-        mapView.getOverlays().add(marker);
-        mapView.invalidate(); // Refresh map
+        @Override
+        protected void onPostExecute(List<Kiosk> kiosks) {
+            if (kiosks != null) {
+                kioskList = kiosks;
+                adapter = new KioskAdapter(kioskList, MapFragment.this::onKioskSelected, getContext());
+                recyclerView.setAdapter(adapter);
+
+                for (Kiosk kiosk : kioskList) {
+                    LatLng location = getLocationFromAddress(kiosk.getAddress());
+                    if (location != null) {
+                        addMarker(location, kiosk.getName());
+                    }
+                }
+            }
+        }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mapView.onResume(); // Needed for OSMDroid
+    private List<Kiosk> parseKiosksData(String jsonResponse) throws JSONException {
+        List<Kiosk> kioskList = new ArrayList<>();
+        JSONArray jsonArray = new JSONArray(jsonResponse);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            int id = jsonObject.getInt("id");
+            String name = jsonObject.getString("name");
+            String address = jsonObject.getString("address");
+            String phoneNumber = jsonObject.getString("phoneNumber");
+            String email = jsonObject.getString("email");
+            int accountID = jsonObject.getInt("accountID");
+            String openingHours = jsonObject.getString("openingHours");
+            String createdAt = jsonObject.getString("createdAt");
+            String updatedAt = jsonObject.getString("updatedAt");
+            boolean status = jsonObject.getBoolean("status");
+
+            if (status) {
+                Kiosk kiosk = new Kiosk(id, name, address, phoneNumber, email, accountID, openingHours, createdAt, updatedAt, status);
+                kioskList.add(kiosk);
+            }
+        }
+
+        return kioskList;
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        mapView.onPause(); // Needed for OSMDroid
+    private LatLng getLocationFromAddress(String address) {
+        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocationName(address, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address location = addresses.get(0);
+                return new LatLng(location.getLatitude(), location.getLongitude());
+            }
+        } catch (Exception e) {
+            Log.e("Geocoder Error", "Error getting location from address: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private void addMarker(LatLng location, String title) {
+        if (mMap != null) {
+            mMap.addMarker(new MarkerOptions().position(location).title(title));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 10));
+        }
+    }
+
+    private void onKioskSelected(Kiosk kiosk) {
+        LatLng location = getLocationFromAddress(kiosk.getAddress());
+        if (location != null) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 14.0f));
+        }
+
+        // Xử lý sự kiện bấm vào nút gọi điện
+        ImageButton btnCall = getView().findViewById(R.id.btn_call);
+        btnCall.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:" + kiosk.getPhoneNumber()));
+            startActivity(intent);
+        });
+
+        // Xử lý sự kiện bấm vào nút gửi email
+        ImageButton btnEmail = getView().findViewById(R.id.btn_email);
+        btnEmail.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("mailto:" + kiosk.getEmail()));
+            startActivity(intent);
+        });
     }
 }

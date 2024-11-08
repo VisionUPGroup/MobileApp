@@ -38,7 +38,18 @@
             android:padding="10dp"
             android:textColorHint="@color/hintText"
             tools:ignore="Autofill,HardcodedText,TouchTargetSizeCheck,TextContrastCheck,VisualLintOverlap" />
-
+        <EditText
+            android:id="@+id/editPhoneNumber"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/edit_text_background"
+            android:inputType="phone"
+            android:ems="10"
+            android:hint="Phone Number"
+            android:padding="10dp"
+            android:textColorHint="@color/hintText"
+            tools:ignore="Autofill,HardcodedText,TouchTargetSizeCheck,TextContrastCheck" />
         <FrameLayout
             android:layout_width="300dp"
             android:layout_height="wrap_content"

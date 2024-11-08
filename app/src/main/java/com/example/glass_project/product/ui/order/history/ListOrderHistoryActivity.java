@@ -2,27 +2,26 @@ package com.example.glass_project.product.ui.order.history;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.util.Log;
+import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
+import com.example.glass_project.auth.baseUrl;
 import com.example.glass_project.data.adapter.OrderHistoryAdapter;
-import com.example.glass_project.data.model.OrderHistoryItem;
+import com.example.glass_project.data.model.order.OrderHistoryItem;
+import com.example.glass_project.data.model.order.OrderHistoryResponse;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,109 +29,99 @@ import java.util.List;
 
 public class ListOrderHistoryActivity extends AppCompatActivity {
 
-    private ListView listViewOrderHistory;
+    private RecyclerView recyclerViewOrderHistory;
     private OrderHistoryAdapter orderHistoryAdapter;
-    private List<OrderHistoryItem> orderHistoryItems;
+    private List<OrderHistoryItem> orderHistoryItems = new ArrayList<>();
+    private static final String TAG = "ListOrderHistory";
+
+    private boolean isLoading = false; // Biến để kiểm soát trạng thái tải
+    private int currentPage = 1; // Trang hiện tại
+    private final int pageSize = 5; // Số mục trên mỗi trang
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_order_history);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        recyclerViewOrderHistory = findViewById(R.id.recyclerViewOrderHistory);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerViewOrderHistory.setLayoutManager(layoutManager);
 
-        listViewOrderHistory = findViewById(R.id.listViewOrderHistory);
-        orderHistoryItems = new ArrayList<>();
         orderHistoryAdapter = new OrderHistoryAdapter(this, orderHistoryItems);
-        listViewOrderHistory.setAdapter(orderHistoryAdapter);
-        TextView textViewEmpty = findViewById(R.id.textViewEmpty);
-        // Get accountId from SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String accountId = sharedPreferences.getString("id", "");
+        recyclerViewOrderHistory.setAdapter(orderHistoryAdapter);
 
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        // Lắng nghe sự kiện cuộn tới cuối danh sách
+        recyclerViewOrderHistory.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
-        // Call your API to fetch order history data
-        new FetchOrderHistoryTask().execute(accountId);
+                // Kiểm tra nếu đã cuộn tới cuối danh sách và không đang tải
+                if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                        && firstVisibleItemPosition >= 0) {
+                    currentPage++; // Tăng trang hiện tại
+                    fetchOrderHistory(currentPage); // Tải thêm dữ liệu
+                }
+            }
+        });
+
+        fetchOrderHistory(currentPage);
     }
 
-
-    private class FetchOrderHistoryTask extends AsyncTask<String, Void, List<OrderHistoryItem>> {
-
-        @Override
-        protected List<OrderHistoryItem> doInBackground(String... params) {
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String orderHistoryJsonStr;
-            String accountId = params[0]; // Get accountId from params
-
+    private void fetchOrderHistory(int page) {
+        isLoading = true; // Bắt đầu tải dữ liệu
+        new Thread(() -> {
             try {
-                URL url = new URL("https://visionup.azurewebsites.net/api/Order/account/" + accountId + "/mobile");
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
+                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                String accountId = sharedPreferences.getString("id", "");
+                String accessToken = sharedPreferences.getString("accessToken", "");
 
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuilder buffer = new StringBuilder();
-                if (inputStream == null) {
-                    // Nothing to do.
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line).append("\n");
+                if (accountId.isEmpty() || accessToken.isEmpty()) {
+                    runOnUiThread(() -> Toast.makeText(this, "Vui lòng đăng nhập lại.", Toast.LENGTH_SHORT).show());
+                    return;
                 }
 
-                if (buffer.length() == 0) {
-                    // Stream was empty. No point in parsing.
-                    return null;
-                }
-                orderHistoryJsonStr = buffer.toString();
+                String BaseUrl = baseUrl.BASE_URL;
+                URL url = new URL(BaseUrl + "/api/accounts/orders?AccountID=" + accountId
+                        + "&PageIndex=" + page + "&PageSize=" + pageSize + "&Descending=true");
 
-                // Process JSON response
-                Gson gson = new Gson();
-                Type listType = new TypeToken<List<OrderHistoryItem>>() {}.getType();
-                return gson.fromJson(orderHistoryJsonStr, listType);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
 
-            } catch (IOException e) {
-                // Log error
-                e.printStackTrace();
-                return null;
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        e.printStackTrace();
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
                     }
+
+                    OrderHistoryResponse orderHistoryResponse = new Gson().fromJson(response.toString(), OrderHistoryResponse.class);
+                    List<OrderHistoryItem> newItems = orderHistoryResponse.getData();
+
+                    runOnUiThread(() -> {
+                        orderHistoryItems.addAll(newItems); // Thêm dữ liệu mới vào danh sách
+                        orderHistoryAdapter.notifyDataSetChanged();
+                        isLoading = false; // Kết thúc tải
+                    });
+                } else {
+                    runOnUiThread(() -> Toast.makeText(this, "Lỗi kết nối: " + responseCode, Toast.LENGTH_SHORT).show());
+                    isLoading = false;
                 }
-            }
-        }
 
-        @Override
-        protected void onPostExecute(List<OrderHistoryItem> orders) {
-            if (orders != null && !orders.isEmpty()) {
-                orderHistoryItems.addAll(orders);
-                orderHistoryAdapter.notifyDataSetChanged();
-                listViewOrderHistory.setVisibility(View.VISIBLE);
-                findViewById(R.id.textViewEmpty).setVisibility(View.GONE);
-            } else {
-                // Handle case where orders list is empty or null
-                listViewOrderHistory.setVisibility(View.GONE);
-                findViewById(R.id.textViewEmpty).setVisibility(View.VISIBLE);
+                connection.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, "fetchOrderHistory: ", e);
+                runOnUiThread(() -> Toast.makeText(this, "Lỗi khi tải dữ liệu.", Toast.LENGTH_SHORT).show());
+                isLoading = false;
             }
-        }
-
+        }).start();
     }
 }

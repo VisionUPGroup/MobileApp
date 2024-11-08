@@ -63,7 +63,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textViewSenderAddress"
-        app:layout_constraintBottom_toTopOf="@id/textViewCode"/>
+        app:layout_constraintBottom_toTopOf="@+id/textViewIsDeposit"/>
+
+    <TextView
+        android:id="@+id/textViewIsDeposit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Deposit Status:True"
+        app:layout_constraintBottom_toTopOf="@id/textViewCode"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewReceiverAddress" />
 
     <TextView
         android:id="@+id/textViewCode"
@@ -73,7 +85,7 @@
         android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textViewReceiverAddress"
+        app:layout_constraintTop_toBottomOf="@+id/textViewIsDeposit"
         app:layout_constraintBottom_toTopOf="@id/textViewTotal"/>
 
     <TextView
