@@ -2,42 +2,41 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/cardView"
     card_view:cardCornerRadius="8dp"
     card_view:cardElevation="4dp"
-    card_view:cardBackgroundColor="@android:color/white"
-    android:layout_margin="8dp"
-    card_view:cardUseCompatPadding="true">
+    android:layout_margin="12dp"
+    android:background="@drawable/card_background_selector">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <!-- Hình ảnh bên trái -->
-        <ImageView
-            android:id="@+id/imageUrl"
-            android:layout_width="68dp"
-            android:layout_height="68dp"
-            android:background="@drawable/circle"
-            android:scaleType="centerCrop"
-            android:src="@drawable/default_avt" />
-
-        <!-- Phần thông tin bên phải của hình ảnh -->
+        <!-- Main Content -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:gravity="center_vertical">
+            android:orientation="horizontal">
 
-            <!-- Hàng đầu tiên: ID và Full Name -->
+            <!-- Left Image -->
+            <ImageView
+                android:id="@+id/imageUrl"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_avt"
+                android:background="@drawable/rounded_corner_image" />
+
+
+            <!-- Text Content -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingStart="16dp">
 
                 <TextView
                     android:id="@+id/textId"
@@ -45,27 +44,122 @@
                     android:layout_height="wrap_content"
                     android:text="ID - Full Name"
                     android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="@color/black" />
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/textPhoneNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Phone Number"
+                    android:textSize="14sp"
+                    android:textColor="#7A7A7A" />
+                <TextView
+                    android:id="@+id/textAge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Age: 0"
+                    android:textSize="14sp"
+                    android:textColor="#7A7A7A"
+                    android:layout_marginTop="4dp" />
+
             </LinearLayout>
 
-            <!-- Hàng thứ hai: Phone Number -->
-            <TextView
-                android:id="@+id/textPhoneNumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Phone Number"
-                android:textColor="@color/gray"
-                android:textSize="14sp" />
+            <!-- Dropdown Icon -->
+            <ImageView
+                android:id="@+id/dropdownIcon"
+                android:layout_width="25dp"
+                android:layout_height="20dp"
+                android:src="@drawable/up"
+                android:contentDescription="Dropdown Icon"
+                android:layout_gravity="center" />
         </LinearLayout>
 
-        <!-- Icon mũi tên phải, căn giữa theo chiều dọc -->
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/anglesquareright" />
+        <!-- Dropdown Details -->
+        <LinearLayout
+            android:id="@+id/dropdownContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:paddingTop="16dp">
 
+            <!-- Detail 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="34dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/edit"
+                    android:contentDescription="Icon Detail 1"
+                    android:layout_marginEnd="16dp" />
+
+                <TextView
+                    android:id="@+id/detail1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Chỉnh sửa hồ sơ"
+                    android:textSize="14sp"
+                    android:textColor="#000000" />
+            </LinearLayout>
+
+            <!-- Detail 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:src="@drawable/cellphone"
+                    android:contentDescription="Icon Detail 2"
+                    android:layout_marginEnd="16dp" />
+
+                <TextView
+                    android:id="@+id/detail2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Danh sách kết quả kiểm tra online"
+                    android:textSize="14sp"
+                    android:textColor="#000000" />
+            </LinearLayout>
+
+            <!-- Detail 3 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="34dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/optician"
+                    android:contentDescription="Icon Detail 3"
+                    android:layout_marginEnd="16dp" />
+
+                <TextView
+                    android:id="@+id/detail3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Danh sách kết quả đo máy"
+                    android:textSize="14sp"
+                    android:textColor="#000000" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>

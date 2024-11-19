@@ -5,18 +5,19 @@
     <string name="title_activity_products">VisionUp</string>
     <string name="title_home">Trang Chủ</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_profile">Tài Khoản</string>
+    <string name="title_account">Tài Khoản</string>
     <string name="default_web_client_id">299191069889-jm8q0h5m80c69stdd6llrgk7jghc79lp.apps.googleusercontent.com</string>
     <string name="message">Lịch sử đơn Hàng</string>
-    <string name="title_message">Đơn Hàng</string>
+    <string name="title_result">Kết quả</string>
     <string name="title_map">Ki-ốt</string>
-    <string name="title_shopping_cart">Kiểm Tra Mắt</string>
+    <string name="title_test">Kiểm Tra Mắt</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-
+    <string name="language_switch">Switch Language</string>
+    <string name="language_changed">Language has been changed</string>
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus

@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.glass_project.auth.ViewFragmentApdater;
-import com.example.glass_project.product.ProductsActivity;
+import com.example.glass_project.product.ui.other.ProductsActivity;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -56,6 +56,20 @@ public class MainActivity extends AppCompatActivity {
         String email = sharedPreferences.getString("email", null);
 
         return id != null && username != null && email != null;
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Kiểm tra nếu Activity này là Activity cuối trong ngăn xếp
+        if (isFinishing()) {
+            // Xóa "ExamData_left" và "ExamData_right"
+            SharedPreferences sharedPreferences = getSharedPreferences("EyeExamData", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.remove("ExamData_left");
+            editor.remove("ExamData_right");
+            editor.apply();
+        }
     }
 
 

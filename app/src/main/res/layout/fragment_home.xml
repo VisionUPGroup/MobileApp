@@ -1,3 +1,4 @@
+<!--fragment_home-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -28,7 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp" />
 
     <!-- LinearLayout containing icons with a background -->
     <LinearLayout
@@ -45,6 +46,7 @@
 
         <!-- Icons for different sections -->
         <LinearLayout
+            android:id="@+id/profileLinearLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -63,10 +65,11 @@
                 android:layout_height="wrap_content"
                 android:text="lịch sử đo"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"/>
+                android:textColor="@android:color/black" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/testLinearLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -85,10 +88,11 @@
                 android:layout_height="wrap_content"
                 android:text="kiểm tra mắt"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"/>
+                android:textColor="@android:color/black" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/mapLinearLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -107,10 +111,11 @@
                 android:layout_height="wrap_content"
                 android:text="ki-ốt"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"/>
+                android:textColor="@android:color/black" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/historyOrderLinearLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -129,7 +134,7 @@
                 android:layout_height="wrap_content"
                 android:text="Đơn hàng"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"/>
+                android:textColor="@android:color/black" />
         </LinearLayout>
 
     </LinearLayout>
@@ -146,7 +151,7 @@
         app:layout_constraintTop_toBottomOf="@id/icon_container_background"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp" />
 
     <!-- RecyclerView for recent orders -->
     <androidx.recyclerview.widget.RecyclerView

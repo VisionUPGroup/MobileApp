@@ -1,6 +1,7 @@
 package com.example.glass_project.product.ui.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,16 +22,13 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
 import com.example.glass_project.R;
 import com.example.glass_project.auth.baseUrl;
-import com.example.glass_project.config.repositories.EyeGlassRepositories;
-import com.example.glass_project.config.services.EyeGlassServices;
 import com.example.glass_project.data.adapter.BannerAdapter;
-import com.example.glass_project.data.adapter.GlassAdapter;
 import com.example.glass_project.data.adapter.OrderHistoryAdapter;
-import com.example.glass_project.data.model.EyeGlass;
-import com.example.glass_project.data.model.ResponseData;
 import com.example.glass_project.data.model.order.OrderHistoryItem;
 import com.example.glass_project.data.model.order.OrderHistoryResponse;
 import com.example.glass_project.databinding.FragmentHomeBinding;
+import com.example.glass_project.product.ui.order.history.ListOrderHistoryActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -40,8 +38,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import retrofit2.Call;
 
 public class HomeFragment extends Fragment {
 
@@ -59,7 +55,6 @@ public class HomeFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        EyeGlassServices eyeGlassServices = EyeGlassRepositories.getEyeGlassServices();
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -81,14 +76,40 @@ public class HomeFragment extends Fragment {
         // Load GIFs into icons using Glide
         loadIconsWithGlide();
 
-        // Fetch glasses for the RecyclerView (existing code)
-        fetchEyeGlasses(eyeGlassServices);
-
         // Fetch order history data with only the three most recent items
         fetchOrderHistory();
+        setupLinearLayoutClickEvents();
 
         return root;
     }
+
+    private void setupLinearLayoutClickEvents() {
+        // Lấy BottomNavigationView từ Activity
+        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.nav_view);
+
+        binding.profileLinearLayout.setOnClickListener(v -> {
+            // Chuyển đến mục "Profile"
+            bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
+        });
+
+        binding.testLinearLayout.setOnClickListener(v -> {
+            // Chuyển đến mục "Eye Check"
+            bottomNavigationView.setSelectedItemId(R.id.navigation_eye_check);
+        });
+
+        binding.mapLinearLayout.setOnClickListener(v -> {
+            // Chuyển đến mục "Map"
+            bottomNavigationView.setSelectedItemId(R.id.navigation_map);
+        });
+
+        binding.historyOrderLinearLayout.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), ListOrderHistoryActivity.class);
+            startActivity(intent);
+        });
+    }
+
+
+
 
     private void setupBanner() {
         bannerViewPager = binding.bannerViewpager;
@@ -129,6 +150,11 @@ public class HomeFragment extends Fragment {
 
     private void fetchOrderHistory() {
         new Thread(() -> {
+            if (!isAdded()) {
+                Log.e(TAG, "Fragment not attached to Activity. Aborting fetchOrderHistory.");
+                return;
+            }
+
             try {
                 SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 String accountId = sharedPreferences.getString("id", "");
@@ -161,47 +187,32 @@ public class HomeFragment extends Fragment {
                     OrderHistoryResponse orderHistoryResponse = new Gson().fromJson(response.toString(), OrderHistoryResponse.class);
                     List<OrderHistoryItem> newItems = orderHistoryResponse.getData();
 
-                    requireActivity().runOnUiThread(() -> {
-                        orderHistoryItems.clear();
-                        orderHistoryItems.addAll(newItems);
-                        orderHistoryAdapter.notifyDataSetChanged();
-                    });
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            orderHistoryItems.clear();
+                            orderHistoryItems.addAll(newItems);
+                            orderHistoryAdapter.notifyDataSetChanged();
+                        });
+                    }
                 } else {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(getContext(), "Lỗi kết nối: " + responseCode, Toast.LENGTH_SHORT).show()
-                    );
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(getContext(), "Lỗi kết nối: " + responseCode, Toast.LENGTH_SHORT).show()
+                        );
+                    }
                 }
                 connection.disconnect();
             } catch (Exception e) {
                 Log.e(TAG, "fetchOrderHistory: ", e);
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "Lỗi khi tải dữ liệu.", Toast.LENGTH_SHORT).show()
-                );
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Lỗi khi tải dữ liệu.", Toast.LENGTH_SHORT).show()
+                    );
+                }
             }
         }).start();
     }
 
-    private void fetchEyeGlasses(EyeGlassServices eyeGlassServices) {
-        Call<ResponseData> call = eyeGlassServices.getGlasses();
-        call.enqueue(new retrofit2.Callback<ResponseData>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseData> call, @NonNull retrofit2.Response<ResponseData> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<EyeGlass> eyeGlasses = response.body().getData();
-                    GlassAdapter glassAdapter = new GlassAdapter(getContext(), eyeGlasses);
-                    // Uncomment the line below to set the adapter if you have a RecyclerView for glasses
-                    // binding.kioskRecyclerView.setAdapter(glassAdapter);
-                } else {
-                    Log.e("API Error", "Response unsuccessful or empty");
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<ResponseData> call, @NonNull Throwable t) {
-                Log.e("API Error", t.getMessage(), t);
-            }
-        });
-    }
 
     private String getGreetingMessage() {
         Calendar calendar = Calendar.getInstance();
@@ -214,11 +225,28 @@ public class HomeFragment extends Fragment {
             return "Chào buổi tối, ";
         }
     }
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (bannerHandler != null) {
+            bannerHandler.removeCallbacks(bannerRunnable);
+        }
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (bannerHandler != null) {
+            bannerHandler.postDelayed(bannerRunnable, 5000);
+        }
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        bannerHandler.removeCallbacks(bannerRunnable);
+        if (bannerHandler != null) {
+            bannerHandler.removeCallbacks(bannerRunnable);
+        }
         binding = null;
     }
+
 }

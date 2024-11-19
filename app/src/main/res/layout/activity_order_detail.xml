@@ -1,19 +1,32 @@
-<!-- File: activity_order_detail.xml -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:background="#F3F3F3">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:title="Chi tiết đặt hàng"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Order Progress Bar -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/linearLayoutProgressBar"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
         android:background="@color/white"
-        android:padding="8dp">
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Pending Step -->
         <LinearLayout
@@ -22,13 +35,11 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center">
-
             <ImageView
                 android:id="@+id/icon_pending"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/searchalt" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -51,13 +62,11 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center">
-
             <ImageView
                 android:id="@+id/icon_processing"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/boxalt" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -80,13 +89,11 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center">
-
             <ImageView
                 android:id="@+id/icon_shipping"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/shippingfast" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -109,13 +116,11 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center">
-
             <ImageView
                 android:id="@+id/icon_delivered"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/sellerstore" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -138,13 +143,11 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center">
-
             <ImageView
                 android:id="@+id/icon_completed"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/checkcircle" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -156,11 +159,15 @@
 
     <!-- Order Information Section -->
     <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
+        android:id="@+id/orderInformationCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:cardCornerRadius="12dp"
-        app:cardElevation="4dp">
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutProgressBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -168,7 +175,6 @@
             android:orientation="vertical"
             android:background="@android:color/white"
             android:padding="16dp">
-
             <TextView
                 android:id="@+id/txtReceiverAddress"
                 android:layout_width="wrap_content"
@@ -176,15 +182,12 @@
                 android:text="Địa chỉ: "
                 android:textSize="14sp"
                 android:paddingBottom="8dp" />
-
-            <!-- Kiosk and Deposit Information -->
             <TextView
                 android:id="@+id/txtKiosks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Kiosk:"
                 android:textSize="14sp" />
-
             <TextView
                 android:id="@+id/txtIsDeposit"
                 android:layout_width="wrap_content"
@@ -195,112 +198,114 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-
     <!-- RecyclerView for Order Details -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewOrderDetails"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        app:layout_constraintTop_toBottomOf="@id/orderInformationCard"
+        app:layout_constraintBottom_toTopOf="@id/totalAmountCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Total Amount Section -->
     <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
+        android:id="@+id/totalAmountCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:cardCornerRadius="12dp"
-        app:cardElevation="4dp">
-    <!-- Total Amount Section -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@android:color/white">
+        app:cardElevation="4dp"
+        app:layout_constraintBottom_toTopOf="@id/actionButtons"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Total Amount -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@android:color/white">
+            <!-- Total Amount -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Thành tiền:"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thành tiền:"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/txtTotalAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="đ0"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textColor="@android:color/holo_red_dark" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/txtTotalAmount"
-                android:layout_width="wrap_content"
+            <!-- Total Paid -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="đ0"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textColor="@android:color/holo_red_dark" />
+                android:orientation="horizontal"
+                android:paddingTop="4dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đã thanh toán:"
+                    android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/txtTotalPaid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="đ0"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
+
+            <!-- Remaining Amount -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="4dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Còn lại:"
+                    android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/txtRemainingAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="đ0"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textColor="@android:color/holo_orange_dark" />
+            </LinearLayout>
         </LinearLayout>
-
-        <!-- Total Paid -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="4dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Đã thanh toán:"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/txtTotalPaid"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="đ0"
-                android:textSize="16sp"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textColor="@android:color/holo_green_dark" />
-        </LinearLayout>
-
-        <!-- Remaining Amount -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="4dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Còn lại:"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/txtRemainingAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="đ0"
-                android:textSize="16sp"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textColor="@android:color/holo_orange_dark" />
-        </LinearLayout>
-    </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <!-- Action Buttons -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/actionButtons"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:padding="16dp">
-
-
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
         <Button
             android:id="@+id/button_review"
             android:layout_width="0dp"
@@ -313,4 +318,4 @@
             android:visibility="gone" />
     </LinearLayout>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

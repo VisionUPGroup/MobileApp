@@ -68,6 +68,8 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.databinding.runtime)
     implementation(libs.play.services.maps)
+    implementation(libs.camera.view)
+    implementation(libs.camera.lifecycle)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -78,6 +80,17 @@ dependencies {
     implementation ("org.osmdroid:osmdroid-android:6.1.18")
     implementation ("org.osmdroid:osmdroid-mapsforge:6.1.18")
     implementation("androidx.cardview:cardview:1.0.0")
+
+    implementation ("androidx.camera:camera-core:1.0.2")
+    implementation ("androidx.camera:camera-camera2:1.0.2")
+    implementation ("androidx.camera:camera-lifecycle:1.0.2")
+    implementation ("androidx.camera:camera-view:1.0.0-alpha26")
+
+    implementation("com.zeugmasolutions.localehelper:locale-helper-android:1.5.1")
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.0")
+    implementation ("androidx.navigation:navigation-ui-ktx:2.7.0")
+
+
 
 
 }

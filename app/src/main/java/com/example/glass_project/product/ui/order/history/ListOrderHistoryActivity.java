@@ -4,17 +4,19 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
 import com.example.glass_project.auth.baseUrl;
 import com.example.glass_project.data.adapter.OrderHistoryAdapter;
+import com.example.glass_project.data.adapter.ProcessAdapter;
 import com.example.glass_project.data.model.order.OrderHistoryItem;
 import com.example.glass_project.data.model.order.OrderHistoryResponse;
 import com.google.gson.Gson;
@@ -30,6 +32,7 @@ import java.util.List;
 public class ListOrderHistoryActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewOrderHistory;
+    private RecyclerView recyclerViewProcess;
     private OrderHistoryAdapter orderHistoryAdapter;
     private List<OrderHistoryItem> orderHistoryItems = new ArrayList<>();
     private static final String TAG = "ListOrderHistory";
@@ -37,6 +40,7 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
     private boolean isLoading = false; // Biến để kiểm soát trạng thái tải
     private int currentPage = 1; // Trang hiện tại
     private final int pageSize = 5; // Số mục trên mỗi trang
+    private String selectedProcess = "Pending"; // Mặc định Process là Pending
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,34 +48,55 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list_order_history);
 
         recyclerViewOrderHistory = findViewById(R.id.recyclerViewOrderHistory);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerViewOrderHistory.setLayoutManager(layoutManager);
+        recyclerViewProcess = findViewById(R.id.recyclerViewProcess);
 
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerViewOrderHistory.setLayoutManager(new LinearLayoutManager(this));
         orderHistoryAdapter = new OrderHistoryAdapter(this, orderHistoryItems);
         recyclerViewOrderHistory.setAdapter(orderHistoryAdapter);
 
-        // Lắng nghe sự kiện cuộn tới cuối danh sách
-        recyclerViewOrderHistory.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int visibleItemCount = layoutManager.getChildCount();
-                int totalItemCount = layoutManager.getItemCount();
-                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+        // Cấu hình RecyclerView cho các Process (nằm ngang)
+        LinearLayoutManager processLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerViewProcess.setLayoutManager(processLayoutManager);
 
-                // Kiểm tra nếu đã cuộn tới cuối danh sách và không đang tải
-                if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-                        && firstVisibleItemPosition >= 0) {
-                    currentPage++; // Tăng trang hiện tại
-                    fetchOrderHistory(currentPage); // Tải thêm dữ liệu
-                }
-            }
+        // Danh sách các Process
+        List<String> processList = new ArrayList<>();
+        processList.add("Pending");
+        processList.add("Processing");
+        processList.add("Shipping");
+        processList.add("Delivered");
+        processList.add("Completed");
+        processList.add("Cancelled");
+
+        ProcessAdapter processAdapter = new ProcessAdapter(processList, process -> {
+            selectedProcess = process;
+            currentPage = 1; // Đặt lại trang về 1 khi chọn lại Process
+            orderHistoryItems.clear(); // Xóa dữ liệu cũ
+            fetchOrderHistory(selectedProcess, currentPage); // Tải lại dữ liệu theo Process đã chọn
         });
 
-        fetchOrderHistory(currentPage);
-    }
+        recyclerViewProcess.setAdapter(processAdapter);
 
-    private void fetchOrderHistory(int page) {
+        fetchOrderHistory(selectedProcess, currentPage); // Mặc định chọn Process là Pending
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // Hiển thị nút quay lại
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Xử lý sự kiện khi nhấn vào nút quay lại
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    private void fetchOrderHistory(String process, int page) {
         isLoading = true; // Bắt đầu tải dữ liệu
         new Thread(() -> {
             try {
@@ -86,7 +111,7 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
 
                 String BaseUrl = baseUrl.BASE_URL;
                 URL url = new URL(BaseUrl + "/api/accounts/orders?AccountID=" + accountId
-                        + "&PageIndex=" + page + "&PageSize=" + pageSize + "&Descending=true");
+                        + "&Process=" + process + "&PageIndex=" + page + "&PageSize=" + pageSize + "&Descending=true");
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");

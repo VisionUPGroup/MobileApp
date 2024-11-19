@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.glass_project.R;
 import com.example.glass_project.auth.baseUrl;
 import com.example.glass_project.data.adapter.KioskAdapter;
-import com.example.glass_project.data.model.Kiosk;
+import com.example.glass_project.data.model.kiosk.Kiosk;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;

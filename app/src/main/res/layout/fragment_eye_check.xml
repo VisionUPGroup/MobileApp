@@ -1,0 +1,85 @@
+<!--fragment_eye_check-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:id="@+id/testLinearLayout"
+    android:background="@color/white">
+
+    <!-- Label chọn hồ sơ -->
+    <TextView
+        android:id="@+id/textViewProfileLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chọn hồ sơ"
+        android:textSize="18sp"
+        android:textColor="@color/primaryText"
+        android:letterSpacing="0.02"
+        android:layout_marginTop="16dp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Spinner (DropDown) để chọn hồ sơ -->
+    <Spinner
+        android:id="@+id/spinnerProfileID"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:minHeight="45dp"
+        android:padding="12dp"
+        android:background="@drawable/spinner_background_minimal"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/textViewProfileLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Tiêu đề GridView -->
+    <TextView
+        android:id="@+id/textViewExamTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Danh sách bài kiểm tra"
+        android:textSize="18sp"
+        android:textColor="@color/primaryText"
+        android:letterSpacing="0.02"
+        android:layout_marginTop="16dp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/spinnerProfileID"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- GridView cho danh sách bài kiểm tra -->
+    <GridView
+        android:id="@+id/gridViewExamList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:numColumns="2"
+        android:verticalSpacing="16dp"
+        android:horizontalSpacing="16dp"
+        android:gravity="center"
+        android:stretchMode="columnWidth"
+        app:layout_constraintTop_toBottomOf="@id/textViewExamTitle"
+        app:layout_constraintBottom_toTopOf="@id/textViewDisclaimer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Dòng chữ lưu ý -->
+    <TextView
+        android:id="@+id/textViewDisclaimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lưu ý: Bài kiểm tra chỉ mang tính chất tham khảo."
+        android:textSize="14sp"
+        android:textColor="@color/primaryText"
+        android:gravity="center"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/gridViewExamList"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

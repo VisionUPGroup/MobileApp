@@ -1,0 +1,6 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Màu khi chọn -->
+    <item android:state_pressed="true" android:drawable="@color/blue" />
+    <!-- Màu mặc định -->
+    <item android:drawable="@color/white" />
+</selector>

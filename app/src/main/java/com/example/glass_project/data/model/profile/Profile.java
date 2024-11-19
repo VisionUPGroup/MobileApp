@@ -11,6 +11,7 @@ public class Profile implements Serializable {
     private String urlImage;
     private String birthday;
     private boolean status;
+    private boolean expanded = false;
 
     public Profile(int id, int accountID, String fullName, String phoneNumber, String address, String urlImage, String birthday, boolean status) {
         this.id = id;
@@ -22,7 +23,13 @@ public class Profile implements Serializable {
         this.birthday = birthday;
         this.status = status;
     }
+    public boolean isExpanded() {
+        return expanded;
+    }
 
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded;
+    }
     public int getId() {
         return id;
     }
@@ -85,5 +92,10 @@ public class Profile implements Serializable {
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return id +" - "+ fullName+" - "+phoneNumber; // hoặc thuộc tính bạn muốn hiển thị
     }
 }

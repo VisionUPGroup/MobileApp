@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,8 +33,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements UpdateProfileDialogFragment.OnProfileUpdatedListener{
 
     public static final int UPDATE_PROFILE_REQUEST_CODE = 2;
     private ListView listView;
@@ -43,7 +44,7 @@ public class ProfileFragment extends Fragment {
     private List<Profile> profileList = new ArrayList<>();
     private int pageIndex = 1;
     private boolean isLoading = false;
-    private boolean hasMoreData = true; // Dùng để kiểm tra xem còn dữ liệu để tải tiếp hay không
+    private boolean hasMoreData = true;
     private static final int CREATE_PROFILE_REQUEST_CODE = 1;
 
     private Button createProfileButton;
@@ -53,27 +54,25 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        // Khởi tạo ListView và Adapter
+        // Initialize ListView and Adapter
         listView = view.findViewById(R.id.listView);
-        adapter = new ProfileAdapter(getContext(), profileList);
+        adapter = new ProfileAdapter(getContext(), this, profileList);
         listView.setAdapter(adapter);
 
-        // Nút để tạo hồ sơ mới
+        // Create profile button
         createProfileButton = view.findViewById(R.id.createProfileButton);
         createProfileButton.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), CreateProfileActivity.class);
             startActivityForResult(intent, CREATE_PROFILE_REQUEST_CODE);
         });
 
-        // Tải hồ sơ ban đầu
+        // Initial profile loading
         loadProfiles();
 
-        // Thêm listener để lắng nghe sự kiện cuộn của ListView
+        // Infinite scrolling
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                // Không cần xử lý
-            }
+            public void onScrollStateChanged(AbsListView view, int scrollState) {}
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -92,7 +91,7 @@ public class ProfileFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == CREATE_PROFILE_REQUEST_CODE || requestCode == UPDATE_PROFILE_REQUEST_CODE) {
-                // Nếu hồ sơ được tạo hoặc cập nhật thành công, tải lại danh sách từ đầu
+                // Refresh profile list
                 pageIndex = 1;
                 profileList.clear();
                 hasMoreData = true;
@@ -101,19 +100,12 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    // Phương thức tải hồ sơ từ API
     private void loadProfiles() {
         if (isLoading) return;
         isLoading = true;
 
-        new FetchProfilesTask().execute();
-    }
-
-    // AsyncTask để tải dữ liệu hồ sơ từ API
-    private class FetchProfilesTask extends AsyncTask<Void, Void, List<Profile>> {
-        @Override
-        protected List<Profile> doInBackground(Void... voids) {
-            List<Profile> profiles = new ArrayList<>();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
             try {
                 SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
@@ -121,7 +113,7 @@ public class ProfileFragment extends Fragment {
 
                 if (accountId.isEmpty() || accessToken.isEmpty()) {
                     Log.e("ProfileFragment", "Account ID or Access Token not found");
-                    return null;
+                    return;
                 }
 
                 String BaseUrl = baseUrl.BASE_URL;
@@ -142,32 +134,28 @@ public class ProfileFragment extends Fragment {
                     }
                     in.close();
 
-                    profiles = parseProfilesData(response.toString());
+                    List<Profile> newProfiles = parseProfilesData(response.toString());
+                    getActivity().runOnUiThread(() -> {
+                        if (!newProfiles.isEmpty()) {
+                            profileList.addAll(newProfiles);
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            hasMoreData = false;
+                            Toast.makeText(getContext(), "No more profiles to load", Toast.LENGTH_SHORT).show();
+                        }
+                        isLoading = false;
+                    });
                 } else {
                     Log.e("ProfileFragment", "Failed to fetch profiles. Response Code: " + responseCode);
                 }
-
             } catch (Exception e) {
                 Log.e("ProfileFragment", "Exception: " + e.getMessage(), e);
+                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Error loading profiles", Toast.LENGTH_SHORT).show());
+                isLoading = false;
             }
-            return profiles;
-        }
-
-        @Override
-        protected void onPostExecute(List<Profile> profiles) {
-            isLoading = false;
-            if (profiles != null && !profiles.isEmpty()) {
-                profileList.addAll(profiles);
-                adapter.notifyDataSetChanged();
-            } else {
-                // Đánh dấu rằng không còn dữ liệu để tải thêm
-                hasMoreData = false;
-                Toast.makeText(getContext(), "No more profiles to load", Toast.LENGTH_SHORT).show();
-            }
-        }
+        });
     }
 
-    // Phương thức phân tích dữ liệu JSON từ API thành danh sách Profile
     private List<Profile> parseProfilesData(String jsonResponse) throws JSONException {
         List<Profile> profileList = new ArrayList<>();
         JSONObject jsonObject = new JSONObject(jsonResponse);
@@ -186,9 +174,19 @@ public class ProfileFragment extends Fragment {
             boolean status = profileObject.getBoolean("status");
 
             Profile profile = new Profile(id, accountID, fullName, phoneNumber, address, urlImage, birthday, status);
+
             profileList.add(profile);
         }
 
         return profileList;
+    }
+
+    @Override
+    public void onProfileUpdated() {
+        // Tải lại danh sách profile sau khi cập nhật thành công
+        pageIndex = 1;
+        profileList.clear();
+        hasMoreData = true;
+        loadProfiles();
     }
 }

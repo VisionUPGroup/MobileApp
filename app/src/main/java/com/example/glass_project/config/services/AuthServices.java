@@ -1,7 +1,7 @@
 package com.example.glass_project.config.services;
 
-import com.example.glass_project.data.model.Login;
-import com.example.glass_project.data.model.LoginResponse;
+import com.example.glass_project.data.model.user.Login;
+import com.example.glass_project.data.model.user.LoginResponse;
 import com.example.glass_project.data.model.request.RegisterRequest;
 
 import retrofit2.Call;

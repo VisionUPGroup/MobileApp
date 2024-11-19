@@ -30,7 +30,7 @@ import java.util.TimeZone;
 
 public class CreateProfileActivity extends AppCompatActivity {
 
-    private EditText editFullName, editPhoneNumber, editAddress, editUrlImage, editBirthday;
+    private EditText editFullName, editPhoneNumber, editAddress, editBirthday;
     private Button btnCreateProfile, btnCancel;
 
     @Override
@@ -42,7 +42,6 @@ public class CreateProfileActivity extends AppCompatActivity {
         editFullName = findViewById(R.id.editFullName);
         editPhoneNumber = findViewById(R.id.editPhoneNumber);
         editAddress = findViewById(R.id.editAddress);
-        editUrlImage = findViewById(R.id.editUrlImage);
         editBirthday = findViewById(R.id.editBirthday);
         btnCreateProfile = findViewById(R.id.btnCreateProfile);
         btnCancel = findViewById(R.id.btnCancel);
@@ -71,7 +70,7 @@ public class CreateProfileActivity extends AppCompatActivity {
             String fullName = editFullName.getText().toString().trim();
             String phoneNumber = editPhoneNumber.getText().toString().trim();
             String address = editAddress.getText().toString().trim();
-            String urlImage = editUrlImage.getText().toString().trim();
+            String urlImage = "testinmobile.com";
             String birthday = editBirthday.getText().toString().trim();
 
             if (fullName.isEmpty() || phoneNumber.isEmpty() || address.isEmpty() || birthday.isEmpty()) {
@@ -103,7 +102,7 @@ public class CreateProfileActivity extends AppCompatActivity {
                 }
 
                 String BaseUrl = baseUrl.BASE_URL;
-                URL url = new URL(BaseUrl + "/api/profiles");
+                URL url = new URL(BaseUrl + "/api/accounts/profiles");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);

@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.glass_project.R;
-import com.example.glass_project.product.ProductsActivity;
+import com.example.glass_project.product.ui.other.ProductsActivity;
 
 import org.json.JSONObject;
 

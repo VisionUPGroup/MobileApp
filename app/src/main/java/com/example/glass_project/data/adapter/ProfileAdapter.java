@@ -6,56 +6,117 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.cardview.widget.CardView;
 
 import com.example.glass_project.R;
 import com.example.glass_project.data.model.profile.Profile;
-import com.example.glass_project.product.ui.profile.ProfileDetailActivity;
+import com.example.glass_project.product.ui.RefractionRecord.RefractionRecordActivity;
+import com.example.glass_project.product.ui.VisualAcuityRecord.VisualAcuityRecordActivity;
+import com.example.glass_project.product.ui.profile.ProfileFragment;
+import com.example.glass_project.product.ui.profile.UpdateProfileDialogFragment;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ProfileAdapter extends ArrayAdapter<Profile> {
-    private Context context;
+    private final Context context;
+    private final ProfileFragment profileFragment; // Lưu Fragment hiện tại
 
-    public ProfileAdapter(Context context, List<Profile> profiles) {
+    public ProfileAdapter(Context context, ProfileFragment profileFragment, List<Profile> profiles) {
         super(context, 0, profiles);
         this.context = context;
+        this.profileFragment = profileFragment;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_profile, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_profile, parent, false);
         }
 
+        // Get profile for the current position
         Profile profile = getItem(position);
 
-        TextView id = convertView.findViewById(R.id.textId);
-        //TextView fullName = convertView.findViewById(R.id.textFullName);
-        TextView phoneNumber = convertView.findViewById(R.id.textPhoneNumber);
-        //TextView address = convertView.findViewById(R.id.textAddress);
-        //ImageView imageView = convertView.findViewById(R.id.imageUrl);
+        // Bind Views
+        TextView textId = convertView.findViewById(R.id.textId);
+        TextView textPhoneNumber = convertView.findViewById(R.id.textPhoneNumber);
+        TextView textAge = convertView.findViewById(R.id.textAge);
+        ImageView dropdownIcon = convertView.findViewById(R.id.dropdownIcon);
+        LinearLayout dropdownContent = convertView.findViewById(R.id.dropdownContent);
+        CardView cardView = convertView.findViewById(R.id.cardView);
 
-        id.setText(+ profile.getId() +" - "+ profile.getFullName());
-        //fullName.setText(profile.getFullName());
-        phoneNumber.setText( profile.getPhoneNumber());
-        //address.setText("Address: " + profile.getAddress());
+        // Set Data
+        if (profile != null) {
+            textId.setText(profile.getId() + " - " + profile.getFullName());
+            textPhoneNumber.setText(profile.getPhoneNumber());
 
-//        if (profile.getUrlImage() != null && !profile.getUrlImage().isEmpty()) {
-//            Glide.with(context)
-//                    .load(profile.getUrlImage())
-//                    .placeholder(R.drawable.default_image)
-//                    .into(imageView);
-//        } else {
-//            imageView.setImageResource(R.drawable.default_image);
-//        }
+            // Calculate and set age
+            int age = calculateAge(profile.getBirthday());
+            textAge.setText("Age: " + age);
+        }
 
-        convertView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ProfileDetailActivity.class);
-            intent.putExtra("profile", profile);
-            context.startActivity(intent);
+        // Toggle Dropdown Content
+        cardView.setOnClickListener(v -> {
+            if (dropdownContent.getVisibility() == View.GONE) {
+                dropdownContent.setVisibility(View.VISIBLE);
+                dropdownIcon.setRotation(180); // Rotate icon downwards
+                cardView.setCardBackgroundColor(context.getResources().getColor(R.color.gray1));
+            } else {
+                dropdownContent.setVisibility(View.GONE);
+                dropdownIcon.setRotation(0); // Reset icon rotation
+                cardView.setCardBackgroundColor(context.getResources().getColor(R.color.white));
+            }
         });
 
+        // Handle Click Events for Dropdown Options
+        TextView detail1 = convertView.findViewById(R.id.detail1);
+        TextView detail2 = convertView.findViewById(R.id.detail2);
+        TextView detail3 = convertView.findViewById(R.id.detail3);
+        detail1.setOnClickListener(v -> {
+            UpdateProfileDialogFragment dialog = UpdateProfileDialogFragment.newInstance(profile);
+            dialog.setTargetFragment(profileFragment, 0); // Truyền chính xác Fragment hiện tại
+            dialog.show(profileFragment.getParentFragmentManager(), "UpdateProfileDialog");
+        });
+        detail2.setOnClickListener(v -> {
+            Intent intent = new Intent(context, VisualAcuityRecordActivity.class);
+            intent.putExtra("profileID", profile.getId());
+            context.startActivity(intent);
+        });
+        detail3.setOnClickListener(v -> {
+            Intent intent = new Intent(context, RefractionRecordActivity.class);
+            intent.putExtra("profileID", profile.getId());
+            context.startActivity(intent);
+        });
         return convertView;
     }
+
+    private int calculateAge(String birthday) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Date birthDate = dateFormat.parse(birthday);
+            Calendar birthDay = Calendar.getInstance();
+            birthDay.setTime(birthDate);
+
+            Calendar today = Calendar.getInstance();
+
+            int age = today.get(Calendar.YEAR) - birthDay.get(Calendar.YEAR);
+
+            if (today.get(Calendar.DAY_OF_YEAR) < birthDay.get(Calendar.DAY_OF_YEAR)) {
+                age--;
+            }
+
+            return age;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0; // Nếu có lỗi, trả về 0
+        }
+    }
 }
+

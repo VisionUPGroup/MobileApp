@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.data.model.Kiosk;
+import com.example.glass_project.data.model.kiosk.Kiosk;
 
 import java.util.List;
 

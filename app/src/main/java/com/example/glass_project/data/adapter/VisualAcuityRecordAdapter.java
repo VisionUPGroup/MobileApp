@@ -11,11 +11,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.data.model.ExamResult;
+import com.example.glass_project.data.model.VisualAcuity.ExamResult;
 import com.example.glass_project.data.model.VisualAcuity.VisualAcuityRecord;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class VisualAcuityRecordAdapter extends RecyclerView.Adapter<VisualAcuityRecordAdapter.RecordViewHolder> {
@@ -85,9 +89,24 @@ public class VisualAcuityRecordAdapter extends RecyclerView.Adapter<VisualAcuity
 
         void bind(VisualAcuityRecord record) {
             textId.setText("ID: " + record.getId());
-            textStartDate.setText("Start Date: " + record.getStartDate());
+            textStartDate.setText("Start Date: " + formatDate(record.getStartDate()));
             textStatus.setText("Status: " + (record.isStatus() ? "Active" : "Inactive"));
             examResultsRecyclerView.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+        }
+
+        private String formatDate(String dateString) {
+            try {
+                // Parse date từ định dạng gốc
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault());
+                Date date = inputFormat.parse(dateString);
+
+                // Định dạng lại thành dd/MM/yyyy - HH:mm
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault());
+                return outputFormat.format(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return dateString; // Trả về dữ liệu gốc nếu lỗi
+            }
         }
 
         void toggleDropdown() {

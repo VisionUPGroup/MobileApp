@@ -1,15 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mobile_navigation"
     app:startDestination="@id/navigation_home">
-
-    <fragment
-        android:id="@+id/navigation_message"
-        android:name="com.example.glass_project.product.ui.profile.ProfileFragment"
-        android:label="@string/title_message"
-        tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/navigation_home"
@@ -18,21 +10,25 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_shopping_cart"
-        android:name="com.example.glass_project.product.ui.shoppingCart.ShoppingCartFragment"
-        android:label="@string/title_shopping_cart"
-        tools:layout="@layout/fragment_shopping_cart"/>
+        android:id="@+id/navigation_profile"
+        android:name="com.example.glass_project.product.ui.profile.ProfileFragment"
+        android:label="@string/title_result"
+        tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/navigation_map"
         android:name="com.example.glass_project.product.ui.map.MapFragment"
         android:label="@string/title_map"
-        tools:layout="@layout/fragment_map"/>
+        tools:layout="@layout/fragment_map" />
 
     <fragment
-        android:id="@+id/navigation_profile"
-        android:name="com.example.glass_project.product.ui.profile.ProfileActivity"
-        android:label="@string/title_profile"
-        tools:layout="@layout/activity_profile" />
-
+        android:id="@+id/navigation_eye_check"
+        android:name="com.example.glass_project.product.ui.eyeCheck.EyeCheckFragment"
+        android:label="@string/title_test"
+        tools:layout="@layout/fragment_eye_check" />
+    <fragment
+        android:id="@+id/navigation_account"
+        android:name="com.example.glass_project.product.ui.profile.AccountFragment"
+        android:label="@string/title_account"
+        tools:layout="@layout/fragment_account" />
 </navigation>

@@ -1,0 +1,94 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/measurementDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/eyeSide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Eye Side"
+        android:textSize="14sp"
+        android:textColor="@android:color/holo_blue_light" />
+
+    <TextView
+        android:id="@+id/testType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test Type"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/spherical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Spherical"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/cylindrical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cylindrical"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/axis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Axis"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/pupilDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pupil Distance"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/prescriptionDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Prescription Details"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/lastCheckupDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Last Checkup Date"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/nextCheckupDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Next Checkup Date"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/notes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Notes"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+</LinearLayout>

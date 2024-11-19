@@ -4,16 +4,20 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
 import com.example.glass_project.auth.baseUrl;
 import com.example.glass_project.data.adapter.VisualAcuityRecordAdapter;
-import com.example.glass_project.data.model.ExamResult;
+import com.example.glass_project.data.model.VisualAcuity.ExamResult;
 import com.example.glass_project.data.model.VisualAcuity.VisualAcuityRecord;
 
 import org.json.JSONArray;
@@ -23,15 +27,19 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class VisualAcuityRecordActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private VisualAcuityRecordAdapter adapter;
     private int profileID;
-
+    private View noDataView;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,10 +47,17 @@ public class VisualAcuityRecordActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        noDataView = findViewById(R.id.noDataView);
         // Lấy ProfileID từ intent
         profileID = getIntent().getIntExtra("profileID", -1);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
+
+        // Hiển thị nút quay lại
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         if (profileID != -1) {
             new FetchVisualAcuityRecordsTask().execute();
         } else {
@@ -110,11 +125,33 @@ public class VisualAcuityRecordActivity extends AppCompatActivity {
                     new FetchExamResultsTask(record.getId()).execute();
                 }
             } else {
-                Toast.makeText(VisualAcuityRecordActivity.this, "No records found", Toast.LENGTH_SHORT).show();
+                recyclerView.setVisibility(View.GONE); // Ẩn RecyclerView nếu không có dữ liệu
+                noDataView.setVisibility(View.VISIBLE); // Hiển thị noDataView
             }
         }
     }
+    private String formatDate(String dateString) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault());
+            Date date = inputFormat.parse(dateString);
 
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault());
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return dateString;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Xử lý sự kiện khi nhấn vào nút quay lại
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
     private class FetchExamResultsTask extends AsyncTask<Void, Void, List<ExamResult>> {
         private int recordId;
 

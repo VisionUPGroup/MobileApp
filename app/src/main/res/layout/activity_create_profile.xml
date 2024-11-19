@@ -79,26 +79,6 @@
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="12dp" />
 
-    <!-- Image URL -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Image URL"
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        android:layout_marginBottom="4dp" />
-
-    <EditText
-        android:id="@+id/editUrlImage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter image URL "
-        android:inputType="textUri"
-        android:textColor="@color/black"
-        android:textColorHint="@color/gray"
-        android:padding="10dp"
-        android:background="@drawable/edit_text_background"
-        android:layout_marginBottom="12dp" />
 
     <!-- Birthday -->
     <TextView

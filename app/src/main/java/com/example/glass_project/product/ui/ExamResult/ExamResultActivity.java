@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.glass_project.R;
 import com.example.glass_project.auth.baseUrl;
 import com.example.glass_project.data.adapter.ExamResultAdapter;
-import com.example.glass_project.data.model.ExamResult;
+import com.example.glass_project.data.model.VisualAcuity.ExamResult;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedReader;

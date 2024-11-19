@@ -1,0 +1,158 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".product.ui.eyeCheck.EyeSelectionActivity">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:padding="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:title="Kiểm tra mắt"
+        app:titleTextColor="@android:color/black" />
+
+    <!-- Tiêu đề -->
+    <TextView
+        android:id="@+id/textViewTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chọn bên mắt để bắt đầu"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="80dp" />
+
+    <!-- Container mắt trái -->
+    <LinearLayout
+        android:id="@+id/leftEyeContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/textViewTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/rightEyeContainer"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="8dp">
+
+        <!-- Hình ảnh Mắt Trái -->
+        <ImageView
+            android:id="@+id/imageViewLeftEye"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/righteye"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Kết quả Mắt Trái -->
+        <TextView
+            android:id="@+id/textLeftEyeResults"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chưa có dữ liệu"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Nút chọn Mắt Trái -->
+        <Button
+            android:id="@+id/buttonLeftEye"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mắt Trái"
+            android:backgroundTint="@color/blue"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <!-- Container mắt phải -->
+    <LinearLayout
+        android:id="@+id/rightEyeContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/textViewTitle"
+        app:layout_constraintStart_toEndOf="@id/leftEyeContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="50dp"
+        android:layout_marginStart="8dp">
+
+        <!-- Hình ảnh Mắt Phải -->
+        <ImageView
+            android:id="@+id/imageViewRightEye"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/lefteye"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Kết quả Mắt Phải -->
+        <TextView
+            android:id="@+id/textRightEyeResults"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chưa có dữ liệu"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Nút chọn Mắt Phải -->
+        <Button
+            android:id="@+id/buttonRightEye"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mắt Phải"
+            android:backgroundTint="@color/blue"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <!-- Nút xuất kết quả -->
+    <Button
+        android:id="@+id/buttonExportResults"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Lưu kết quả"
+        android:backgroundTint="@color/accent"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/leftEyeContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="25dp" />
+    <TextView
+        android:id="@+id/textViewNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thực hiện nhiều lần kiểm tra sẽ tăng độ chính xác"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/buttonExportResults"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="15dp" />
+    <!-- Nút hướng dẫn -->
+    <Button
+        android:id="@+id/buttonGuide"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="@color/completedColor"
+        android:text="Hướng dẫn"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewNote" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

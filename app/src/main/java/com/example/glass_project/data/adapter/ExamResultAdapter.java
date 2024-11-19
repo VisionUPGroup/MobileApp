@@ -7,9 +7,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.glass_project.R;
-import com.example.glass_project.data.model.ExamResult;
+import com.example.glass_project.data.model.VisualAcuity.ExamResult;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ExamResultAdapter extends RecyclerView.Adapter<ExamResultAdapter.ViewHolder> {
 
@@ -64,9 +68,23 @@ public class ExamResultAdapter extends RecyclerView.Adapter<ExamResultAdapter.Vi
         }
 
         public void bind(ExamResult examResult) {
-            examDateText.setText("Date: " + examResult.getExamDate());
+            examDateText.setText("Date: " + formatDate(examResult.getExamDate()));
             diopterText.setText("Diopter: " + examResult.getDiopter());
             eyeSideText.setText("Eye Side: " + examResult.getEyeSide());
+        }
+
+        private String formatDate(String dateString) {
+            try {
+                // Định dạng ngày giờ từ định dạng gốc sang "dd/MM/yyyy - HH:mm"
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault());
+                Date date = inputFormat.parse(dateString);
+
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault());
+                return outputFormat.format(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return dateString; // Trả về dữ liệu gốc nếu có lỗi
+            }
         }
     }
 }

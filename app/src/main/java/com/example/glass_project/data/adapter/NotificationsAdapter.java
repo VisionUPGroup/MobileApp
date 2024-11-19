@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.data.model.Notification;
+import com.example.glass_project.data.model.other.Notification;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
