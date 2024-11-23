@@ -54,7 +54,7 @@ public class EyeCheckFragment extends Fragment {
         // Tải danh sách hồ sơ và bài kiểm tra
         loadProfiles();
         loadExams();
-
+        clearExamData();
         // Xử lý sự kiện chọn bài kiểm tra từ GridView
         examGridView.setOnItemClickListener((parent, view, position, id) -> {
             Exam selectedExam = examList.get(position);
@@ -93,17 +93,31 @@ public class EyeCheckFragment extends Fragment {
     }
 
     private void loadExams() {
-        // Dữ liệu exam hiển thị cứng
-        examList.add(new Exam(1, "Visual Acuity C", R.drawable.eyetestc, true));
-        examList.add(new Exam(2, "Visual Acuity E", R.drawable.eyeteste, true));
-        examList.add(new Exam(3, "Astigmatism", R.drawable.eyetestc, true));
-        examList.add(new Exam(4, "Eye Pressure", R.drawable.eyeteste, true));
+        // Thêm dữ liệu bài kiểm tra (hiển thị cố định)
+        examList.add(new Exam(1, "Thị lực E", R.drawable.eyeteste, true));
+        examList.add(new Exam(2, "Thị lực C", R.drawable.eyetestc, true));
+        examList.add(new Exam(3, "Loạn thị", R.drawable.eyetestc, true));
+        examList.add(new Exam(4, "Áp lực mắt", R.drawable.eyeteste, true));
 
         // Hiển thị dữ liệu trên GridView
         ExamGridAdapter adapter = new ExamGridAdapter(getContext(), examList);
         binding.gridViewExamList.setAdapter(adapter);
     }
 
+    private void clearExamData() {
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove("numberOfTest_left");
+        editor.remove("myopia_left");
+        editor.remove("numberOfTest_right");
+        editor.remove("myopia_right");
+        editor.apply();
+        SharedPreferences sharedPreference = requireContext().getSharedPreferences("EyeExamData", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editors = sharedPreference.edit();
+        editors.remove("ExamData_left");
+        editors.remove("ExamData_right");
+        editors.apply();
+    }
     private void showError(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }

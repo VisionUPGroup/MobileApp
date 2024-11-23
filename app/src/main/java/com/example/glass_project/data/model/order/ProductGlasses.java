@@ -6,18 +6,17 @@ public class ProductGlasses {
     private int rightLenID;
     private int accountID;
     private int total;
-    private int sphereOD;
-    private int cylinderOD;
-    private int axisOD;
-    private int sphereOS;
-    private int cylinderOS;
-    private int axisOS;
-    private int addOD;
-    private int addOS;
+    private float  sphereOD;
+    private float  cylinderOD;
+    private float  axisOD;
+    private float  sphereOS;
+    private float  cylinderOS;
+    private float  axisOS;
+    private float  addOD;
+    private float  addOS;
     private int pd;
 
-
-    public ProductGlasses(int eyeGlassID, int leftLenID, int rightLenID, int accountID, int total, int sphereOD, int cylinderOD, int axisOD, int sphereOS, int cylinderOS, int axisOS, int addOD, int addOS, int pd) {
+    public ProductGlasses(int eyeGlassID, int leftLenID, int rightLenID, int accountID, int total, float sphereOD, float cylinderOD, float axisOD, float sphereOS, float cylinderOS, float axisOS, float addOD, float addOS, int pd) {
         this.eyeGlassID = eyeGlassID;
         this.leftLenID = leftLenID;
         this.rightLenID = rightLenID;
@@ -32,7 +31,6 @@ public class ProductGlasses {
         this.addOD = addOD;
         this.addOS = addOS;
         this.pd = pd;
-
     }
 
     public int getEyeGlassID() {
@@ -75,67 +73,67 @@ public class ProductGlasses {
         this.total = total;
     }
 
-    public int getSphereOD() {
+    public float getSphereOD() {
         return sphereOD;
     }
 
-    public void setSphereOD(int sphereOD) {
+    public void setSphereOD(float sphereOD) {
         this.sphereOD = sphereOD;
     }
 
-    public int getCylinderOD() {
+    public float getCylinderOD() {
         return cylinderOD;
     }
 
-    public void setCylinderOD(int cylinderOD) {
+    public void setCylinderOD(float cylinderOD) {
         this.cylinderOD = cylinderOD;
     }
 
-    public int getAxisOD() {
+    public float getAxisOD() {
         return axisOD;
     }
 
-    public void setAxisOD(int axisOD) {
+    public void setAxisOD(float axisOD) {
         this.axisOD = axisOD;
     }
 
-    public int getSphereOS() {
+    public float getSphereOS() {
         return sphereOS;
     }
 
-    public void setSphereOS(int sphereOS) {
+    public void setSphereOS(float sphereOS) {
         this.sphereOS = sphereOS;
     }
 
-    public int getCylinderOS() {
+    public float getCylinderOS() {
         return cylinderOS;
     }
 
-    public void setCylinderOS(int cylinderOS) {
+    public void setCylinderOS(float cylinderOS) {
         this.cylinderOS = cylinderOS;
     }
 
-    public int getAxisOS() {
+    public float getAxisOS() {
         return axisOS;
     }
 
-    public void setAxisOS(int axisOS) {
+    public void setAxisOS(float axisOS) {
         this.axisOS = axisOS;
     }
 
-    public int getAddOD() {
+    public float getAddOD() {
         return addOD;
     }
 
-    public void setAddOD(int addOD) {
+    public void setAddOD(float addOD) {
         this.addOD = addOD;
     }
 
-    public int getAddOS() {
+    public float getAddOS() {
         return addOS;
     }
 
-    public void setAddOS(int addOS) {
+    public void setAddOS(float addOS) {
         this.addOS = addOS;
     }
 
@@ -146,6 +144,4 @@ public class ProductGlasses {
     public void setPd(int pd) {
         this.pd = pd;
     }
-
-
 }

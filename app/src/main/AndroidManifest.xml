@@ -30,7 +30,7 @@
             android:value="AIzaSyDsAbiK__jHbvR7aHjhoDcZpKgBNA6UKCQ" />
 
         <activity
-            android:name=".product.ui.profile.ProfileActivity"
+            android:name=".product.ui.account.ExchangeActivity"
             android:configChanges="locale|layoutDirection" />
         <activity
             android:name=".product.ui.account.EditProfileActivity"

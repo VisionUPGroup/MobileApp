@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 public class CreateProfileActivity extends AppCompatActivity {
 
@@ -56,7 +57,6 @@ public class CreateProfileActivity extends AppCompatActivity {
             DatePickerDialog datePickerDialog = new DatePickerDialog(
                     CreateProfileActivity.this,
                     (view, selectedYear, selectedMonth, selectedDay) -> {
-                        // Định dạng ngày (tháng + 1 vì tháng bắt đầu từ 0)
                         String date = selectedYear + "-" + (selectedMonth + 1) + "-" + selectedDay;
                         editBirthday.setText(date);
                     },
@@ -73,9 +73,7 @@ public class CreateProfileActivity extends AppCompatActivity {
             String urlImage = "testinmobile.com";
             String birthday = editBirthday.getText().toString().trim();
 
-            if (fullName.isEmpty() || phoneNumber.isEmpty() || address.isEmpty() || birthday.isEmpty()) {
-                Toast.makeText(CreateProfileActivity.this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
-            } else {
+            if (validateInputs(fullName, phoneNumber, address, birthday)) {
                 // Gọi API tạo profile
                 new CreateProfileTask().execute(fullName, phoneNumber, address, urlImage, birthday);
             }
@@ -86,6 +84,44 @@ public class CreateProfileActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED);
             finish();
         });
+    }
+
+    // Hàm kiểm tra tính hợp lệ của dữ liệu
+    private boolean validateInputs(String fullName, String phoneNumber, String address, String birthday) {
+        if (fullName.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập họ và tên", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Kiểm tra số điện thoại (dùng regex để kiểm tra định dạng)
+        Pattern phonePattern = Pattern.compile("^[0-9]{10,11}$");
+        if (phoneNumber.isEmpty() || !phonePattern.matcher(phoneNumber).matches()) {
+            Toast.makeText(this, "Vui lòng nhập số điện thoại hợp lệ (10-11 chữ số)", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (address.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập địa chỉ", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Kiểm tra ngày sinh (không được để trống và phải hợp lệ)
+        if (birthday.isEmpty()) {
+            Toast.makeText(this, "Vui lòng chọn ngày sinh", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Kiểm tra định dạng ngày (yyyy-MM-dd)
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setLenient(false);
+            dateFormat.parse(birthday); // Ném lỗi nếu ngày không hợp lệ
+        } catch (Exception e) {
+            Toast.makeText(this, "Ngày sinh không hợp lệ", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
     }
 
     private class CreateProfileTask extends AsyncTask<String, Void, Boolean> {
@@ -145,9 +181,9 @@ public class CreateProfileActivity extends AppCompatActivity {
                 return false;
             }
         }
+
         private String formatDate(String date) {
             try {
-                // Chuyển đổi chuỗi ngày tháng từ EditText thành định dạng chuẩn
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
                 Date parsedDate = inputFormat.parse(date);
 
@@ -157,7 +193,7 @@ public class CreateProfileActivity extends AppCompatActivity {
                 return outputFormat.format(parsedDate);
             } catch (Exception e) {
                 Log.e("CreateProfileActivity", "Error formatting date: " + e.getMessage());
-                return date; // Nếu có lỗi, trả lại giá trị ban đầu
+                return date;
             }
         }
 
@@ -171,6 +207,5 @@ public class CreateProfileActivity extends AppCompatActivity {
                 Toast.makeText(CreateProfileActivity.this, "Failed to create profile", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 }

@@ -72,7 +72,7 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
 
                     // Set left lens details
                     if (leftLens != null) {
-                        holder.txtLeftLensName.setText( leftLens.getLensName());
+                        holder.txtLeftLensName.setText( "Tên Lens Trái:"+leftLens.getLensName());
                         Glide.with(context).load(leftLens.getLensImage()).into(holder.imgLeftLens);
                     } else {
                         holder.txtLeftLensName.setText("Tên Lens Trái: Không có");
@@ -81,7 +81,7 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
 
                     // Set right lens details
                     if (rightLens != null) {
-                        holder.txtRightLensName.setText( rightLens.getLensName());
+                        holder.txtRightLensName.setText( "Tên Lens Phải:"+rightLens.getLensName());
                         Glide.with(context).load(rightLens.getLensImage()).into(holder.imgRightLens);
                     } else {
                         holder.txtRightLensName.setText("Tên Lens Phải: Không có");
@@ -102,7 +102,7 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
             holder.txtAxisOS.setText("Axis OS: " + productGlassDetail.getAxisOS());
             holder.txtAddOD.setText("Add OD: " + productGlassDetail.getAddOD());
             holder.txtAddOS.setText("Add OS: " + productGlassDetail.getAddOS());
-            holder.txtPd.setText("PD: " + productGlassDetail.getPd());
+            holder.txtPd.setText("Khoảng cách đồng tử (PD): " + productGlassDetail.getPd());
         }
     }
 

@@ -61,30 +61,37 @@ public class MeasurementResultAdapter extends RecyclerView.Adapter<MeasurementRe
         }
 
         public void bind(MeasurementResult result) {
+            // Định dạng ngày tháng
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault());
             SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault());
+
             try {
+                // Chuyển đổi định dạng ngày tháng từ kết quả đo
                 Date lastCheckup = inputFormat.parse(result.getLastCheckupDate());
                 Date nextCheckup = inputFormat.parse(result.getNextCheckupDate());
 
-                measurementDate.setText("Date: " + outputFormat.format(lastCheckup));
-                lastCheckupDate.setText("Last Checkup: " + outputFormat.format(lastCheckup));
-                nextCheckupDate.setText("Next Checkup: " + outputFormat.format(nextCheckup));
+                // Hiển thị ngày tháng sau khi định dạng
+                measurementDate.setText("Ngày đo: " + outputFormat.format(lastCheckup));
+                lastCheckupDate.setText("Lần kiểm tra gần nhất: " + outputFormat.format(lastCheckup));
+                nextCheckupDate.setText("Lần kiểm tra tiếp theo: " + outputFormat.format(nextCheckup));
             } catch (Exception e) {
-                measurementDate.setText("Date: " + result.getLastCheckupDate());
-                lastCheckupDate.setText("Last Checkup: " + result.getLastCheckupDate());
-                nextCheckupDate.setText("Next Checkup: " + result.getNextCheckupDate());
+                // Trường hợp không chuyển đổi được, hiển thị dữ liệu gốc
+                measurementDate.setText("Ngày đo: " + result.getLastCheckupDate());
+                lastCheckupDate.setText("Lần kiểm tra gần nhất: " + result.getLastCheckupDate());
+                nextCheckupDate.setText("Lần kiểm tra tiếp theo: " + result.getNextCheckupDate());
             }
 
-            eyeSide.setText("Eye Side: " + (result.getEyeSide() == 1 ? "Right" : "Left"));
-            testType.setText("Test Type: " + result.getTestType());
-            spherical.setText("Spherical: " + result.getSpherical());
-            cylindrical.setText("Cylindrical: " + result.getCylindrical());
-            axis.setText("Axis: " + result.getAxis());
-            pupilDistance.setText("Pupil Distance: " + result.getPupilDistance());
-            prescriptionDetails.setText("Prescription Details: " + result.getPrescriptionDetails());
-            notes.setText("Notes: " + result.getNotes());
+            // Hiển thị dữ liệu khác
+            eyeSide.setText("Bên mắt: " + (result.getEyeSide() == 1 ? "Phải" : "Trái")); // Mắt phải hoặc trái
+            testType.setText("Loại kiểm tra: " + result.getTestType()); // Loại bài kiểm tra
+            spherical.setText("Chỉ số cầu (SPH): " + result.getSpherical()); // Chỉ số cầu
+            cylindrical.setText("Chỉ số trụ (CYL): " + result.getCylindrical()); // Chỉ số trụ
+            axis.setText("Trục: " + result.getAxis()); // Trục
+            pupilDistance.setText("Khoảng cách đồng tử: " + result.getPupilDistance()); // Khoảng cách đồng tử
+            prescriptionDetails.setText("Chi tiết đơn thuốc: " + result.getPrescriptionDetails()); // Chi tiết đơn thuốc
+            notes.setText("Ghi chú: " + result.getNotes()); // Ghi chú
         }
+
     }
 }
 

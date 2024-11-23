@@ -2,15 +2,19 @@ package com.example.glass_project.data.model.rating;
 
 public class RatingEyeGlass {
     private int eyeGlassID;
-    private String eyeGlassName;
+    private int accountID;
+    private String name;
     private String imageUrl;
-    private float rating;
+    private int score;
+    private boolean status;
 
-    public RatingEyeGlass(int eyeGlassID, String eyeGlassName, String imageUrl, float rating) {
+    public RatingEyeGlass(int eyeGlassID, int accountID, String name, String imageUrl, int score, boolean status) {
         this.eyeGlassID = eyeGlassID;
-        this.eyeGlassName = eyeGlassName;
+        this.accountID = accountID;
+        this.name = name;
         this.imageUrl = imageUrl;
-        this.rating = rating;
+        this.score = score;
+        this.status = status;
     }
 
     public int getEyeGlassID() {
@@ -21,12 +25,20 @@ public class RatingEyeGlass {
         this.eyeGlassID = eyeGlassID;
     }
 
-    public String getEyeGlassName() {
-        return eyeGlassName;
+    public int getAccountID() {
+        return accountID;
     }
 
-    public void setEyeGlassName(String eyeGlassName) {
-        this.eyeGlassName = eyeGlassName;
+    public void setAccountID(int accountID) {
+        this.accountID = accountID;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getImageUrl() {
@@ -37,11 +49,19 @@ public class RatingEyeGlass {
         this.imageUrl = imageUrl;
     }
 
-    public float getRating() {
-        return rating;
+    public int getRating() {
+        return score;
     }
 
-    public void setRating(float rating) {
-        this.rating = rating;
+    public void setRating(int rating) {
+        this.score = rating;
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 }

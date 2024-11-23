@@ -84,14 +84,15 @@ public class RefractionRecordAdapter extends RecyclerView.Adapter<RefractionReco
         }
 
         public void bind(RefractionRecord record) {
-            textId.setText("ID: " + record.getId());
-            textStartDate.setText("Start Time: " + record.getStartTime());
-            textStatus.setText("Status: " + (record.isStatus() ? "Active" : "Inactive"));
+            textId.setText("Mã ID: " + record.getId());
+            textStartDate.setText("Thời gian bắt đầu: " + record.getStartTime());
+            textStatus.setText("Trạng thái: " + (record.isStatus() ? "Hoạt động" : "Không hoạt động"));
 
             if (!record.getKiosks().isEmpty()) {
-                textKioskName.setText("Kiosk: " + record.getKiosks().get(0).getName());
+                textKioskName.setText("Ki-ốt: " + record.getKiosks().get(0).getName());
             }
         }
+
     }
 }
 

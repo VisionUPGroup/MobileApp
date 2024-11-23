@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".product.ui.profile.AccountFragment">
+    tools:context=".product.ui.account.AccountFragment">
 
 
     <!-- Profile Information Section -->
@@ -117,6 +117,15 @@
                 android:layout_height="wrap_content"
                 android:text="Đổi mật khẩu"
                 android:drawableStart="@drawable/userlock"
+                android:textSize="16sp"
+                android:drawablePadding="15dp"
+                android:paddingVertical="8dp" />
+            <TextView
+                android:id="@+id/exchangelass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Theo dõi đổi trả"
+                android:drawableStart="@drawable/refresh"
                 android:textSize="16sp"
                 android:drawablePadding="15dp"
                 android:paddingVertical="8dp" />

@@ -17,7 +17,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.glass_project.R;
 import com.example.glass_project.databinding.ActivityProductsBinding;
-import com.example.glass_project.product.ui.profile.AccountFragment;
+import com.example.glass_project.product.ui.account.AccountFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 

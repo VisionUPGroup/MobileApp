@@ -79,7 +79,7 @@ public class VisualAcuityRecordActivity extends AppCompatActivity {
                 }
 
                 String BaseUrl = baseUrl.BASE_URL;
-                URL url = new URL(BaseUrl + "/api/visual-acuity-records?ProfileID=" + profileID);
+                URL url = new URL(BaseUrl + "/api/visual-acuity-records?ProfileID=" + profileID+"&Descending=true");
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");

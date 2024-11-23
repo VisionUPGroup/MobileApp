@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         return id != null && username != null && email != null;
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

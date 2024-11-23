@@ -13,13 +13,27 @@
         android:padding="8dp"
         android:background="@android:color/white">
 
-        <!-- Product Image and Info -->
+        <!-- Tiêu đề mô tả -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingBottom="8dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thông tin sản phẩm"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
 
-            <!-- Product Image -->
+        <!-- Hình ảnh và thông tin sản phẩm -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp">
             <ImageView
                 android:id="@+id/imgProduct"
                 android:layout_width="80dp"
@@ -27,155 +41,165 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/default_image" />
 
-            <!-- Product Name and Price -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:paddingStart="8dp">
-
                 <TextView
                     android:id="@+id/txtProductName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Product Name"
+                    android:text="Tên sản phẩm"
                     android:textStyle="bold"
                     android:textSize="16sp"
                     android:paddingBottom="4dp" />
-
                 <TextView
                     android:id="@+id/txtPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Price: đ0"
+                    android:text="Giá: đ0"
                     android:textSize="14sp" />
-
                 <TextView
                     android:id="@+id/txtQuantity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Số lượng: 1"
-                    android:textSize="14sp"
-                    android:paddingBottom="4dp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Left and Right Lens Information -->
+        <!-- Thông tin Lens -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="8dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thông tin Lens (Trái và Phải)"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <!-- Lens Trái và Phải -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="8dp">
-
-            <!-- Left Lens -->
+            android:paddingBottom="8dp">
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:paddingEnd="4dp">
-
                 <ImageView
                     android:id="@+id/imgLeftLens"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/default_image" />
-
                 <TextView
                     android:id="@+id/txtLeftLensName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Left Lens Name"
+                    android:text="Tên Lens Trái"
                     android:textStyle="bold"
                     android:textSize="14sp"
                     android:paddingTop="4dp" />
-
                 <TextView
                     android:id="@+id/txtLeftLensPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Left Lens Price: đ0"
+                    android:text="Giá Lens Trái: đ0"
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <!-- Right Lens -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:paddingStart="4dp">
-
                 <ImageView
                     android:id="@+id/imgRightLens"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/default_image" />
-
                 <TextView
                     android:id="@+id/txtRightLensName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Right Lens Name"
+                    android:text="Tên Lens Phải"
                     android:textStyle="bold"
                     android:textSize="14sp"
                     android:paddingTop="4dp" />
-
                 <TextView
                     android:id="@+id/txtRightLensPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Right Lens Price: đ0"
+                    android:text="Giá Lens Phải: đ0"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- OS and OD Values in Two Columns -->
+        <!-- Thông tin OS và OD -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="8dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thông số"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="8dp">
-
-            <!-- OS Column -->
+            android:paddingBottom="8dp">
             <LinearLayout
+                android:id="@+id/layoutOS"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
+                <!-- OS Column -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="OS"
+                    android:text="OS (Mắt Trái)"
                     android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:paddingBottom="4dp" />
-
+                    android:textSize="14sp" />
                 <TextView
                     android:id="@+id/txtSphereOS"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sphere: OS 1.0"
                     android:textSize="14sp" />
-
                 <TextView
                     android:id="@+id/txtCylinderOS"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Cylinder: OS -1.0"
                     android:textSize="14sp" />
-
                 <TextView
                     android:id="@+id/txtAxisOS"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Axis: OS 90"
                     android:textSize="14sp" />
-
                 <TextView
                     android:id="@+id/txtAddOS"
                     android:layout_width="wrap_content"
@@ -184,42 +208,38 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <!-- OD Column -->
             <LinearLayout
+                android:id="@+id/layoutOD"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
+                <!-- OD Column -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="OD"
+                    android:text="OD (Mắt Phải)"
                     android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:paddingBottom="4dp" />
-
+                    android:textSize="14sp" />
                 <TextView
                     android:id="@+id/txtSphereOD"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sphere: OD 1.0"
                     android:textSize="14sp" />
-
                 <TextView
                     android:id="@+id/txtCylinderOD"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Cylinder: OD -1.0"
                     android:textSize="14sp" />
-
                 <TextView
                     android:id="@+id/txtAxisOD"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Axis: OD 90"
                     android:textSize="14sp" />
-
                 <TextView
                     android:id="@+id/txtAddOD"
                     android:layout_width="wrap_content"
@@ -227,17 +247,21 @@
                     android:text="Add: OD 1.0"
                     android:textSize="14sp" />
             </LinearLayout>
+
         </LinearLayout>
 
         <!-- PD Value -->
-        <TextView
-            android:id="@+id/txtPD"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="PD: 62"
-            android:textSize="14sp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp" />
-
+            android:orientation="vertical"
+            android:paddingBottom="8dp">
+            <TextView
+                android:id="@+id/txtPD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Khoảng cách đồng tử (PD): 62mm"
+                android:textSize="14sp" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

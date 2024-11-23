@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F3F3F3">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
@@ -12,7 +13,9 @@
         android:layout_height="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:title="Lịch sử đặt hàng"
-        app:navigationIcon="?attr/homeAsUpIndicator"
+        android:background="@drawable/gradient_background"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@drawable/backwhite"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- RecyclerView cho danh sách Process theo hàng ngang -->
@@ -32,7 +35,18 @@
         android:id="@+id/recyclerViewOrderHistory"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="8dp"
+        android:layout_margin="2dp"
         app:layout_constraintTop_toBottomOf="@id/recyclerViewProcess"
         app:layout_constraintBottom_toBottomOf="parent" />
+    <TextView
+        android:id="@+id/txtEmptyMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Không có đơn hàng nào."
+        android:textSize="16sp"
+        android:textColor="@android:color/darker_gray"
+        android:gravity="center"
+        android:visibility="gone" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

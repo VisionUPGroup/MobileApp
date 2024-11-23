@@ -1,19 +1,40 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#F8F9FA">
 
     <!-- Camera Preview View -->
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
-        android:layout_width="370dp"
+        android:layout_width="0dp"
         android:layout_height="250dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
         android:layout_margin="8dp"
         android:background="#E0E0E0"
-        android:elevation="4dp" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Image Container -->
+    <RelativeLayout
+        android:id="@+id/imageContainer"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="#FFFFFF"
+        android:layout_marginTop="60dp"
+        app:layout_constraintTop_toBottomOf="@id/previewView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="4dp">
+
+        <!-- Test ImageView -->
+        <ImageView
+            android:id="@+id/imageViewTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="#FFFFFF" />
+    </RelativeLayout>
 
     <!-- Up Button -->
     <Button
@@ -24,21 +45,9 @@
         android:backgroundTint="#4CAF50"
         android:textColor="#FFFFFF"
         android:elevation="2dp"
-        android:layout_below="@id/previewView"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp" />
-
-    <!-- Test Image View -->
-    <ImageView
-        android:id="@+id/imageViewTest"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_below="@id/btnUp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:background="#FFFFFF"
-        android:padding="8dp"
-        android:elevation="4dp" />
+        app:layout_constraintBottom_toTopOf="@id/imageContainer"
+        app:layout_constraintStart_toStartOf="@id/imageContainer"
+        app:layout_constraintEnd_toEndOf="@id/imageContainer" />
 
     <!-- Down Button -->
     <Button
@@ -49,9 +58,9 @@
         android:backgroundTint="#4CAF50"
         android:textColor="#FFFFFF"
         android:elevation="2dp"
-        android:layout_below="@id/imageViewTest"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintTop_toBottomOf="@id/imageContainer"
+        app:layout_constraintStart_toStartOf="@id/imageContainer"
+        app:layout_constraintEnd_toEndOf="@id/imageContainer" />
 
     <!-- Left Button -->
     <Button
@@ -62,9 +71,9 @@
         android:backgroundTint="#4CAF50"
         android:textColor="#FFFFFF"
         android:elevation="2dp"
-        android:layout_toStartOf="@id/imageViewTest"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="16dp" />
+        app:layout_constraintTop_toTopOf="@id/imageContainer"
+        app:layout_constraintBottom_toBottomOf="@id/imageContainer"
+        app:layout_constraintEnd_toStartOf="@id/imageContainer" />
 
     <!-- Right Button -->
     <Button
@@ -75,46 +84,50 @@
         android:backgroundTint="#4CAF50"
         android:textColor="#FFFFFF"
         android:elevation="2dp"
-        android:layout_toEndOf="@id/imageViewTest"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintTop_toTopOf="@id/imageContainer"
+        app:layout_constraintBottom_toBottomOf="@id/imageContainer"
+        app:layout_constraintStart_toEndOf="@id/imageContainer" />
 
-    <!-- TextView Information -->
+    <!-- Info Layout -->
     <LinearLayout
         android:id="@+id/infoLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="16dp"
-        android:layout_below="@id/btnDown">
+        android:gravity="center"
+        android:padding="8dp"
+        android:layout_marginTop="90dp"
+        app:layout_constraintTop_toBottomOf="@id/imageContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:id="@+id/textViewLevel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Level: 1"
-            android:textSize="18sp"
-            android:textColor="#000000"
             android:layout_marginEnd="16dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:text="Level: 1"
+            android:textColor="#000000"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/textViewNumberOfTest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Tests: 0"
-            android:textSize="18sp"
             android:textColor="#000000"
-            android:layout_weight="1" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/textViewDiopter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Diopter: 0.0"
-            android:textSize="18sp"
             android:textColor="#000000"
-            android:layout_weight="1" />
+            android:textSize="18sp" />
     </LinearLayout>
 
     <!-- Finish Button -->
@@ -122,11 +135,14 @@
         android:id="@+id/btnFinish"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/infoLayout"
         android:layout_marginTop="16dp"
-        android:layout_centerHorizontal="true"
+        android:backgroundTint="#FF5722"
+        android:elevation="2dp"
         android:text="Kết thúc"
         android:textColor="#FFFFFF"
-        android:backgroundTint="#FF5722"
-        android:elevation="2dp" />
-</RelativeLayout>
+        app:layout_constraintTop_toBottomOf="@id/infoLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

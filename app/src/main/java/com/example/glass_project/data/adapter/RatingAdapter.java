@@ -37,20 +37,21 @@ public class RatingAdapter extends RecyclerView.Adapter<RatingAdapter.RatingView
     @Override
     public void onBindViewHolder(@NonNull RatingViewHolder holder, int position) {
         RatingEyeGlass rating = ratingList.get(position);
-        holder.txtName.setText(rating.getEyeGlassName());
-        holder.ratingBar.setRating(rating.getRating());
 
-        // Load image using Glide
+        holder.txtName.setText(rating.getName());
+        holder.ratingBar.setRating(rating.getRating()); // Hiển thị số sao từ API
+
         Glide.with(context)
                 .load(rating.getImageUrl())
                 .into(holder.imgProduct);
 
         holder.ratingBar.setOnRatingBarChangeListener((ratingBar, value, fromUser) -> {
             if (fromUser) {
-                rating.setRating(value);
+                rating.setRating((int) value); // Cập nhật số sao khi người dùng thay đổi
             }
         });
     }
+
 
     @Override
     public int getItemCount() {

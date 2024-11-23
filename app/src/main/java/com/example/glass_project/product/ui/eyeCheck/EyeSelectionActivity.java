@@ -13,8 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
@@ -79,21 +81,81 @@ public class EyeSelectionActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        String examDataLeft = sharedPreferences.getString("ExamData_left", null);
+        String examDataRight = sharedPreferences.getString("ExamData_right", null);
         // Gọi khi buttonExportResults được click
-        binding.buttonExportResults.setOnClickListener(v -> {
-            String profileIDStr = sharedPreferences.getString("profileID", "-1");  // Đọc dưới dạng String
-            int profileID;
-
-            try {
-                profileID = Integer.parseInt(profileIDStr);  // Chuyển đổi sang Integer
-            } catch (NumberFormatException e) {
-                profileID = -1;  // Giá trị mặc định nếu chuyển đổi thất bại
-                Log.e("EyeSelectionActivity", "profileID không phải là một số nguyên hợp lệ", e);
-            }
-
-            new FetchVisualAcuityRecordIDTask(profileID).execute();
-        });
+        if (examDataLeft != null || examDataRight != null) {
+            binding.buttonExportResults.setEnabled(true);
+            binding.buttonExportResults.setOnClickListener(v -> handleExportResults(examDataLeft, examDataRight));
+        } else {
+            binding.buttonExportResults.setEnabled(false);
+        }
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Gọi phương thức để hiển thị kết quả kiểm tra mắt cho cả hai bên
+        displayEyeTestResults("left", binding.textLeftEyeResults);
+        displayEyeTestResults("right", binding.textRightEyeResults);
+
+        // Kiểm tra dữ liệu và cập nhật trạng thái của buttonExportResults
+        SharedPreferences sharedPreferences = getSharedPreferences("EyeExamData", Context.MODE_PRIVATE);
+        String examDataLeft = sharedPreferences.getString("ExamData_left", null);
+        String examDataRight = sharedPreferences.getString("ExamData_right", null);
+
+        if (examDataLeft != null || examDataRight != null) {
+            binding.buttonExportResults.setEnabled(true);
+            binding.buttonExportResults.setBackgroundTintList(
+                    ContextCompat.getColorStateList(this, R.color.accent)
+            );
+            binding.buttonExportResults.setOnClickListener(v -> handleExportResults(examDataLeft, examDataRight));
+        } else {
+            binding.buttonExportResults.setEnabled(false);
+            binding.buttonExportResults.setBackgroundTintList(
+                    ContextCompat.getColorStateList(this, R.color.gray)
+            );
+
+        }
+    }
+
+    private void handleExportResults(String examDataLeft, String examDataRight) {
+        if (examDataLeft != null && examDataRight != null) {
+            // Gửi cả hai bên mắt
+            int profileID = getProfileIDFromPreferences();
+            new FetchVisualAcuityRecordIDTask(profileID).execute();
+        } else {
+            // Chỉ có dữ liệu từ một bên mắt, hiển thị modal
+            String missingSide = (examDataLeft == null) ? "trái" : "phải";
+            showIncompleteDataDialog(missingSide);
+        }
+    }
+    private void showIncompleteDataDialog(String missingSide) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Dữ liệu chưa đầy đủ");
+        builder.setMessage("Bạn chỉ có dữ liệu từ một bên mắt. Bạn nên thực hiện kiểm tra bên mắt " + missingSide + " để tăng độ chính xác.");
+
+        builder.setPositiveButton("Tiếp tục", (dialog, which) -> {
+            int profileID = getProfileIDFromPreferences();
+            new FetchVisualAcuityRecordIDTask(profileID).execute(); // Tiếp tục gửi dữ liệu hiện có
+        });
+
+        builder.setNegativeButton("Quay lại", (dialog, which) -> dialog.dismiss());
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private int getProfileIDFromPreferences() {
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        String profileIDStr = sharedPreferences.getString("profileID", "-1");
+        try {
+            return Integer.parseInt(profileIDStr);
+        } catch (NumberFormatException e) {
+            Log.e("EyeSelectionActivity", "profileID không hợp lệ", e);
+            return -1;
+        }
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Xử lý sự kiện khi nhấn vào nút quay lại
@@ -109,9 +171,9 @@ public class EyeSelectionActivity extends AppCompatActivity {
         float myopia = sharedPreferences.getFloat("myopia_" + eyeSide, -1.0f);
 
         if (numberOfTest != -1 && myopia != -1.0f) {
-            resultTextView.setText("Tests completed: " + numberOfTest + "\nDiopter: " + String.format("%.4f", myopia));
+            resultTextView.setText("Số lần kiểm tra: " + numberOfTest + "\nĐộ cận thị: " + String.format("%.4f", myopia));
         } else {
-            resultTextView.setText("No data available");
+            resultTextView.setText("Chưa có dữ liệu");
         }
     }
 
@@ -300,6 +362,8 @@ public class EyeSelectionActivity extends AppCompatActivity {
 
                     SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                     float diopter = sharedPreferences.getFloat("myopia_" + eyeSide, 0.0f);
+                    String formattedDiopter = String.format("%.2f", diopter);
+                    diopter = Float.parseFloat(formattedDiopter);
                     int examID = sharedPreferences.getInt("selectedExamType", -1);
 
                     JSONObject jsonRequest = new JSONObject(examDataJson);

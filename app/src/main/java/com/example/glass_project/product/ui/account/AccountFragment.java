@@ -1,4 +1,4 @@
-package com.example.glass_project.product.ui.profile;
+package com.example.glass_project.product.ui.account;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,8 +17,6 @@ import androidx.fragment.app.Fragment;
 
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
-import com.example.glass_project.product.ui.account.ChangePasswordActivity;
-import com.example.glass_project.product.ui.account.EditProfileActivity;
 import com.example.glass_project.product.ui.order.history.ListOrderHistoryActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -48,6 +46,7 @@ public class AccountFragment extends Fragment {
         TextView userOrdersButton = view.findViewById(R.id.user_order);
         TextView editProfileButton = view.findViewById(R.id.edit_profile);
         TextView changePasswordTextView = view.findViewById(R.id.changepassword);
+        TextView exchangelassTextView = view.findViewById(R.id.exchangelass);
         Button logoutButton = view.findViewById(R.id.btn_sign_out);
         languageSwitch = view.findViewById(R.id.language_switch);
 
@@ -77,6 +76,10 @@ public class AccountFragment extends Fragment {
 
         changePasswordTextView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ChangePasswordActivity.class);
+            startActivity(intent);
+        });
+        exchangelassTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ExchangeActivity.class);
             startActivity(intent);
         });
 

@@ -27,12 +27,14 @@ import java.util.Locale;
 
 public class ProfileAdapter extends ArrayAdapter<Profile> {
     private final Context context;
-    private final ProfileFragment profileFragment; // Lưu Fragment hiện tại
+    private final ProfileFragment profileFragment;
+    private List<Profile> profileList;
 
     public ProfileAdapter(Context context, ProfileFragment profileFragment, List<Profile> profiles) {
         super(context, 0, profiles);
         this.context = context;
         this.profileFragment = profileFragment;
+        this.profileList = profiles;
     }
 
     @Override
@@ -59,7 +61,17 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
 
             // Calculate and set age
             int age = calculateAge(profile.getBirthday());
-            textAge.setText("Age: " + age);
+            textAge.setText("Tuổi: " + age);
+
+            // Kiểm tra trạng thái và ẩn nếu `status` là false
+            if (!profile.isStatus()) {
+                convertView.setVisibility(View.GONE);
+                convertView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));
+            } else {
+                convertView.setVisibility(View.VISIBLE);
+                convertView.setLayoutParams(new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            }
         }
 
         // Toggle Dropdown Content
@@ -94,7 +106,13 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
             intent.putExtra("profileID", profile.getId());
             context.startActivity(intent);
         });
+
         return convertView;
+    }
+
+    public void updateProfiles(List<Profile> updatedProfiles) {
+        this.profileList = updatedProfiles;
+        notifyDataSetChanged();
     }
 
     private int calculateAge(String birthday) {
@@ -119,4 +137,3 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
         }
     }
 }
-

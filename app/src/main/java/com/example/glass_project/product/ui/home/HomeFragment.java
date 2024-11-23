@@ -236,9 +236,24 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        //clearExamData();
         if (bannerHandler != null) {
             bannerHandler.postDelayed(bannerRunnable, 5000);
         }
+    }
+    private void clearExamData() {
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove("numberOfTest_left");
+        editor.remove("myopia_left");
+        editor.remove("numberOfTest_right");
+        editor.remove("myopia_right");
+        editor.apply();
+        SharedPreferences sharedPreference = requireContext().getSharedPreferences("EyeExamData", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editors = sharedPreference.edit();
+        editors.remove("ExamData_left");
+        editors.remove("ExamData_right");
+        editors.apply();
     }
     @Override
     public void onDestroyView() {

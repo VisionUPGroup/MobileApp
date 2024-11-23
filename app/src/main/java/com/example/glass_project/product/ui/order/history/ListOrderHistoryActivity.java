@@ -5,8 +5,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -27,20 +29,23 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ListOrderHistoryActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewOrderHistory;
     private RecyclerView recyclerViewProcess;
     private OrderHistoryAdapter orderHistoryAdapter;
+    private ProcessAdapter processAdapter; // Declare processAdapter here
     private List<OrderHistoryItem> orderHistoryItems = new ArrayList<>();
     private static final String TAG = "ListOrderHistory";
 
-    private boolean isLoading = false; // Biến để kiểm soát trạng thái tải
-    private int currentPage = 1; // Trang hiện tại
-    private final int pageSize = 5; // Số mục trên mỗi trang
-    private String selectedProcess = "Pending"; // Mặc định Process là Pending
+    private boolean isLoading = false; // Control loading state
+    private int currentPage = 1; // Current page
+    private final int pageSize = 5; // Items per page
+    private String selectedProcess = "Pending"; // Default process is Pending
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,53 +56,101 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
         recyclerViewProcess = findViewById(R.id.recyclerViewProcess);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerViewOrderHistory.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewOrderHistory.setLayoutManager(layoutManager);
         orderHistoryAdapter = new OrderHistoryAdapter(this, orderHistoryItems);
         recyclerViewOrderHistory.setAdapter(orderHistoryAdapter);
 
-        // Cấu hình RecyclerView cho các Process (nằm ngang)
+        recyclerViewOrderHistory.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager != null) {
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                    // Kiểm tra điều kiện để tải thêm dữ liệu
+                    if (!isLoading && (firstVisibleItemPosition + visibleItemCount >= totalItemCount) && dy > 0) {
+                        currentPage++; // Tăng số trang
+                        fetchOrderHistory(selectedProcess, currentPage); // Gọi API để tải thêm dữ liệu
+                    }
+                }
+            }
+        });
+
+
+        // Configure RecyclerView for Process list (horizontal layout)
         LinearLayoutManager processLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerViewProcess.setLayoutManager(processLayoutManager);
 
-        // Danh sách các Process
+        // List of processes
         List<String> processList = new ArrayList<>();
-        processList.add("Pending");
-        processList.add("Processing");
-        processList.add("Shipping");
-        processList.add("Delivered");
-        processList.add("Completed");
-        processList.add("Cancelled");
+        processList.add("Đang chờ xử lý");
+        processList.add("Đang xử lý");
+        processList.add("Đang giao hàng");
+        processList.add("Đã giao hàng");
+        processList.add("Hoàn thành");
+        processList.add("Đã hủy");
 
-        ProcessAdapter processAdapter = new ProcessAdapter(processList, process -> {
-            selectedProcess = process;
-            currentPage = 1; // Đặt lại trang về 1 khi chọn lại Process
-            orderHistoryItems.clear(); // Xóa dữ liệu cũ
-            fetchOrderHistory(selectedProcess, currentPage); // Tải lại dữ liệu theo Process đã chọn
+        // Initialize processAdapter
+        processAdapter = new ProcessAdapter(processList, process -> {
+            if (!selectedProcess.equals(process)) { // Chỉ xử lý khi chọn trạng thái khác
+                selectedProcess = process; // Lưu trạng thái tiếng Việt
+                processAdapter.setSelectedProcess(selectedProcess); // Cập nhật giao diện Process
+
+                currentPage = 1; // Đặt lại trang về 1
+                orderHistoryItems.clear(); // Xóa danh sách cũ
+                orderHistoryAdapter.notifyDataSetChanged(); // Làm mới giao diện ngay lập tức
+
+                String englishProcess = processMap.get(process); // Lấy tên Process tiếng Anh
+                if (englishProcess != null) {
+                    fetchOrderHistory(englishProcess, currentPage); // Gọi API với tên Process tiếng Anh
+                } else {
+                    Toast.makeText(this, "Trạng thái không hợp lệ.", Toast.LENGTH_SHORT).show();
+                }
+            }
         });
+
+
 
         recyclerViewProcess.setAdapter(processAdapter);
 
-        fetchOrderHistory(selectedProcess, currentPage); // Mặc định chọn Process là Pending
+        // Set initial process as selected
+        processAdapter.setSelectedProcess(selectedProcess);
+
+        // Fetch data for the initial process
+        fetchOrderHistory(selectedProcess, currentPage);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Hiển thị nút quay lại
+        // Show back button in the toolbar
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-
     }
+    private final Map<String, String> processMap = new HashMap<String, String>() {{
+        put("Đang chờ xử lý", "0");
+        put("Đang xử lý", "1");
+        put("Đang giao hàng", "2");
+        put("Đã giao hàng", "3");
+        put("Hoàn thành", "4");
+        put("Đã hủy", "5");
+    }};
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Xử lý sự kiện khi nhấn vào nút quay lại
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void fetchOrderHistory(String process, int page) {
-        isLoading = true; // Bắt đầu tải dữ liệu
+        isLoading = true; // Đặt trạng thái đang tải
         new Thread(() -> {
             try {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
@@ -132,10 +185,20 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
                     List<OrderHistoryItem> newItems = orderHistoryResponse.getData();
 
                     runOnUiThread(() -> {
-                        orderHistoryItems.addAll(newItems); // Thêm dữ liệu mới vào danh sách
-                        orderHistoryAdapter.notifyDataSetChanged();
+                        if (page == 1) {
+                            orderHistoryItems.clear();
+                            if (newItems.isEmpty()) {
+                                findViewById(R.id.txtEmptyMessage).setVisibility(View.VISIBLE); // Hiển thị thông báo
+                            } else {
+                                findViewById(R.id.txtEmptyMessage).setVisibility(View.GONE); // Ẩn thông báo
+                            }
+                        }
+
+                        orderHistoryItems.addAll(newItems); // Thêm dữ liệu mới
+                        orderHistoryAdapter.notifyDataSetChanged(); // Cập nhật giao diện
                         isLoading = false; // Kết thúc tải
                     });
+
                 } else {
                     runOnUiThread(() -> Toast.makeText(this, "Lỗi kết nối: " + responseCode, Toast.LENGTH_SHORT).show());
                     isLoading = false;
@@ -149,4 +212,6 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
             }
         }).start();
     }
+
+
 }

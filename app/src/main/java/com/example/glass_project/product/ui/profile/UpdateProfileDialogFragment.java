@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -71,6 +72,7 @@ public class UpdateProfileDialogFragment extends DialogFragment {
 
         Button btnSave = view.findViewById(R.id.btnSave);
         Button btnCancel = view.findViewById(R.id.btnCancel);
+        Button btnDelete = view.findViewById(R.id.btnDelete);
 
         etFullName.setText(profile.getFullName());
         etPhoneNumber.setText(profile.getPhoneNumber());
@@ -78,18 +80,23 @@ public class UpdateProfileDialogFragment extends DialogFragment {
         etBirthday.setText(profile.getBirthday());
 
         btnSave.setOnClickListener(v -> {
-            if (TextUtils.isEmpty(etFullName.getText().toString())) {
-                etFullName.setError("Full name is required");
+            String fullName = etFullName.getText().toString().trim();
+            String phoneNumber = etPhoneNumber.getText().toString().trim();
+            String address = etAddress.getText().toString().trim();
+            String birthday = etBirthday.getText().toString().trim();
+
+            if (!validateInputs(fullName, phoneNumber, address, birthday, etFullName, etPhoneNumber, etAddress, etBirthday)) {
                 return;
             }
 
-            profile.setFullName(etFullName.getText().toString());
-            profile.setPhoneNumber(etPhoneNumber.getText().toString());
-            profile.setAddress(etAddress.getText().toString());
-            profile.setBirthday(etBirthday.getText().toString());
+            profile.setFullName(fullName);
+            profile.setPhoneNumber(phoneNumber);
+            profile.setAddress(address);
+            profile.setBirthday(birthday);
 
             new UpdateProfileTask().execute(profile);
         });
+
         etBirthday.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             int year = calendar.get(Calendar.YEAR);
@@ -108,11 +115,83 @@ public class UpdateProfileDialogFragment extends DialogFragment {
             );
             datePickerDialog.show();
         });
+
         btnCancel.setOnClickListener(v -> dismiss());
+        btnDelete.setOnClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Xác nhận xóa")
+                    .setMessage("Bạn có chắc chắn muốn xóa hồ sơ này không?")
+                    .setPositiveButton("Xóa", (dialog, which) -> {
+                        // Gọi API xóa hồ sơ
+                        new DeleteProfileTask().execute(profile.getId());
+                    })
+                    .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                    .show();
+        });
 
         return new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setView(view)
                 .create();
+    }
+    private class DeleteProfileTask extends AsyncTask<Integer, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Integer... profileIds) {
+            try {
+                SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
+                if (accessToken.isEmpty()) return false;
+
+                String BaseUrl = baseUrl.BASE_URL;
+                URL url = new URL(BaseUrl + "/api/accounts/profiles/" + profileIds[0]);
+
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("DELETE");
+                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+                int responseCode = connection.getResponseCode();
+                return responseCode == HttpURLConnection.HTTP_NO_CONTENT || responseCode == HttpURLConnection.HTTP_OK;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                Toast.makeText(requireContext(), "Hồ sơ đã được xóa", Toast.LENGTH_SHORT).show();
+                if (listener != null) {
+                    listener.onProfileUpdated();
+                }
+                dismiss();
+            } else {
+                Toast.makeText(requireContext(), "Xóa hồ sơ thất bại", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private boolean validateInputs(String fullName, String phoneNumber, String address, String birthday, EditText etFullName, EditText etPhoneNumber, EditText etAddress, EditText etBirthday) {
+        if (TextUtils.isEmpty(fullName)) {
+            etFullName.setError("Full name is required");
+            return false;
+        }
+
+        if (TextUtils.isEmpty(phoneNumber) || !Patterns.PHONE.matcher(phoneNumber).matches()) {
+            etPhoneNumber.setError("Valid phone number is required");
+            return false;
+        }
+
+        if (TextUtils.isEmpty(address)) {
+            etAddress.setError("Address is required");
+            return false;
+        }
+
+        if (TextUtils.isEmpty(birthday)) {
+            etBirthday.setError("Birthday is required");
+            return false;
+        }
+
+        return true;
     }
 
     private class UpdateProfileTask extends AsyncTask<Profile, Void, Boolean> {

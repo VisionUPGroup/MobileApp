@@ -92,25 +92,25 @@ public class TestActivity extends AppCompatActivity {
     private ExamItem currentItem;
 
     private static final Map<Integer, Double> heightValues = new HashMap<Integer, Double>() {{
-        put(1, 0.173);
-        put(2, 0.26);
-        put(3, 0.35);
-        put(4, 0.44);
-        put(5, 0.6);
-        put(6, 0.86);
-        put(7, 1.73);
-        put(8, 2.5);
+        put(1, 0.173 + 0.1);
+        put(2, 0.26 + 0.1);
+        put(3, 0.35 + 0.2);
+        put(4, 0.44 + 0.3);
+        put(5, 0.6 + 0.5);
+        put(6, 0.86 + 0.5);
+        put(7, 1.73 + 0.5);
+        put(8, 2.5 + 0.5);
     }};
 
     private static final Map<Integer, Double> widthValues = new HashMap<Integer, Double>() {{
-        put(1, 0.173);
-        put(2, 0.26);
-        put(3, 0.35);
-        put(4, 0.44);
-        put(5, 0.6);
-        put(6, 0.86);
-        put(7, 1.73);
-        put(8, 2.5);
+        put(1, 0.173 + 0.1);
+        put(2, 0.26 + 0.1);
+        put(3, 0.35 + 0.2);
+        put(4, 0.44 + 0.3);
+        put(5, 0.6 + 0.5);
+        put(6, 0.86 + 0.5);
+        put(7, 1.73 + 0.5);
+        put(8, 2.5 + 0.5);
     }};
     private static final String TAG = "TestActivity";
     private static final long FRAME_INTERVAL_MS = 1000;
@@ -595,10 +595,10 @@ public class TestActivity extends AppCompatActivity {
 
     private void showContinueDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Continue Test?")
-                .setMessage("Do you want to continue the test?")
-                .setPositiveButton("Yes", (dialog, which) -> updateUI())
-                .setNegativeButton("No", (dialog, which) -> finishTest())
+                .setTitle("Tiếp tục thực hiện")
+                .setMessage("Bạn có muốn tiếp tục thực hiện bài kiểm tra không ?")
+                .setPositiveButton("Có", (dialog, which) -> updateUI())
+                .setNegativeButton("Không", (dialog, which) -> finishTest())
                 .show();
     }
 

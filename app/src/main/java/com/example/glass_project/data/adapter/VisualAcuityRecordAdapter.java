@@ -88,11 +88,12 @@ public class VisualAcuityRecordAdapter extends RecyclerView.Adapter<VisualAcuity
         }
 
         void bind(VisualAcuityRecord record) {
-            textId.setText("ID: " + record.getId());
-            textStartDate.setText("Start Date: " + formatDate(record.getStartDate()));
-            textStatus.setText("Status: " + (record.isStatus() ? "Active" : "Inactive"));
+            textId.setText("Mã ID: " + record.getId());
+            textStartDate.setText("Ngày bắt đầu: " + formatDate(record.getStartDate()));
+            textStatus.setText("Trạng thái: " + (record.isStatus() ? "Hoạt động" : "Không hoạt động"));
             examResultsRecyclerView.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         }
+
 
         private String formatDate(String dateString) {
             try {

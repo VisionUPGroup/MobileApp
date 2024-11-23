@@ -9,12 +9,15 @@
     android:elevation="4dp">
 
     <TextView
-        android:id="@+id/processText"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/txtProcess"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
+        android:padding="8dp"
+        android:background="@drawable/unselected_process_background"
+        android:textColor="@android:color/black"
+        android:layout_margin="4dp"
+        android:textStyle="bold"
         android:gravity="center" />
+
 </androidx.cardview.widget.CardView>

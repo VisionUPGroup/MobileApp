@@ -42,7 +42,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         OrderHistoryItem order = orderList.get(position);
 
         // Set thông tin đơn hàng
-        holder.txtOrderId.setText("Order ID: " + order.getId());
+        holder.txtOrderId.setText("Mã đơn: " + order.getId());
         holder.txtOrderStatus.setText(getOrderStatus(order.getProcess()));
         holder.txtOrderTime.setText(order.getFormattedOrderTime());
         holder.txtTotalAmount.setText("Thành tiền: đ" + decimalFormat.format(order.getTotal()));
@@ -51,7 +51,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         holder.txtIsDeposit.setVisibility(order.isDeposit() ? View.VISIBLE : View.GONE);
 
         // Hiển thị hoặc ẩn nút Đánh giá dựa trên trạng thái đơn hàng
-        holder.btnReview.setVisibility(order.getProcess() == 4 ? View.VISIBLE : View.GONE);
+        //holder.btnReview.setVisibility(order.getProcess() == 4 ? View.VISIBLE : View.GONE);
 
         // Cài đặt RecyclerView cho danh sách sản phẩm trong đơn hàng
         OrderDetailHistoryAdapter orderDetailAdapter = new OrderDetailHistoryAdapter(context, order.getOrderDetails());
@@ -74,12 +74,12 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
 
     private String getOrderStatus(int process) {
         switch (process) {
-            case 0: return "Pending";
-            case 1: return "Processing";
-            case 2: return "Shipping";
-            case 3: return "Delivered";
-            case 4: return "Completed";
-            case 5: return "Cancelled";
+            case 0: return "Đang chờ xử lý";
+            case 1: return "Đang xử lý";
+            case 2: return "Đang giao hàng";
+            case 3: return "Đã giao hàng";
+            case 4: return "Hoàn thành";
+            case 5: return "Đã hủy";
             default: return "Unknown";
         }
     }

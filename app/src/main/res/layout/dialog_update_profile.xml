@@ -10,18 +10,18 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Update Profile"
+        android:text="Cập nhật hồ sơ"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/black"
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
-    <!-- Full Name -->
+    <!-- Tên đầy đủ -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Full Name"
+        android:text="Họ và tên"
         android:textSize="16sp"
         android:textColor="@color/black"
         android:layout_marginBottom="4dp" />
@@ -30,7 +30,7 @@
         android:id="@+id/etFullName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter full name"
+        android:hint="Nhập họ và tên"
         android:inputType="textPersonName"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
@@ -38,11 +38,11 @@
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="12dp" />
 
-    <!-- Phone Number -->
+    <!-- Số điện thoại -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Phone Number"
+        android:text="Số điện thoại"
         android:textSize="16sp"
         android:textColor="@color/black"
         android:layout_marginBottom="4dp" />
@@ -51,7 +51,7 @@
         android:id="@+id/etPhoneNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter phone number"
+        android:hint="Nhập số điện thoại"
         android:inputType="phone"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
@@ -59,11 +59,11 @@
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="12dp" />
 
-    <!-- Address -->
+    <!-- Địa chỉ -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Address"
+        android:text="Địa chỉ"
         android:textSize="16sp"
         android:textColor="@color/black"
         android:layout_marginBottom="4dp" />
@@ -72,7 +72,7 @@
         android:id="@+id/etAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter address"
+        android:hint="Nhập địa chỉ"
         android:inputType="text"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
@@ -80,11 +80,11 @@
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="12dp" />
 
-    <!-- Birthday -->
+    <!-- Ngày sinh -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Birthday"
+        android:text="Ngày sinh"
         android:textSize="16sp"
         android:textColor="@color/black"
         android:layout_marginBottom="4dp" />
@@ -93,7 +93,7 @@
         android:id="@+id/etBirthday"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Select your birthday"
+        android:hint="Chọn ngày sinh"
         android:focusable="false"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
@@ -101,24 +101,35 @@
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="20dp" />
 
-
-    <!-- Save and Cancel Buttons -->
+    <!-- Nút Lưu -->
     <Button
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Save"
+        android:text="Lưu"
         android:textColor="@color/white"
         android:backgroundTint="@color/blue"
         android:textStyle="bold"
         android:layout_marginBottom="8dp" />
 
+    <!-- Nút Hủy -->
     <Button
         android:id="@+id/btnCancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cancel"
+        android:text="Hủy"
         android:textColor="@color/white"
         android:backgroundTint="@color/gray"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Nút Xóa -->
+    <Button
+        android:id="@+id/btnDelete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Xóa hồ sơ"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/red"
         android:textStyle="bold" />
 </LinearLayout>

@@ -12,7 +12,9 @@
         android:layout_height="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:title="Chi tiết đặt hàng"
-        app:navigationIcon="?attr/homeAsUpIndicator"
+        android:background="@drawable/gradient_background"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@drawable/backwhite"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Order Progress Bar -->

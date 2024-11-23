@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white"
+    android:background="#F3F3F3"
     android:padding="0dp">
 
     <!-- Toolbar -->
@@ -14,7 +14,9 @@
         android:layout_height="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:title="Kết quả kiểm tra online"
-        app:navigationIcon="?attr/homeAsUpIndicator" />
+        android:background="@drawable/gradient_background"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@drawable/backwhite" />
 
 
     <!-- RecyclerView -->

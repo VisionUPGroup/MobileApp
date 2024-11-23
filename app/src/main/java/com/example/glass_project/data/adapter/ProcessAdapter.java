@@ -13,28 +13,51 @@ import com.example.glass_project.R;
 
 import java.util.List;
 
-public class ProcessAdapter extends RecyclerView.Adapter<ProcessAdapter.ProcessViewHolder> {
+public class ProcessAdapter extends RecyclerView.Adapter<ProcessAdapter.ViewHolder> {
 
-    private final List<String> processList;
-    private final OnProcessClickListener listener;
+    private List<String> processList;
+    private String selectedProcess = ""; // Process hiện tại
+    private ProcessClickListener processClickListener;
 
-    public ProcessAdapter(List<String> processList, OnProcessClickListener listener) {
+    public ProcessAdapter(List<String> processList, ProcessClickListener processClickListener) {
         this.processList = processList;
-        this.listener = listener;
+        this.processClickListener = processClickListener;
+    }
+
+    public void setSelectedProcess(String selectedProcess) {
+        this.selectedProcess = selectedProcess;
+        notifyDataSetChanged(); // Làm mới toàn bộ giao diện
     }
 
     @NonNull
     @Override
-    public ProcessViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_process, parent, false);
-        return new ProcessViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ProcessViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String process = processList.get(position);
-        holder.processText.setText(process);
-        holder.itemView.setOnClickListener(v -> listener.onProcessClick(process));
+        holder.txtProcess.setText(process);
+
+        // Đổi màu nếu Process được chọn
+        if (process.equals(selectedProcess)) {
+            holder.txtProcess.setBackgroundResource(R.drawable.selected_process_background); // Thay bằng drawable
+            holder.txtProcess.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.white));
+        } else {
+            holder.txtProcess.setBackgroundResource(R.drawable.unselected_process_background); // Thay bằng drawable
+            holder.txtProcess.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.black));
+        }
+
+        // Xử lý sự kiện click
+        holder.itemView.setOnClickListener(v -> {
+            if (!process.equals(selectedProcess)) { // Nếu khác Process hiện tại
+                selectedProcess = process;
+                notifyDataSetChanged(); // Làm mới giao diện
+                processClickListener.onProcessClick(process); // Gửi sự kiện click
+            }
+        });
     }
 
     @Override
@@ -42,16 +65,17 @@ public class ProcessAdapter extends RecyclerView.Adapter<ProcessAdapter.ProcessV
         return processList.size();
     }
 
-    public interface OnProcessClickListener {
-        void onProcessClick(String process);
-    }
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView txtProcess;
 
-    public static class ProcessViewHolder extends RecyclerView.ViewHolder {
-        TextView processText;
-
-        public ProcessViewHolder(View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            processText = itemView.findViewById(R.id.processText);
+            txtProcess = itemView.findViewById(R.id.txtProcess); // TextView của Process
         }
     }
+
+    public interface ProcessClickListener {
+        void onProcessClick(String process);
+    }
 }
+

@@ -9,18 +9,18 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create Profile"
+        android:text="Tạo hồ sơ"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/black"
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
-    <!-- Full Name -->
+    <!-- Họ và Tên -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Full Name"
+        android:text="Họ và Tên"
         android:textSize="16sp"
         android:textColor="@color/black"
         android:layout_marginBottom="4dp" />
@@ -29,7 +29,7 @@
         android:id="@+id/editFullName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter your full name"
+        android:hint="Nhập họ và tên của bạn"
         android:inputType="text"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
@@ -37,11 +37,11 @@
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="12dp" />
 
-    <!-- Phone Number -->
+    <!-- Số điện thoại -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Phone Number"
+        android:text="Số điện thoại"
         android:textSize="16sp"
         android:textColor="@color/black"
         android:layout_marginBottom="4dp" />
@@ -50,7 +50,7 @@
         android:id="@+id/editPhoneNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter your phone number"
+        android:hint="Nhập số điện thoại của bạn"
         android:inputType="phone"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
@@ -58,11 +58,11 @@
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="12dp" />
 
-    <!-- Address -->
+    <!-- Địa chỉ -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Address"
+        android:text="Địa chỉ"
         android:textSize="16sp"
         android:textColor="@color/black"
         android:layout_marginBottom="4dp" />
@@ -71,7 +71,7 @@
         android:id="@+id/editAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter your address"
+        android:hint="Nhập địa chỉ của bạn"
         android:inputType="text"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
@@ -79,12 +79,11 @@
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="12dp" />
 
-
-    <!-- Birthday -->
+    <!-- Ngày sinh -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Birthday"
+        android:text="Ngày sinh"
         android:textSize="16sp"
         android:textColor="@color/black"
         android:layout_marginBottom="4dp" />
@@ -93,7 +92,7 @@
         android:id="@+id/editBirthday"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Select your birthday"
+        android:hint="Chọn ngày sinh của bạn"
         android:focusable="false"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
@@ -101,12 +100,12 @@
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="20dp" />
 
-    <!-- Create and Cancel Buttons -->
+    <!-- Nút Tạo hồ sơ và Hủy -->
     <Button
         android:id="@+id/btnCreateProfile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create Profile"
+        android:text="Tạo hồ sơ"
         android:textColor="@color/white"
         android:backgroundTint="@color/blue"
         android:textStyle="bold"
@@ -116,7 +115,7 @@
         android:id="@+id/btnCancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cancel"
+        android:text="Hủy"
         android:textColor="@color/white"
         android:backgroundTint="@color/gray"
         android:textStyle="bold" />
