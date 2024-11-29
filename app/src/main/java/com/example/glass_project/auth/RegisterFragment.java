@@ -31,9 +31,10 @@ import java.net.URL;
 
 public class RegisterFragment extends Fragment {
 
-    private EditText username, password, email, phoneNumber;
-    private ImageView imgTogglePassword;
+    private EditText username, password, confirmPassword, email, phoneNumber;
+    private ImageView imgTogglePassword, imgToggleConfirmPassword;
     private boolean isPasswordVisible = false;
+    private boolean isConfirmPasswordVisible = false;
     private static final String TAG = "RegisterFragment";
 
     @Nullable
@@ -41,17 +42,21 @@ public class RegisterFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
+        // Ánh xạ các view
         username = view.findViewById(R.id.editUsername);
         password = view.findViewById(R.id.editPassword);
+        confirmPassword = view.findViewById(R.id.editConfirmPassword);
         email = view.findViewById(R.id.editEmailAddress);
         phoneNumber = view.findViewById(R.id.editPhoneNumber);
         Button registerButton = view.findViewById(R.id.btn_sign_up);
         imgTogglePassword = view.findViewById(R.id.imgTogglePassword);
+        imgToggleConfirmPassword = view.findViewById(R.id.imgToggleConfirmPassword);
 
-        // Toggle password visibility
+        // Toggle mật khẩu hiển thị/ẩn
         imgTogglePassword.setOnClickListener(v -> togglePasswordVisibility());
+        imgToggleConfirmPassword.setOnClickListener(v -> toggleConfirmPasswordVisibility());
 
-        // Register button click listener
+        // Xử lý sự kiện khi bấm nút đăng ký
         registerButton.setOnClickListener(v -> {
             if (validateInputs()) {
                 registerUser(
@@ -66,7 +71,7 @@ public class RegisterFragment extends Fragment {
         return view;
     }
 
-    // Toggle password visibility method
+    // Phương thức hiển thị/ẩn mật khẩu
     private void togglePasswordVisibility() {
         if (isPasswordVisible) {
             password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -79,10 +84,24 @@ public class RegisterFragment extends Fragment {
         password.setSelection(password.length());
     }
 
-    // Validate inputs method
+    // Phương thức hiển thị/ẩn xác nhận mật khẩu
+    private void toggleConfirmPasswordVisibility() {
+        if (isConfirmPasswordVisible) {
+            confirmPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            imgToggleConfirmPassword.setImageResource(R.drawable.baseline_remove_red_eye_24); // Closed eye icon
+        } else {
+            confirmPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+            imgToggleConfirmPassword.setImageResource(R.drawable.eye_open); // Open eye icon
+        }
+        isConfirmPasswordVisible = !isConfirmPasswordVisible;
+        confirmPassword.setSelection(confirmPassword.length());
+    }
+
+    // Phương thức kiểm tra đầu vào
     private boolean validateInputs() {
         String usernameInput = username.getText().toString().trim();
         String passwordInput = password.getText().toString().trim();
+        String confirmPasswordInput = confirmPassword.getText().toString().trim();
         String emailInput = email.getText().toString().trim();
         String phoneInput = phoneNumber.getText().toString().trim();
 
@@ -115,15 +134,20 @@ public class RegisterFragment extends Fragment {
             return false;
         }
 
+        if (!passwordInput.equals(confirmPasswordInput)) {
+            confirmPassword.setError("Passwords do not match");
+            return false;
+        }
+
         return true;
     }
 
-    // Call API to register the user
+    // Phương thức gọi API để đăng ký
     private void registerUser(String username, String password, String email, String phoneNumber) {
         new RegisterUserTask().execute(username, password, email, phoneNumber);
     }
 
-    // AsyncTask to handle API request in background
+    // AsyncTask xử lý API
     private class RegisterUserTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
@@ -141,14 +165,14 @@ public class RegisterFragment extends Fragment {
                 urlConnection.setRequestProperty("Content-Type", "application/json");
                 urlConnection.setDoOutput(true);
 
-                // Request body
+                // Tạo body request
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("username", username);
                 jsonBody.put("password", password);
                 jsonBody.put("email", email);
                 jsonBody.put("phoneNumber", phoneNumber);
 
-                // Write data to output stream
+                // Gửi dữ liệu
                 try (OutputStream os = urlConnection.getOutputStream()) {
                     byte[] input = jsonBody.toString().getBytes("utf-8");
                     os.write(input, 0, input.length);
@@ -158,7 +182,6 @@ public class RegisterFragment extends Fragment {
                 if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
                     return "Registration successful";
                 } else {
-                    // Read error response from the server
                     BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
                     StringBuilder errorMessage = new StringBuilder();
                     String line;
@@ -167,7 +190,6 @@ public class RegisterFragment extends Fragment {
                     }
                     return "Registration failed: " + errorMessage.toString();
                 }
-
             } catch (Exception e) {
                 Log.e(TAG, "Exception: " + e.getMessage(), e);
                 return "Error during registration";
@@ -183,7 +205,7 @@ public class RegisterFragment extends Fragment {
         }
     }
 
-    // Navigate to ProductsActivity after successful registration
+    // Chuyển đến màn hình chính sau khi đăng ký thành công
     private void navigateToMainActivity() {
         Intent intent = new Intent(requireContext(), ProductsActivity.class);
         startActivity(intent);

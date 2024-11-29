@@ -53,7 +53,7 @@ public class OrderDetailActivity extends AppCompatActivity {
     private TextView txtReceiverAddress, txtKiosks, txtIsDeposit;
     private DecimalFormat decimalFormat = new DecimalFormat("#,###");
     private static final String TAG = "OrderDetailActivity";
-    Button buttonReview;
+    Button buttonReview, buttonConfirmOrder;
     ImageView icon_pending, icon_processing, icon_shipping, icon_delivered, icon_completed;
 
     @Override
@@ -64,6 +64,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         recyclerViewOrderDetails = findViewById(R.id.recyclerViewOrderDetails);
         recyclerViewOrderDetails.setLayoutManager(new LinearLayoutManager(this));
         buttonReview = findViewById(R.id.button_review);
+        buttonConfirmOrder = findViewById(R.id.button_confirm_order);
         txtTotalAmount = findViewById(R.id.txtTotalAmount);
         txtTotalPaid = findViewById(R.id.txtTotalPaid);
         txtRemainingAmount = findViewById(R.id.txtRemainingAmount);
@@ -80,10 +81,50 @@ public class OrderDetailActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         buttonReview.setOnClickListener(v -> showRatingDialog());
+        buttonConfirmOrder.setOnClickListener(v -> confirmOrder(orderId));
         // Hiển thị nút quay lại
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
+    private void confirmOrder(int orderId) {
+        new Thread(() -> {
+            try {
+                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
+
+                URL url = new URL(baseUrl.BASE_URL + "/api/orders/confirm/" + orderId);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+                connection.setDoOutput(true);
+
+                // Optionally send data in the request body, if required by the API
+                // You can use connection.getOutputStream() to send JSON or form data
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    // Handle the API response here, for example, showing a success message
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Đơn hàng đã được xác nhận!", Toast.LENGTH_SHORT).show();
+                        // Optionally, update the UI or navigate to another screen
+                    });
+                } else {
+                    runOnUiThread(() -> Toast.makeText(this, "Không thể xác nhận đơn hàng.", Toast.LENGTH_SHORT).show());
+                }
+                connection.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, "confirmOrder: ", e);
+                runOnUiThread(() -> Toast.makeText(this, "Lỗi khi xác nhận đơn hàng.", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
     }
     private void showRatingDialog() {
         Dialog dialog = new Dialog(this);
@@ -296,6 +337,11 @@ public class OrderDetailActivity extends AppCompatActivity {
 
                         txtIsDeposit.setText("Tiền cọc: " + (orderHistoryItem.isDeposit() ? "Có" : "Không"));
                         fetchPaymentDetails(orderId); // Fetch payment details after order details
+                        if (orderStatus == 2) {
+                            buttonConfirmOrder.setVisibility(View.VISIBLE); // Hiển thị nút xác nhận nếu process là 4
+                        } else {
+                            buttonConfirmOrder.setVisibility(View.GONE); // Ẩn nút xác nhận nếu process không phải là 4
+                        }
                     });
 
                 } else {
@@ -356,6 +402,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 findViewById(R.id.view_progress_1).setBackgroundColor(processingColor);
                 findViewById(R.id.view_progress_2).setBackgroundColor(shippingColor);
                 findViewById(R.id.view_progress_3).setBackgroundColor(deliveredColor);
+                buttonReview.setVisibility(View.VISIBLE);
                 break;
             case 4: // Completed
                 icon_pending.setColorFilter(pendingColor);
@@ -367,7 +414,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 findViewById(R.id.view_progress_2).setBackgroundColor(shippingColor);
                 findViewById(R.id.view_progress_3).setBackgroundColor(deliveredColor);
                 findViewById(R.id.view_progress_4).setBackgroundColor(completedColor);
-                buttonReview.setVisibility(View.VISIBLE);
+
                 break;
             case 5: // Cancelled
                 // Cập nhật tất cả màu sắc thành màu canceledColor

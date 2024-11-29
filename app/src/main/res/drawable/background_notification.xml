@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#ffffff" /> <!-- Màu nền của thông báo -->
+    <corners android:radius="8dp" /> <!-- Đặt góc bo tròn -->
+    <elevation android:value="2dp" /> <!-- Đặt độ cao bóng đổ (tùy chọn) -->
+</shape>

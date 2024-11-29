@@ -40,6 +40,7 @@ public class EyeCheckFragment extends Fragment {
     private List<Profile> profileList = new ArrayList<>();
     private String profileID = ""; // Giá trị profileID được chọn
 
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEyeCheckBinding.inflate(inflater, container, false);

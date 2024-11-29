@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "299191069889",
-    "project_id": "daring-keep-410204",
-    "storage_bucket": "daring-keep-410204.appspot.com"
+    "project_number": "439399996015",
+    "project_id": "visionup-5b2bd",
+    "storage_bucket": "visionup-5b2bd.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:299191069889:android:dfd1295ea049e869bbb840",
+        "mobilesdk_app_id": "1:439399996015:android:321faac33165207799cb9a",
         "android_client_info": {
           "package_name": "com.example.glass_project"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "299191069889-jm8q0h5m80c69stdd6llrgk7jghc79lp.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCww3i3W9a54v1wVExKlpq7NMPHWiFca6c"
+          "current_key": "AIzaSyCYoIaNXnr7K4M-8VrsR_kI8Hf7XeQ9pF4"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "299191069889-jm8q0h5m80c69stdd6llrgk7jghc79lp.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

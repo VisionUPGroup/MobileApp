@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
+import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
 import com.example.glass_project.auth.baseUrl;
 import com.example.glass_project.data.adapter.BannerAdapter;
@@ -29,7 +30,10 @@ import com.example.glass_project.data.model.order.OrderHistoryResponse;
 import com.example.glass_project.databinding.FragmentHomeBinding;
 import com.example.glass_project.product.ui.order.history.ListOrderHistoryActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -38,6 +42,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.io.OutputStream;
 
 public class HomeFragment extends Fragment {
 
@@ -53,6 +58,9 @@ public class HomeFragment extends Fragment {
     private List<OrderHistoryItem> orderHistoryItems = new ArrayList<>();
     private static final String TAG = "HomeFragment";
 
+    private View noDataView;
+
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -61,7 +69,7 @@ public class HomeFragment extends Fragment {
 
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("username", "");
-
+        fetchFirebaseToken();
         // Display greeting with username
         TextView greetingTextView = binding.greetingText;
         String greetingMessage = getGreetingMessage();
@@ -82,6 +90,95 @@ public class HomeFragment extends Fragment {
 
         return root;
     }
+    private void fetchFirebaseToken() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+
+                    // Lấy Device Token
+                    String deviceToken = task.getResult();
+                    Log.d(TAG, "Device Token: " + deviceToken);
+
+                    // Kiểm tra và gửi Device Token lên server
+                    SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("deviceToken", deviceToken);
+                    editor.apply();  // Apply changes asynchronously
+                    String accountId = sharedPreferences.getString("id", null);
+                    if (accountId != null) {
+                        sendDeviceTokenToServerDirect(accountId, deviceToken);
+                    } else {
+                        Log.e(TAG, "Account ID is null. Cannot send device token.");
+                    }
+                });
+    }
+
+    // Gửi Device Token lên API trực tiếp
+    private void sendDeviceTokenToServerDirect(String accountId, String deviceToken) {
+        new Thread(() -> {
+            HttpURLConnection connection = null;
+            try {
+                String BaseUrl = baseUrl.BASE_URL;// Tạo kết nối tới API
+                String apiUrl = BaseUrl +"/api/notifications/device-tokens";
+
+                // Tạo JSON request body
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("accountId", accountId);
+                jsonObject.put("deviceToken", deviceToken);
+                jsonObject.put("deviceInfo", "Android - " + android.os.Build.MODEL);
+
+                // Mở kết nối
+                URL url = new URL(apiUrl);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("Accept", "*/*");
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+
+                // Ghi dữ liệu vào body request
+                try (OutputStream os = connection.getOutputStream()) {
+                    byte[] input = jsonObject.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+
+                // Đọc phản hồi từ server
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))) {
+                        StringBuilder response = new StringBuilder();
+                        String responseLine;
+                        while ((responseLine = br.readLine()) != null) {
+                            response.append(responseLine.trim());
+                        }
+                        Log.d("API", "Response: " + response.toString());
+                    }
+                } else {
+                    Log.e("API", "Error: Response code " + responseCode);
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getErrorStream(), "utf-8"))) {
+                        StringBuilder errorResponse = new StringBuilder();
+                        String errorLine;
+                        while ((errorLine = br.readLine()) != null) {
+                            errorResponse.append(errorLine.trim());
+                        }
+                        Log.e("API", "Error Response: " + errorResponse.toString());
+                    }
+                }
+
+            } catch (Exception e) {
+                Log.e("API", "Exception: " + e.getMessage(), e);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        }).start();
+    }
+
+
 
     private void setupLinearLayoutClickEvents() {
         // Lấy BottomNavigationView từ Activity
@@ -164,6 +261,9 @@ public class HomeFragment extends Fragment {
                     requireActivity().runOnUiThread(() ->
                             Toast.makeText(getContext(), "Vui lòng đăng nhập lại.", Toast.LENGTH_SHORT).show()
                     );
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    startActivity(intent);
+                    requireActivity().finish();
                     return;
                 }
 

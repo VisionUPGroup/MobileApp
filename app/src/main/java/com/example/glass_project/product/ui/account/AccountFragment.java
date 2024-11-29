@@ -17,6 +17,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
+import com.example.glass_project.config.services.MyFirebaseMessagingService;
+import com.example.glass_project.product.ui.notifications.NotificationsActivity;
 import com.example.glass_project.product.ui.order.history.ListOrderHistoryActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -48,6 +50,8 @@ public class AccountFragment extends Fragment {
         TextView changePasswordTextView = view.findViewById(R.id.changepassword);
         TextView exchangelassTextView = view.findViewById(R.id.exchangelass);
         Button logoutButton = view.findViewById(R.id.btn_sign_out);
+        TextView notificationsTextView = view.findViewById(R.id.notifications);
+
         languageSwitch = view.findViewById(R.id.language_switch);
 
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
@@ -76,6 +80,10 @@ public class AccountFragment extends Fragment {
 
         changePasswordTextView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ChangePasswordActivity.class);
+            startActivity(intent);
+        });
+        notificationsTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), NotificationsActivity.class);
             startActivity(intent);
         });
         exchangelassTextView.setOnClickListener(v -> {
@@ -132,9 +140,14 @@ public class AccountFragment extends Fragment {
         // Clear user session
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        String accountId = sharedPreferences.getString("id", "");
+        String deviceToken = sharedPreferences.getString("deviceToken", "");
+        if (!accountId.isEmpty() && !deviceToken.isEmpty()) {
+            new MyFirebaseMessagingService().deleteNotification(accountId, deviceToken);
+        }
         editor.clear();
         editor.apply();
-
         mGoogleSignInClient.signOut().addOnCompleteListener(requireActivity(), task -> {
             Intent intent = new Intent(getActivity(), MainActivity.class);
             startActivity(intent);

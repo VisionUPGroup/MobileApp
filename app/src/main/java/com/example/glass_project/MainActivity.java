@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
@@ -12,6 +13,8 @@ import com.example.glass_project.auth.ViewFragmentApdater;
 import com.example.glass_project.product.ui.other.ProductsActivity;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,6 +25,17 @@ public class MainActivity extends AppCompatActivity {
 
         // Check if user session exists
         if (hasUserDetails()) {
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            Log.w("FCM", "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Token của thiết bị
+                        String token = task.getResult();
+                        Log.d("FCM", "Device Token: " + token);
+                    });
             // Redirect to ProductsActivity if user details are available
             Intent intent = new Intent(this, ProductsActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear back stack
@@ -35,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         ViewFragmentApdater adapter = new ViewFragmentApdater(this);
         viewPager.setAdapter(adapter);
+        FirebaseApp.initializeApp(this);
 
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> {
@@ -57,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         return id != null && username != null && email != null;
     }
+
 
     @Override
     protected void onDestroy() {

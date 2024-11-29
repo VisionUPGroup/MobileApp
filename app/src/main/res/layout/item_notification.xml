@@ -1,59 +1,43 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="10dp"
-    android:layout_marginEnd="10dp"
-    android:layout_marginTop="10dp"
-    android:background="@drawable/notification_background">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/background_notification"
+    android:layout_marginBottom="8dp"
+    android:elevation="2dp">
 
+    <!-- Title -->
     <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:text="Notification Title"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="4dp"/>
-
-    <TextView
-        android:id="@+id/tvMessage"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="#706E6E"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        android:text="Notification Message"
-        android:maxLines="2"
-        android:ellipsize="end"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"/>
-
-    <TextView
-        android:id="@+id/tvTimestamp"
+        android:id="@+id/notification_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvMessage"
-        android:text="Timestamp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="8dp"/>
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:text="Thông báo tiêu đề"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Body -->
+    <TextView
+        android:id="@+id/notification_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="14sp"
+        android:textColor="#555555"
+        android:text="Đây là nội dung của thông báo, có thể dài hơn một chút để kiểm tra cách hiển thị." />
+
+    <!-- Timestamp -->
+    <TextView
+        android:id="@+id/notification_timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="12sp"
+        android:textColor="@android:color/darker_gray"
+        android:text="2 giờ trước" />
+
+</LinearLayout>

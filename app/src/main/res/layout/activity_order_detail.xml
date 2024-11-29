@@ -318,6 +318,17 @@
             android:textColor="@android:color/white"
             android:layout_marginStart="8dp"
             android:visibility="gone" />
+        <Button
+            android:id="@+id/button_confirm_order"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Xác nhận đơn hàng"
+            android:backgroundTint="@color/blue"
+            android:textColor="@android:color/white"
+            android:layout_marginStart="8dp"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

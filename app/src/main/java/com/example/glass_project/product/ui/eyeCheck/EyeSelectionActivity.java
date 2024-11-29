@@ -342,11 +342,26 @@ public class EyeSelectionActivity extends AppCompatActivity {
         if (eyeSideRightData != null) {
             postExamResultAsync(eyeSideRightData, "right", visualAcuityRecordID);
         }
-        if (eyeSideLeftData != null || eyeSideRightData != null){
-            Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+
+        if (eyeSideLeftData != null || eyeSideRightData != null) {
+            // Hiển thị AlertDialog để xác nhận
+            new AlertDialog.Builder(this)
+                    .setTitle("Xác nhận")
+                    .setMessage("Bạn có muốn quay lại màn hình chính không?")
+                    .setPositiveButton("Có", (dialog, which) -> {
+                        // Chuyển về MainActivity nếu chọn "Có"
+                        Intent intent = new Intent(this, MainActivity.class);
+                        startActivity(intent);
+                        finish(); // Đóng Activity hiện tại
+                    })
+                    .setNegativeButton("Không", (dialog, which) -> {
+                        // Đóng dialog nếu chọn "Không"
+                        dialog.dismiss();
+                    })
+                    .show();
+        }
     }
-    }
+
 
     @SuppressLint("StaticFieldLeak")
     private void postExamResultAsync(final String examDataJson, final String eyeSide, final int visualAcuityRecordID) {

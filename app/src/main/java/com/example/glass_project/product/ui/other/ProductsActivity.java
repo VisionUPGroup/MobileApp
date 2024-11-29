@@ -18,6 +18,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.glass_project.R;
 import com.example.glass_project.databinding.ActivityProductsBinding;
 import com.example.glass_project.product.ui.account.AccountFragment;
+import com.example.glass_project.product.ui.notifications.NotificationsActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -52,6 +53,10 @@ public class ProductsActivity extends AppCompatActivity {
         };
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        findViewById(R.id.notification_icon).setOnClickListener(v -> {
+            Intent intent = new Intent(ProductsActivity.this, NotificationsActivity.class);
+            startActivity(intent);
+        });
 
         // Cấu hình Navigation
         setupNavigation(); // Gọi hàm setupNavigation để cấu hình NavController và AppBar
@@ -65,14 +70,7 @@ public class ProductsActivity extends AppCompatActivity {
             Log.e("NavigationSetup", "Error setting up BottomNavigationView", e);
         }
 
-        // Đoạn code cũ không thay đổi
-        // ImageView userIcon = findViewById(R.id.user_icon);
-        // userIcon.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View v) {
-        //        launchProfileActivity();
-        //    }
-        // });
+
     }
 
     private void setupNavigation() {

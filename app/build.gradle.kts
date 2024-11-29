@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
+
 }
 
 android {
@@ -80,6 +81,8 @@ dependencies {
     implementation ("org.osmdroid:osmdroid-android:6.1.18")
     implementation ("org.osmdroid:osmdroid-mapsforge:6.1.18")
     implementation("androidx.cardview:cardview:1.0.0")
+    implementation ("com.google.firebase:firebase-messaging:23.0.0")
+    implementation("com.google.firebase:firebase-analytics")
 
     implementation ("androidx.camera:camera-core:1.0.2")
     implementation ("androidx.camera:camera-camera2:1.0.2")

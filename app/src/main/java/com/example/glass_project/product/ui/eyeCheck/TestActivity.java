@@ -5,21 +5,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -219,11 +211,6 @@ public class TestActivity extends AppCompatActivity {
         Bitmap bitmap = imageProxyToBitmap(image);
         int rotationDegrees = image.getImageInfo().getRotationDegrees();
         bitmap = rotateBitmap(bitmap, rotationDegrees);
-        // Áp dụng các bộ lọc
-        //bitmap = applyGrayscaleFilter(bitmap); // Chuyển sang ảnh xám
-        // bitmap = applyContrastFilter(bitmap, 1.5f); // Tăng độ tương phản
-        //bitmap = applyBrightnessFilter(bitmap, 20); // Tăng độ sáng
-        //bitmap = applyGaussianBlurFilter(bitmap); // Làm mờ Gaussian
 
         // Gửi khung hình đến Custom Vision
         sendFrameToCustomVision(bitmap);
@@ -235,62 +222,6 @@ public class TestActivity extends AppCompatActivity {
         matrix.postRotate(rotationDegrees);
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
-    private Bitmap applyGaussianBlurFilter(Bitmap bitmap) {
-        RenderScript rs = RenderScript.create(this);
-        Allocation input = Allocation.createFromBitmap(rs, bitmap);
-        Allocation output = Allocation.createTyped(rs, input.getType());
-        ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-        blurScript.setRadius(10); // Đặt bán kính làm mờ (0 < radius <= 25)
-        blurScript.setInput(input);
-        blurScript.forEach(output);
-        output.copyTo(bitmap);
-        rs.destroy();
-        return bitmap;
-    }
-    private Bitmap applyBrightnessFilter(Bitmap bitmap, float brightness) {
-        Bitmap brightnessBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(brightnessBitmap);
-        Paint paint = new Paint();
-        ColorMatrix colorMatrix = new ColorMatrix();
-        colorMatrix.set(new float[] {
-                1, 0, 0, 0, brightness,
-                0, 1, 0, 0, brightness,
-                0, 0, 1, 0, brightness,
-                0, 0, 0, 1, 0
-        });
-        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
-        paint.setColorFilter(filter);
-        canvas.drawBitmap(bitmap, 0, 0, paint);
-        return brightnessBitmap;
-    }
-    private Bitmap applyContrastFilter(Bitmap bitmap, float contrast) {
-        Bitmap contrastBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(contrastBitmap);
-        Paint paint = new Paint();
-        ColorMatrix colorMatrix = new ColorMatrix();
-        colorMatrix.set(new float[] {
-                contrast, 0, 0, 0, 0,
-                0, contrast, 0, 0, 0,
-                0, 0, contrast, 0, 0,
-                0, 0, 0, 1, 0
-        });
-        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
-        paint.setColorFilter(filter);
-        canvas.drawBitmap(bitmap, 0, 0, paint);
-        return contrastBitmap;
-    }
-    private Bitmap applyGrayscaleFilter(Bitmap bitmap) {
-        Bitmap grayBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(grayBitmap);
-        Paint paint = new Paint();
-        ColorMatrix colorMatrix = new ColorMatrix();
-        colorMatrix.setSaturation(0); // Chuyển đổi sang ảnh xám
-        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
-        paint.setColorFilter(filter);
-        canvas.drawBitmap(bitmap, 0, 0, paint);
-        return grayBitmap;
-    }
-
 
     @OptIn(markerClass = ExperimentalGetImage.class)
     private Bitmap imageProxyToBitmap(ImageProxy image) {

@@ -95,14 +95,14 @@ android:padding="8dp">
     android:gravity="end"
     android:paddingTop="8dp">
 
-    <!-- Nút Đánh giá -->
+    <!-- Nút Xác nhận đơn hàng  -->
     <Button
         android:visibility="gone"
-        android:id="@+id/btnReview"
+        android:id="@+id/btnSumit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Đánh giá"
+        android:text="Xác nhận đơn hàng"
         android:textColor="@android:color/white"
         android:backgroundTint="@color/blue"/>
 </LinearLayout>

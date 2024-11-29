@@ -47,6 +47,9 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
     private final int pageSize = 5; // Items per page
     private String selectedProcess = "Pending"; // Default process is Pending
 
+    private View noDataView;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +57,7 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
 
         recyclerViewOrderHistory = findViewById(R.id.recyclerViewOrderHistory);
         recyclerViewProcess = findViewById(R.id.recyclerViewProcess);
-
+        noDataView = findViewById(R.id.noDataView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerViewOrderHistory.setLayoutManager(layoutManager);
         orderHistoryAdapter = new OrderHistoryAdapter(this, orderHistoryItems);
@@ -148,7 +151,39 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    private void confirmOrder(int orderId) {
+        new Thread(() -> {
+            try {
+                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
 
+                if (accessToken.isEmpty()) {
+                    runOnUiThread(() -> Toast.makeText(this, "Vui lòng đăng nhập lại.", Toast.LENGTH_SHORT).show());
+                    return;
+                }
+
+                String BaseUrl = baseUrl.BASE_URL;
+                URL url = new URL(BaseUrl + "/api/orders/confirm/" + orderId);
+
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("PUT");
+                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+                connection.setRequestProperty("accept", "*/*");
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    runOnUiThread(() -> Toast.makeText(this, "Đơn hàng đã được xác nhận!", Toast.LENGTH_SHORT).show());
+                } else {
+                    runOnUiThread(() -> Toast.makeText(this, "Lỗi khi xác nhận đơn hàng.", Toast.LENGTH_SHORT).show());
+                }
+
+                connection.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, "confirmOrder: ", e);
+                runOnUiThread(() -> Toast.makeText(this, "Lỗi khi xác nhận đơn hàng.", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
     private void fetchOrderHistory(String process, int page) {
         isLoading = true; // Đặt trạng thái đang tải
         new Thread(() -> {
@@ -188,9 +223,13 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
                         if (page == 1) {
                             orderHistoryItems.clear();
                             if (newItems.isEmpty()) {
-                                findViewById(R.id.txtEmptyMessage).setVisibility(View.VISIBLE); // Hiển thị thông báo
+                                Log.d(TAG, "No data available, showing noDataView");
+                                recyclerViewOrderHistory.setVisibility(View.GONE);
+                                noDataView.setVisibility(View.VISIBLE);
                             } else {
-                                findViewById(R.id.txtEmptyMessage).setVisibility(View.GONE); // Ẩn thông báo
+                                Log.d(TAG, "Data available, hiding noDataView");
+                                recyclerViewOrderHistory.setVisibility(View.VISIBLE);
+                                noDataView.setVisibility(View.GONE);
                             }
                         }
 
