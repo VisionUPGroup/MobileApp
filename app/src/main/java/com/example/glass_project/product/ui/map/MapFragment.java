@@ -1,8 +1,11 @@
 package com.example.glass_project.product.ui.map;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -12,10 +15,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,12 +30,20 @@ import com.example.glass_project.R;
 import com.example.glass_project.auth.baseUrl;
 import com.example.glass_project.data.adapter.KioskAdapter;
 import com.example.glass_project.data.model.kiosk.Kiosk;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.Task;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +63,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private RecyclerView recyclerView;
     private KioskAdapter adapter;
     private List<Kiosk> kioskList = new ArrayList<>();
+    private FusedLocationProviderClient fusedLocationClient;
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
 
     @Nullable
     @Override
@@ -59,6 +76,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // Initialize FusedLocationProviderClient
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
         // Load the map
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapView);
         if (mapFragment != null) {
@@ -68,14 +88,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Fetch data from API
         new FetchKiosksTask().execute();
 
+        // Nút để gọi API lấy ki-ốt gần đây
+        Button btnNearbyKiosks = view.findViewById(R.id.btn_nearby_kiosks);
+        btnNearbyKiosks.setOnClickListener(v -> fetchNearbyKiosks());
+
+        // Nút để gọi API lấy tất cả ki-ốt
+        Button btnAllKiosks = view.findViewById(R.id.btn_all_kiosks);
+        btnAllKiosks.setOnClickListener(v -> fetchAllKiosks());
+
         return view;
     }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-    }
-
     private class FetchKiosksTask extends AsyncTask<Void, Void, List<Kiosk>> {
         @Override
         protected List<Kiosk> doInBackground(Void... voids) {
@@ -119,6 +141,218 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 adapter = new KioskAdapter(kioskList, MapFragment.this::onKioskSelected, getContext());
                 recyclerView.setAdapter(adapter);
 
+                for (Kiosk kiosk : kioskList) {
+                    LatLng location = getLocationFromAddress(kiosk.getAddress());
+                    if (location != null) {
+                        addMarker(location, kiosk.getName());
+                    }
+                }
+            }
+        }
+    }
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+    }
+
+    private void fetchNearbyKiosks() {
+        // Check if location permission is granted
+        Context context = requireContext(); // Sử dụng requireContext() để đảm bảo không null
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Nếu quyền chưa được cấp, yêu cầu quyền
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            // Nếu quyền đã được cấp, kiểm tra xem GPS có bật không
+            checkLocationSettings();
+        }
+        // Get current location
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(getActivity(), location -> {
+                    if (location != null) {
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+                        fetchNearbyKiosksFromApi(latitude, longitude);
+                    } else {
+                        Toast.makeText(getContext(), "Không thể lấy vị trí hiện tại", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    private void checkAndRequestLocationPermission() {
+        // Kiểm tra quyền truy cập vị trí
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Nếu quyền chưa được cấp, yêu cầu quyền
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            // Nếu quyền đã được cấp, kiểm tra xem GPS có bật không
+            checkLocationSettings();
+        }
+    }
+
+    private void checkLocationSettings() {
+        // Tạo đối tượng LocationRequest để kiểm tra yêu cầu bật GPS
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        SettingsClient settingsClient = LocationServices.getSettingsClient(getContext());
+        Task<LocationSettingsResponse> task = settingsClient.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(getActivity(), locationSettingsResponse -> {
+            // GPS đã bật, có thể lấy vị trí
+            fetchNearbyKiosks();
+        });
+
+        task.addOnFailureListener(getActivity(), e -> {
+            if (e instanceof ResolvableApiException) {
+                // Nếu chưa bật GPS, yêu cầu người dùng bật GPS
+                try {
+                    ResolvableApiException resolvable = (ResolvableApiException) e;
+                    resolvable.startResolutionForResult(getActivity(), 101); // Mã yêu cầu yêu cầu bật GPS
+                } catch (IntentSender.SendIntentException sendEx) {
+                    Log.e("GPS", "Error requesting location settings resolution.", sendEx);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @NonNull Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 101) {
+            // Kiểm tra xem người dùng có bật GPS không
+            if (resultCode == getActivity().RESULT_OK) {
+                // GPS đã được bật, tiếp tục gọi API lấy ki-ốt gần
+                fetchNearbyKiosks();
+            } else {
+                Toast.makeText(getContext(), "Vui lòng bật GPS để sử dụng tính năng này", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void fetchNearbyKiosksFromApi(double latitude, double longitude) {
+        // Asynchronously fetch nearby kiosks from the API
+        new FetchNearbyKiosksTask(latitude, longitude).execute();
+    }
+
+    private void fetchAllKiosks() {
+        // Asynchronously fetch all kiosks from the API
+        new FetchAllKiosksTask().execute();
+    }
+
+    private class FetchAllKiosksTask extends AsyncTask<Void, Void, List<Kiosk>> {
+
+        @Override
+        protected List<Kiosk> doInBackground(Void... voids) {
+            try {
+                SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
+                String BaseUrl = baseUrl.BASE_URL;
+
+                URL url = new URL(BaseUrl + "/api/kiosks");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+                urlConnection.setRequestProperty("accept", "*/*");
+
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    return parseKiosksData(response.toString());
+                } else {
+                    Log.e("API_ERROR", "Failed to fetch all kiosks. Response Code: " + responseCode);
+                }
+
+            } catch (Exception e) {
+                Log.e("API_ERROR", "Exception: " + e.getMessage(), e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<Kiosk> kiosks) {
+            if (kiosks != null) {
+                kioskList = kiosks;
+                adapter = new KioskAdapter(kioskList, MapFragment.this::onKioskSelected, getContext());
+                recyclerView.setAdapter(adapter);
+
+                // Xóa tất cả các marker trước đó
+                mMap.clear();
+
+                // Thêm marker cho tất cả các ki-ốt
+                for (Kiosk kiosk : kioskList) {
+                    LatLng location = getLocationFromAddress(kiosk.getAddress());
+                    if (location != null) {
+                        addMarker(location, kiosk.getName());
+                    }
+                }
+            }
+        }
+    }
+
+    private class FetchNearbyKiosksTask extends AsyncTask<Void, Void, List<Kiosk>> {
+
+        private final double latitude;
+        private final double longitude;
+
+        public FetchNearbyKiosksTask(double latitude, double longitude) {
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+
+        @Override
+        protected List<Kiosk> doInBackground(Void... voids) {
+            try {
+                SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
+                String BaseUrl = baseUrl.BASE_URL;
+
+                URL url = new URL(BaseUrl + "/api/kiosks/get-nearby-kiosks?latitude=" + latitude + "&longitude=" + longitude + "&maxDistanceKm=5");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+                urlConnection.setRequestProperty("accept", "*/*");
+
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    return parseKiosksData(response.toString());
+                } else {
+                    Log.e("API_ERROR", "Failed to fetch nearby kiosks. Response Code: " + responseCode);
+                }
+
+            } catch (Exception e) {
+                Log.e("API_ERROR", "Exception: " + e.getMessage(), e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<Kiosk> kiosks) {
+            if (kiosks != null) {
+                kioskList = kiosks;
+                adapter = new KioskAdapter(kioskList, MapFragment.this::onKioskSelected, getContext());
+                recyclerView.setAdapter(adapter);
+
+                // Xóa tất cả các marker trước đó
+                mMap.clear();
+
+                // Thêm marker cho các ki-ốt gần đây
                 for (Kiosk kiosk : kioskList) {
                     LatLng location = getLocationFromAddress(kiosk.getAddress());
                     if (location != null) {

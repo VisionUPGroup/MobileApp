@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Định nghĩa hình dạng của Spinner -->
+    <solid android:color="@android:color/white"/> <!-- Màu nền của Spinner -->
+
+    <!-- Định nghĩa viền cho Spinner -->
+    <stroke
+        android:color="@android:color/darker_gray"
+        android:width="1dp"/> <!-- Độ rộng của viền -->
+
+    <!-- Định nghĩa góc bo cho Spinner -->
+    <corners android:radius="8dp"/> <!-- Bo góc với bán kính 8dp -->
+
+    <!-- Định nghĩa khoảng cách bên trong Spinner -->
+    <padding
+        android:left="10dp"
+        android:top="10dp"
+        android:right="10dp"
+        android:bottom="10dp"/>
+</shape>

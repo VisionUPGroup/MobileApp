@@ -1,0 +1,98 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingHorizontal="1dp"
+    android:background="@android:color/white">
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:title="Danh sách báo cáo"
+        android:background="@drawable/gradient_background"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@drawable/backwhite"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Layout cho Status Spinner và TextView -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp">
+
+        <!-- TextView mô tả cho trạng thái -->
+        <TextView
+            android:id="@+id/textview_status_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trạng thái   :"
+            android:layout_marginEnd="8dp"
+            android:gravity="center_vertical"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="8dp"/>
+
+        <!-- Spinner cho trạng thái, sử dụng layout_weight để phân phối đều không gian -->
+        <Spinner
+            android:id="@+id/spinner_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:background="@drawable/spinner_background"/>
+    </LinearLayout>
+
+    <!-- Layout cho Type Spinner và TextView -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp">
+
+        <!-- TextView mô tả cho loại -->
+        <TextView
+            android:id="@+id/textview_type_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Loại vấn đề :"
+            android:layout_marginEnd="8dp"
+            android:gravity="center_vertical"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="8dp"/>
+
+        <!-- Spinner cho loại vấn đề, sử dụng layout_weight để phân phối đều không gian -->
+        <Spinner
+            android:id="@+id/spinner_type"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:background="@drawable/spinner_background"/>
+    </LinearLayout>
+
+
+    <!-- RecyclerView hiển thị danh sách báo cáo -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_reports"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/white"/>
+
+    <!-- View khi không có dữ liệu -->
+    <include
+        android:id="@+id/noDataView"
+        layout="@layout/no_data_view"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"
+        tools:ignore="IncludeLayoutParam" />
+</LinearLayout>

@@ -65,4 +65,26 @@
     <string name="vnd">VND</string>
     <string name="select_user">Select User</string>
     <string name="app_name1">App Name</string>
+
+    <string-array name="status_array">
+        <item>Chưa chọn</item>
+        <item>Yêu cầu</item>
+        <item>Bị từ chối</item>
+        <item>Được chấp nhận</item>
+    </string-array>
+    <string-array name="type_array">
+        <item>Chưa chọn</item>
+        <item>Vấn đề sản phẩm</item>
+        <item>Vấn đề giao hàng</item>
+        <item>Vấn đề khách hàng</item>
+        <item>Dịch vụ khách hàng</item>
+        <item>Khác</item>
+    </string-array>
+    <string-array name="report_types">
+        <item>Vấn đề sản phẩm</item>
+        <item>Vấn đề giao hàng</item>
+        <item>Vấn đề khách hàng</item>
+        <item>Dịch vụ khách hàng</item>
+        <item>Khác</item>
+    </string-array>
 </resources>

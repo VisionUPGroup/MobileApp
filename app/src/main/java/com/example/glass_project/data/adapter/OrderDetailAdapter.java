@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -50,7 +51,25 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
         holder.txtProductName.setText(orderDetail.getProductGlass().getEyeGlass().getName());
         holder.txtPrice.setText("đ" + decimalFormat.format(orderDetail.getProductGlass().getTotal()));
         holder.txtQuantity.setText("Số lượng: " + orderDetail.getQuantity());
-
+        holder.layoutOD.setVisibility(View.GONE);
+        holder.layoutOS.setVisibility(View.GONE);
+        holder.txtPD.setVisibility(View.GONE);
+        holder.txtShowMore.setOnClickListener(v -> {
+            // Kiểm tra xem layoutOD và layoutOS có đang ẩn hay không
+            if (holder.layoutOD.getVisibility() == View.GONE) {
+                // Nếu đang ẩn, hiển thị các thông tin OD, OS và PD
+                holder.layoutOD.setVisibility(View.VISIBLE);
+                holder.layoutOS.setVisibility(View.VISIBLE);
+                holder.txtPD.setVisibility(View.VISIBLE);
+                holder.txtShowMore.setText("Ẩn bớt");
+            } else {
+                // Nếu đang hiển thị, ẩn chúng đi
+                holder.layoutOD.setVisibility(View.GONE);
+                holder.layoutOS.setVisibility(View.GONE);
+                holder.txtPD.setVisibility(View.GONE);
+                holder.txtShowMore.setText("Xem thêm");
+            }
+        });
         // Load product image
         if (orderDetail.getProductGlass().getEyeGlass().getEyeGlassImages() != null &&
                 !orderDetail.getProductGlass().getEyeGlass().getEyeGlassImages().isEmpty()) {
@@ -102,7 +121,7 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
             holder.txtAxisOS.setText("Axis OS: " + productGlassDetail.getAxisOS());
             holder.txtAddOD.setText("Add OD: " + productGlassDetail.getAddOD());
             holder.txtAddOS.setText("Add OS: " + productGlassDetail.getAddOS());
-            holder.txtPd.setText("Khoảng cách đồng tử (PD): " + productGlassDetail.getPd());
+            holder.txtPD.setText("Khoảng cách đồng tử (PD): " + productGlassDetail.getPd());
         }
     }
 
@@ -115,7 +134,8 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
         TextView txtProductName, txtPrice, txtQuantity, txtLeftLensPrice, txtRightLensPrice;
         TextView txtLeftLensName, txtRightLensName;
         ImageView imgProduct, imgLeftLens, imgRightLens;
-        TextView txtSphereOD, txtCylinderOD, txtAxisOD, txtSphereOS, txtCylinderOS, txtAxisOS, txtAddOD, txtAddOS, txtPd;
+        TextView txtSphereOD, txtCylinderOD, txtAxisOD, txtSphereOS, txtCylinderOS, txtAxisOS, txtAddOD, txtAddOS, txtPD,txtShowMore;
+        LinearLayout  layoutOS,layoutOD;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -134,11 +154,14 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
             txtSphereOS = itemView.findViewById(R.id.txtSphereOS);
             txtCylinderOS = itemView.findViewById(R.id.txtCylinderOS);
             txtAxisOS = itemView.findViewById(R.id.txtAxisOS);
+            layoutOD = itemView.findViewById(R.id.layoutOD);
+            layoutOS = itemView.findViewById(R.id.layoutOS);
+            txtPD = itemView.findViewById(R.id.txtPD);
             txtAddOD = itemView.findViewById(R.id.txtAddOD);
             txtAddOS = itemView.findViewById(R.id.txtAddOS);
-            txtPd = itemView.findViewById(R.id.txtPD);
             txtLeftLensPrice = itemView.findViewById(R.id.txtLeftLensPrice);
             txtRightLensPrice = itemView.findViewById(R.id.txtRightLensPrice);
+            txtShowMore = itemView.findViewById(R.id.txtShowMore);
         }
     }
 }

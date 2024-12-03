@@ -3,15 +3,22 @@ package com.example.glass_project.product.ui.eyeCheck;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,13 +41,25 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EyeCheckFragment extends Fragment {
+public class EyeCheckFragment extends Fragment implements SensorEventListener {
     private FragmentEyeCheckBinding binding;
     private List<Exam> examList = new ArrayList<>();
     private List<Profile> profileList = new ArrayList<>();
     private String profileID = ""; // Giá trị profileID được chọn
-
-
+    private SensorManager sensorManager;
+    private Sensor accelerometer,gyroscope;
+    private boolean isTracking = false;
+    private float totalDistance = 0f;
+    private float initialX = 0f, initialY = 0f, initialZ = 0f; // Tọa độ ban đầu
+    private float currentX = 0f, currentY = 0f, currentZ = 0f; // Tọa độ hiện tại
+    private float velocityX = 0f, velocityY = 0f, velocityZ = 0f; // Vận tốc
+    private float distanceX = 0f, distanceY = 0f, distanceZ = 0f; // Khoảng cách
+    private float timeStep = 0.1f;
+    private float roll = 0f, pitch = 0f, yaw = 0f;
+    private Handler handler = new Handler();
+    private Button btnAct;
+    private TextView textViewDistance;
+    private float initialDistance = 0f;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEyeCheckBinding.inflate(inflater, container, false);
@@ -51,7 +70,17 @@ public class EyeCheckFragment extends Fragment {
 
         // GridView cho danh sách bài kiểm tra
         GridView examGridView = binding.gridViewExamList;
-
+        btnAct = binding.btnAct;
+        textViewDistance = binding.textViewDistance;
+        btnAct.setOnClickListener(v -> {
+            if (isTracking) {
+                // Dừng theo dõi
+                stopTracking();
+            } else {
+                // Bắt đầu theo dõi
+                startTracking();
+            }
+        });
         // Tải danh sách hồ sơ và bài kiểm tra
         loadProfiles();
         loadExams();
@@ -82,7 +111,111 @@ public class EyeCheckFragment extends Fragment {
 
         return rootView;
     }
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            // Lấy gia tốc hiện tại từ cảm biến (trong không gian thiết bị)
+            float ax = event.values[0];  // Gia tốc theo trục X
+            float ay = event.values[1];  // Gia tốc theo trục Y
+            float az = event.values[2];  // Gia tốc theo trục Z
+            Log.d("EyeCheckFragment", "Initial Acceleration - X: " + ax + ", Y: " + ay + ", Z: " + az);
 
+            if (isTracking) {
+                // Chuyển gia tốc từ không gian thiết bị sang không gian thế giới
+                float[] worldAcc = applyRotationToAcceleration(ax, ay, az, roll, pitch, yaw);
+
+                // Cập nhật gia tốc hiện tại
+                currentX = worldAcc[0];
+                currentY = worldAcc[1];
+                currentZ = worldAcc[2];
+
+                // Tính khoảng cách từ gia tốc đã chuyển đổi
+                float distance = calculateEuclideanDistance(initialX, initialY, initialZ, currentX, currentY, currentZ);
+
+                // Nếu là lần theo dõi đầu tiên, lưu khoảng cách ban đầu
+                if (initialDistance == 0f) {
+                    initialDistance = distance;
+                }
+
+                // Tính tổng khoảng cách đã di chuyển, trừ đi giá trị ban đầu
+                totalDistance = distance - initialDistance;
+
+                // Cập nhật giao diện người dùng
+                textViewDistance.setText("Khoảng cách: " + String.format("%.5f", totalDistance) + " m");
+            }
+        }
+    }
+
+    private float[] applyRotationToAcceleration(float ax, float ay, float az, float roll, float pitch, float yaw) {
+        // Tạo ma trận quay từ Roll, Pitch, Yaw
+        float[][] rotationMatrix = new float[3][3];
+
+        // Tạo ma trận quay (3x3) từ góc Roll, Pitch, Yaw (đơn vị radian)
+        float cosRoll = (float) Math.cos(roll);
+        float sinRoll = (float) Math.sin(roll);
+        float cosPitch = (float) Math.cos(pitch);
+        float sinPitch = (float) Math.sin(pitch);
+        float cosYaw = (float) Math.cos(yaw);
+        float sinYaw = (float) Math.sin(yaw);
+
+        // Ma trận quay từ các góc Euler (Roll, Pitch, Yaw)
+        rotationMatrix[0][0] = cosPitch * cosYaw;
+        rotationMatrix[0][1] = cosPitch * sinYaw;
+        rotationMatrix[0][2] = -sinPitch;
+
+        rotationMatrix[1][0] = sinRoll * sinPitch * cosYaw - cosRoll * sinYaw;
+        rotationMatrix[1][1] = sinRoll * sinPitch * sinYaw + cosRoll * cosYaw;
+        rotationMatrix[1][2] = sinRoll * cosPitch;
+
+        rotationMatrix[2][0] = cosRoll * sinPitch * cosYaw + sinRoll * sinYaw;
+        rotationMatrix[2][1] = cosRoll * sinPitch * sinYaw - sinRoll * cosYaw;
+        rotationMatrix[2][2] = cosRoll * cosPitch;
+
+        // Áp dụng ma trận quay để chuyển gia tốc sang không gian thế giới
+        float[] worldAcc = new float[3];
+        worldAcc[0] = rotationMatrix[0][0] * ax + rotationMatrix[0][1] * ay + rotationMatrix[0][2] * az;
+        worldAcc[1] = rotationMatrix[1][0] * ax + rotationMatrix[1][1] * ay + rotationMatrix[1][2] * az;
+        worldAcc[2] = rotationMatrix[2][0] * ax + rotationMatrix[2][1] * ay + rotationMatrix[2][2] * az;
+
+        return worldAcc;
+    }
+
+    // Tính khoảng cách Euclidean giữa 2 điểm trong không gian 3D
+    private float calculateEuclideanDistance(float x1, float y1, float z1, float x2, float y2, float z2) {
+        return (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+    private void startTracking() {
+        isTracking = true;
+        totalDistance = 0f;
+
+        // Đăng ký lắng nghe cảm biến
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_UI);
+
+        // Lưu giá trị gia tốc ban đầu
+        initialX = 0f;
+        initialY = 0f;
+        initialZ = 0f;
+        Log.d("EyeCheckFragment", "Initial Acceleration - X: " + initialX + ", Y: " + initialY + ", Z: " + initialZ);
+        btnAct.setText("Dừng");
+    }
+
+
+
+    private void stopTracking() {
+        isTracking = false;
+        // Dừng lắng nghe cảm biến
+        sensorManager.unregisterListener(this);
+
+        btnAct.setText("Bắt đầu");
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();

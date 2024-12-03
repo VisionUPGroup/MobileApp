@@ -151,39 +151,6 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    private void confirmOrder(int orderId) {
-        new Thread(() -> {
-            try {
-                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-                String accessToken = sharedPreferences.getString("accessToken", "");
-
-                if (accessToken.isEmpty()) {
-                    runOnUiThread(() -> Toast.makeText(this, "Vui lòng đăng nhập lại.", Toast.LENGTH_SHORT).show());
-                    return;
-                }
-
-                String BaseUrl = baseUrl.BASE_URL;
-                URL url = new URL(BaseUrl + "/api/orders/confirm/" + orderId);
-
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("PUT");
-                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
-                connection.setRequestProperty("accept", "*/*");
-
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    runOnUiThread(() -> Toast.makeText(this, "Đơn hàng đã được xác nhận!", Toast.LENGTH_SHORT).show());
-                } else {
-                    runOnUiThread(() -> Toast.makeText(this, "Lỗi khi xác nhận đơn hàng.", Toast.LENGTH_SHORT).show());
-                }
-
-                connection.disconnect();
-            } catch (Exception e) {
-                Log.e(TAG, "confirmOrder: ", e);
-                runOnUiThread(() -> Toast.makeText(this, "Lỗi khi xác nhận đơn hàng.", Toast.LENGTH_SHORT).show());
-            }
-        }).start();
-    }
     private void fetchOrderHistory(String process, int page) {
         isLoading = true; // Đặt trạng thái đang tải
         new Thread(() -> {

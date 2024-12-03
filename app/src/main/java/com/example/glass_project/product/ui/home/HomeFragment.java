@@ -23,6 +23,7 @@ import com.bumptech.glide.Glide;
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
 import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.services.MyFirebaseMessagingService;
 import com.example.glass_project.data.adapter.BannerAdapter;
 import com.example.glass_project.data.adapter.OrderHistoryAdapter;
 import com.example.glass_project.data.model.order.OrderHistoryItem;
@@ -37,12 +38,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.io.OutputStream;
 
 public class HomeFragment extends Fragment {
 
@@ -296,9 +297,10 @@ public class HomeFragment extends Fragment {
                     }
                 } else {
                     if (isAdded()) {
-                        requireActivity().runOnUiThread(() ->
-                                Toast.makeText(getContext(), "Lỗi kết nối: " + responseCode, Toast.LENGTH_SHORT).show()
-                        );
+                        requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "Lỗi kết nối: " + responseCode, Toast.LENGTH_SHORT).show();
+                            signOutAndStartSignInActivityFromHomeFragment(); // Gọi phương thức từ AccountFragment
+                        });
                     }
                 }
                 connection.disconnect();
@@ -307,10 +309,30 @@ public class HomeFragment extends Fragment {
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() ->
                             Toast.makeText(getContext(), "Lỗi khi tải dữ liệu.", Toast.LENGTH_SHORT).show()
+
                     );
                 }
             }
         }).start();
+    }
+    private void signOutAndStartSignInActivityFromHomeFragment() {
+        // Lấy reference của AccountFragment từ FragmentManager
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        String accountId = sharedPreferences.getString("id", "");
+        String deviceToken = sharedPreferences.getString("deviceToken", "");
+
+        if (!accountId.isEmpty() && !deviceToken.isEmpty()) {
+            new MyFirebaseMessagingService().deleteNotification(accountId, deviceToken);
+        }
+        editor.clear();
+        editor.apply();
+
+        // Chuyển về MainActivity
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        startActivity(intent);
+        requireActivity().finish(); // Kết thúc Activity hiện tại để không quay lại được
     }
 
 

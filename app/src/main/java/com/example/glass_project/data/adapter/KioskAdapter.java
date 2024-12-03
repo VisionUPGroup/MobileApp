@@ -47,8 +47,8 @@ public class KioskAdapter extends RecyclerView.Adapter<KioskAdapter.KioskViewHol
         // Cập nhật thông tin trong các TextView
         holder.nameTextView.setText(kiosk.getName());
         holder.addressTextView.setText("Địa chi: " + kiosk.getAddress());
-        holder.phoneNumberTextView.setText("SĐT: " +kiosk.getPhoneNumber());
-        holder.emailTextView.setText("Mail: " +kiosk.getEmail());
+        holder.phoneNumberTextView.setText("SĐT: " + kiosk.getPhoneNumber());
+        holder.emailTextView.setText("Mail: " + kiosk.getEmail());
 
         // Sự kiện bấm vào item để xem chi tiết
         holder.itemView.setOnClickListener(v -> listener.onItemClick(kiosk));
@@ -66,6 +66,14 @@ public class KioskAdapter extends RecyclerView.Adapter<KioskAdapter.KioskViewHol
             intent.setData(Uri.parse("mailto:" + kiosk.getEmail()));
             context.startActivity(intent);
         });
+
+        // Mở Google Maps khi nhấn vào nút bản đồ
+        holder.btnMap.setOnClickListener(v -> {
+            Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(kiosk.getAddress()));
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            context.startActivity(mapIntent);
+        });
     }
 
     @Override
@@ -80,6 +88,7 @@ public class KioskAdapter extends RecyclerView.Adapter<KioskAdapter.KioskViewHol
         TextView emailTextView;
         ImageButton btnCall;
         ImageButton btnEmail;
+        ImageButton btnMap;  // Thêm trường ImageButton mới cho Map
 
         public KioskViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -89,6 +98,7 @@ public class KioskAdapter extends RecyclerView.Adapter<KioskAdapter.KioskViewHol
             emailTextView = itemView.findViewById(R.id.kiosk_email);
             btnCall = itemView.findViewById(R.id.btn_call);
             btnEmail = itemView.findViewById(R.id.btn_email);
+            btnMap = itemView.findViewById(R.id.btn_map);  // Khởi tạo ImageButton cho Map
         }
     }
 }

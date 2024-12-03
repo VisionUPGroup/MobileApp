@@ -129,6 +129,17 @@
                 android:textSize="16sp"
                 android:drawablePadding="15dp"
                 android:paddingVertical="8dp" />
+
+            <TextView
+                android:id="@+id/report"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/report2"
+                android:drawablePadding="15dp"
+                android:paddingVertical="8dp"
+                android:text="Theo dõi báo cáo"
+                android:textSize="16sp" />
+
             <Switch
                 android:id="@+id/language_switch"
                 android:layout_width="wrap_content"

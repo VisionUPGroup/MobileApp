@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.camera.view)
     implementation(libs.camera.lifecycle)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

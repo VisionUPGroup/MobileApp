@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/edit_text_background"
             android:ems="10"
-            android:hint="Username"
+            android:hint="Tên đăng nhập"
             android:inputType="textEmailAddress"
             android:padding="10dp"
             android:textColorHint="@color/hintText"
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_text_background"
                 android:ems="10"
-                android:hint="Password"
+                android:hint="Mật khẩu"
                 android:inputType="textPassword"
                 android:padding="10dp"
                 android:textColorHint="@color/hintText"
@@ -60,8 +60,8 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:backgroundTint="@color/secondary"
-            android:text="Login"
+            android:backgroundTint="@color/blue"
+            android:text="Đăng nhập"
             android:textColor="@color/white"
             android:textSize="14dp"
             android:textStyle="bold"
@@ -74,6 +74,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
             android:gravity="center"
+            android:visibility="gone"
             android:orientation="horizontal">
 
             <View
@@ -110,6 +111,7 @@
             android:drawableLeft="@drawable/google_logo"
             android:text="Sign in by Google"
             android:textColor="@color/white"
+            android:visibility="gone"
             tools:ignore="HardcodedText,RtlHardcoded" />
 
     </LinearLayout>

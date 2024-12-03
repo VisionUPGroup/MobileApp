@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:name=".MyApp"
@@ -75,6 +76,9 @@
             android:configChanges="locale|layoutDirection" />
         <activity
             android:name=".product.ui.profile.ProfileDetailActivity"
+            android:configChanges="locale|layoutDirection" />
+        <activity
+            android:name=".product.ui.Report.ListReportActivity"
             android:configChanges="locale|layoutDirection" />
         <activity
             android:name=".product.ui.VisualAcuityRecord.VisualAcuityRecordActivity"

@@ -55,10 +55,10 @@ public class MainActivity extends AppCompatActivity {
                 (tab, position) -> {
                     switch (position) {
                         case 0:
-                            tab.setText("Login");
+                            tab.setText("Đăng nhập");
                             break;
                         case 1:
-                            tab.setText("Register");
+                            tab.setText("Đăng  kí");
                             break;
                     }
                 }).attach();

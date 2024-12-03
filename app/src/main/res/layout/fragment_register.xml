@@ -34,7 +34,7 @@
             android:background="@drawable/edit_text_background"
             android:inputType="text"
             android:ems="10"
-            android:hint="Username"
+            android:hint="Tên đăng nhập"
             android:padding="10dp"
             android:textColorHint="@color/hintText"
             tools:ignore="Autofill,HardcodedText,TouchTargetSizeCheck,TextContrastCheck,VisualLintOverlap" />
@@ -46,7 +46,7 @@
             android:background="@drawable/edit_text_background"
             android:inputType="phone"
             android:ems="10"
-            android:hint="Phone Number"
+            android:hint="Số điện thoại"
             android:padding="10dp"
             android:textColorHint="@color/hintText"
             tools:ignore="Autofill,HardcodedText,TouchTargetSizeCheck,TextContrastCheck" />
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_text_background"
                 android:ems="10"
-                android:hint="Password"
+                android:hint="Mật khẩu"
                 android:inputType="textPassword"
                 android:padding="10dp"
                 android:textColorHint="@color/hintText"
@@ -88,7 +88,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_text_background"
                 android:ems="10"
-                android:hint="Confirm Password"
+                android:hint="Nhập lại mật khẩu"
                 android:inputType="textPassword"
                 android:padding="10dp"
                 android:textColorHint="@color/hintText"
@@ -110,8 +110,8 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:backgroundTint="@color/secondary"
-            android:text="Sign Up"
+            android:backgroundTint="@color/blue"
+            android:text="Đăng kí"
             android:textColor="@color/white"
             android:textStyle="bold"
             tools:ignore="HardcodedText,MissingConstraints" />
@@ -123,6 +123,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
             android:gravity="center"
+            android:visibility="gone"
             android:orientation="horizontal">
 
             <View
@@ -157,6 +158,7 @@
             android:backgroundTint="@color/black"
             android:drawableLeft="@drawable/google_logo"
             android:text="Sign up by Google"
+            android:visibility="gone"
             android:textColor="@color/white"
             tools:ignore="HardcodedText,RtlHardcoded" />
 

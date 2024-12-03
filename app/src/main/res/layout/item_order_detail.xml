@@ -2,7 +2,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginTop="1dp"
+    android:layout_marginBottom="5dp"
+android:layout_marginLeft="1dp"
+    android:layout_marginRight="1dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp">
 
@@ -39,6 +42,7 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:scaleType="centerCrop"
+                android:layout_marginLeft="2dp"
                 android:src="@drawable/default_image" />
 
             <LinearLayout
@@ -152,15 +156,26 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:paddingBottom="8dp">
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Thông số"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                android:layout_weight="1"
+                android:gravity="start"/>
+
+            <!-- TextView cho "Xem thêm", nằm sát bên phải -->
+            <TextView
+                android:id="@+id/txtShowMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Xem thêm"
+                android:textColor="@android:color/holo_blue_light"/>
         </LinearLayout>
 
         <LinearLayout

@@ -11,24 +11,36 @@ public class OrderHistoryItem {
     private String orderTime;
     private boolean status;
     private String receiverAddress;
-    private double total;
-    private int kiosks;  // Add kiosks attribute here
+    private int total;
+    private Integer voucherID;  // Nullable integer for voucherID
     private String code;
     private int process;
+    private Kiosk kiosks;  // This can be null
     private boolean isDeposit;
-    private List<OrderDetail> orderDetails;
+    private String shippingStartTime;
+    private String deliveriedStartTime;
+    private Kiosk placedByKiosk;  // This can also be null
+    private String deliveryConfirmationImage;
+    private Shipper shipper;
+    private List<OrderDetail> orderDetails;  // List of order details
 
-    public OrderHistoryItem(int id, int accountID, String orderTime, boolean status, String receiverAddress, double total, int kiosks, String code, int process, boolean isDeposit, List<OrderDetail> orderDetails) {
+    public OrderHistoryItem(int id, int accountID, String orderTime, boolean status, String receiverAddress, int total, Integer voucherID, String code, int process, Kiosk kiosks, boolean isDeposit, String shippingStartTime, String deliveriedStartTime, Kiosk placedByKiosk, String deliveryConfirmationImage, Shipper shipper, List<OrderDetail> orderDetails) {
         this.id = id;
         this.accountID = accountID;
         this.orderTime = orderTime;
         this.status = status;
         this.receiverAddress = receiverAddress;
         this.total = total;
-        this.kiosks = kiosks;
+        this.voucherID = voucherID;
         this.code = code;
         this.process = process;
+        this.kiosks = kiosks;
         this.isDeposit = isDeposit;
+        this.shippingStartTime = shippingStartTime;
+        this.deliveriedStartTime = deliveriedStartTime;
+        this.placedByKiosk = placedByKiosk;
+        this.deliveryConfirmationImage = deliveryConfirmationImage;
+        this.shipper = shipper;
         this.orderDetails = orderDetails;
     }
 
@@ -55,6 +67,7 @@ public class OrderHistoryItem {
             default: return "Unknown";
         }
     }
+
     public int getId() {
         return id;
     }
@@ -99,8 +112,56 @@ public class OrderHistoryItem {
         return total;
     }
 
-    public void setTotal(double total) {
+    public void setTotal(int total) {
         this.total = total;
+    }
+
+    public Integer getVoucherID() {
+        return voucherID;
+    }
+
+    public void setVoucherID(Integer voucherID) {
+        this.voucherID = voucherID;
+    }
+
+    public String getShippingStartTime() {
+        return shippingStartTime;
+    }
+
+    public void setShippingStartTime(String shippingStartTime) {
+        this.shippingStartTime = shippingStartTime;
+    }
+
+    public String getDeliveriedStartTime() {
+        return deliveriedStartTime;
+    }
+
+    public void setDeliveriedStartTime(String deliveriedStartTime) {
+        this.deliveriedStartTime = deliveriedStartTime;
+    }
+
+    public Kiosk getPlacedByKiosk() {
+        return placedByKiosk;
+    }
+
+    public void setPlacedByKiosk(Kiosk placedByKiosk) {
+        this.placedByKiosk = placedByKiosk;
+    }
+
+    public String getDeliveryConfirmationImage() {
+        return deliveryConfirmationImage;
+    }
+
+    public void setDeliveryConfirmationImage(String deliveryConfirmationImage) {
+        this.deliveryConfirmationImage = deliveryConfirmationImage;
+    }
+
+    public Shipper getShipper() {
+        return shipper;
+    }
+
+    public void setShipper(Shipper shipper) {
+        this.shipper = shipper;
     }
 
     public String getCode() {
@@ -135,11 +196,11 @@ public class OrderHistoryItem {
         this.orderDetails = orderDetails;
     }
 
-    public int getKiosks() {
-        return kiosks;
+    public Kiosk getKiosks() {
+        return kiosks;  // Return Kiosk object
     }
 
-    public void setKiosks(int kiosks) {
-        this.kiosks = kiosks;
+    public void setKiosks(Kiosk kiosks) {
+        this.kiosks = kiosks;  // Set Kiosk object
     }
 }

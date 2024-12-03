@@ -18,20 +18,14 @@ import androidx.fragment.app.Fragment;
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
 import com.example.glass_project.config.services.MyFirebaseMessagingService;
+import com.example.glass_project.product.ui.Report.ListReportActivity;
 import com.example.glass_project.product.ui.notifications.NotificationsActivity;
 import com.example.glass_project.product.ui.order.history.ListOrderHistoryActivity;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.zeugmasolutions.localehelper.LocaleHelper;
 
 import java.util.Locale;
 
 public class AccountFragment extends Fragment {
-
-    private GoogleSignInClient mGoogleSignInClient;
-    private FirebaseAuth mAuth;
     private Switch languageSwitch;
 
     public AccountFragment() {
@@ -51,7 +45,7 @@ public class AccountFragment extends Fragment {
         TextView exchangelassTextView = view.findViewById(R.id.exchangelass);
         Button logoutButton = view.findViewById(R.id.btn_sign_out);
         TextView notificationsTextView = view.findViewById(R.id.notifications);
-
+        TextView report = view.findViewById(R.id.report);
         languageSwitch = view.findViewById(R.id.language_switch);
 
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
@@ -90,14 +84,11 @@ public class AccountFragment extends Fragment {
             Intent intent = new Intent(getActivity(), ExchangeActivity.class);
             startActivity(intent);
         });
+        report.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ListReportActivity.class);
+            startActivity(intent);
+        });
 
-        mAuth = FirebaseAuth.getInstance();
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-        mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
 
         logoutButton.setOnClickListener(v -> signOutAndStartSignInActivity());
 
@@ -134,8 +125,7 @@ public class AccountFragment extends Fragment {
     }
 
 
-    private void signOutAndStartSignInActivity() {
-        mAuth.signOut();
+    public void signOutAndStartSignInActivity() {
 
         // Clear user session
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
@@ -148,10 +138,8 @@ public class AccountFragment extends Fragment {
         }
         editor.clear();
         editor.apply();
-        mGoogleSignInClient.signOut().addOnCompleteListener(requireActivity(), task -> {
             Intent intent = new Intent(getActivity(), MainActivity.class);
             startActivity(intent);
             requireActivity().finish();
-        });
     }
 }
