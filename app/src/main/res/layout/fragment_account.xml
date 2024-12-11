@@ -52,6 +52,13 @@
             android:text="user@example.com"
             android:textColor="@color/gray"
             tools:ignore="HardcodedText" />
+        <TextView
+            android:id="@+id/phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0999999999"
+            android:textColor="@color/gray"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <!-- Account Section -->
@@ -145,6 +152,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Chuyển sang tiếng Anh"
+                android:visibility="gone"
                 android:layout_marginTop="20dp"
                 app:layout_constraintTop_toBottomOf="@id/account_card"
                 app:layout_constraintStart_toStartOf="parent"

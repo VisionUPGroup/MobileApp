@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.model.eyeCheck.ExamItem;
 import com.example.glass_project.databinding.ActivityEyeSelectionBinding;
 
@@ -130,6 +130,7 @@ public class EyeSelectionActivity extends AppCompatActivity {
             showIncompleteDataDialog(missingSide);
         }
     }
+
     private void showIncompleteDataDialog(String missingSide) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Dữ liệu chưa đầy đủ");
@@ -168,10 +169,10 @@ public class EyeSelectionActivity extends AppCompatActivity {
     private void displayEyeTestResults(String eyeSide, TextView resultTextView) {
         SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         int numberOfTest = sharedPreferences.getInt("numberOfTest_" + eyeSide, -1);
-        float myopia = sharedPreferences.getFloat("myopia_" + eyeSide, -1.0f);
+        int myopia = sharedPreferences.getInt("myopia_" + eyeSide, 0);
 
-        if (numberOfTest != -1 && myopia != -1.0f) {
-            resultTextView.setText("Số lần kiểm tra: " + numberOfTest + "\nĐộ cận thị: " + String.format("%.4f", myopia));
+        if (numberOfTest != -1 && myopia != -1) {
+            resultTextView.setText("Số lần kiểm tra: " + numberOfTest + "\nĐộ cận thị: " + String.format("%d", myopia));
         } else {
             resultTextView.setText("Chưa có dữ liệu");
         }
@@ -376,9 +377,7 @@ public class EyeSelectionActivity extends AppCompatActivity {
                     connection.setRequestProperty("Content-Type", "application/json");
 
                     SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-                    float diopter = sharedPreferences.getFloat("myopia_" + eyeSide, 0.0f);
-                    String formattedDiopter = String.format("%.2f", diopter);
-                    diopter = Float.parseFloat(formattedDiopter);
+                    int diopter = sharedPreferences.getInt("myopia_" + eyeSide, 0);
                     int examID = sharedPreferences.getInt("selectedExamType", -1);
 
                     JSONObject jsonRequest = new JSONObject(examDataJson);
@@ -407,7 +406,7 @@ public class EyeSelectionActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(Integer responseCode) {
                 if (responseCode != null && responseCode == HttpURLConnection.HTTP_OK) {
-                    Toast.makeText(EyeSelectionActivity.this, "Data sent successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EyeSelectionActivity.this, "Dữ liệu đã được gửi thành công", Toast.LENGTH_SHORT).show();
                     clearExamData();
                     Log.d("postExamResultAsync", "Data sent successfully with response code: " + responseCode);
                 } else {
@@ -448,14 +447,22 @@ public class EyeSelectionActivity extends AppCompatActivity {
     private void clearExamData() {
         SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        //editor.remove("ExamData_left").commit();
-        //editor.remove("ExamData_right").commit();
-        //editor.remove("numberOfTest_left");
-        //editor.remove("myopia_left");
-        //editor.remove("numberOfTest_right");
-        //.remove("myopia_right");
+        editor.remove("numberOfTest_left");
+        editor.remove("myopia_left");
+        editor.remove("numberOfTest_right");
+        editor.remove("myopia_right");
+        editor.remove("ExamData_left");
+        editor.remove("ExamData_right");
         editor.apply();
+
+        // Reset giao diện người dùng
+        binding.textLeftEyeResults.setText("");
+        binding.textRightEyeResults.setText("");
+        binding.buttonExportResults.setEnabled(false);
+
+        Toast.makeText(this, "Exam data cleared", Toast.LENGTH_SHORT).show();
     }
+
 
 
     @Override

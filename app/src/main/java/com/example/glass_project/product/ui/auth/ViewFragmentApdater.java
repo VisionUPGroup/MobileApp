@@ -1,4 +1,4 @@
-package com.example.glass_project.auth;
+package com.example.glass_project.product.ui.auth;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;

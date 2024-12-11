@@ -11,9 +11,8 @@ public class OrderHistoryItem {
     private String orderTime;
     private boolean status;
     private String receiverAddress;
-    private int total;
+    private double total;
     private Integer voucherID;  // Nullable integer for voucherID
-    private String code;
     private int process;
     private Kiosk kiosks;  // This can be null
     private boolean isDeposit;
@@ -22,9 +21,14 @@ public class OrderHistoryItem {
     private Kiosk placedByKiosk;  // This can also be null
     private String deliveryConfirmationImage;
     private Shipper shipper;
+
+    private double remainingAmount;
+
+
+
     private List<OrderDetail> orderDetails;  // List of order details
 
-    public OrderHistoryItem(int id, int accountID, String orderTime, boolean status, String receiverAddress, int total, Integer voucherID, String code, int process, Kiosk kiosks, boolean isDeposit, String shippingStartTime, String deliveriedStartTime, Kiosk placedByKiosk, String deliveryConfirmationImage, Shipper shipper, List<OrderDetail> orderDetails) {
+    public OrderHistoryItem(int id, int accountID, String orderTime, boolean status, String receiverAddress, int total, Integer voucherID,  int process, Kiosk kiosks, boolean isDeposit, String shippingStartTime, String deliveriedStartTime, Kiosk placedByKiosk, String deliveryConfirmationImage, Shipper shipper, List<OrderDetail> orderDetails) {
         this.id = id;
         this.accountID = accountID;
         this.orderTime = orderTime;
@@ -32,7 +36,6 @@ public class OrderHistoryItem {
         this.receiverAddress = receiverAddress;
         this.total = total;
         this.voucherID = voucherID;
-        this.code = code;
         this.process = process;
         this.kiosks = kiosks;
         this.isDeposit = isDeposit;
@@ -112,8 +115,16 @@ public class OrderHistoryItem {
         return total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(double total) {
         this.total = total;
+    }
+
+    public double getRemainingAmount() {
+        return remainingAmount;
+    }
+
+    public void setRemainingAmount(double remainingAmount) {
+        this.remainingAmount = remainingAmount;
     }
 
     public Integer getVoucherID() {
@@ -164,13 +175,6 @@ public class OrderHistoryItem {
         this.shipper = shipper;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
 
     public int getProcess() {
         return process;

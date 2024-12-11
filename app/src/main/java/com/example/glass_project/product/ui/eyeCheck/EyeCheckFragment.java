@@ -1,6 +1,7 @@
 package com.example.glass_project.product.ui.eyeCheck;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -22,14 +23,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.adapter.ExamGridAdapter;
 import com.example.glass_project.data.model.eyeCheck.Exam;
 import com.example.glass_project.data.model.profile.Profile;
 import com.example.glass_project.databinding.FragmentEyeCheckBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,8 +55,6 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
     private float totalDistance = 0f;
     private float initialX = 0f, initialY = 0f, initialZ = 0f; // Tọa độ ban đầu
     private float currentX = 0f, currentY = 0f, currentZ = 0f; // Tọa độ hiện tại
-    private float velocityX = 0f, velocityY = 0f, velocityZ = 0f; // Vận tốc
-    private float distanceX = 0f, distanceY = 0f, distanceZ = 0f; // Khoảng cách
     private float timeStep = 0.1f;
     private float roll = 0f, pitch = 0f, yaw = 0f;
     private Handler handler = new Handler();
@@ -88,7 +89,10 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
         // Xử lý sự kiện chọn bài kiểm tra từ GridView
         examGridView.setOnItemClickListener((parent, view, position, id) -> {
             Exam selectedExam = examList.get(position);
-
+            if (!selectedExam.isStatus()) {
+                Toast.makeText(getContext(), "Bài kiểm tra này hiện không khả dụng.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             // Lấy thông tin hồ sơ được chọn
             Profile selectedProfile = (Profile) profileSpinner.getSelectedItem();
             if (selectedProfile != null) {
@@ -100,7 +104,7 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
                 editor.putString("profileID", profileID);
                 editor.putInt("selectedExamType", selectedExam.getId());
                 editor.apply();
-
+                clearExamData();
                 // Chuyển đến EyeSelectionActivity
                 Intent intent = new Intent(getActivity(), EyeSelectionActivity.class);
                 startActivity(intent);
@@ -230,8 +234,8 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
         // Thêm dữ liệu bài kiểm tra (hiển thị cố định)
         examList.add(new Exam(1, "Thị lực E", R.drawable.eyeteste, true));
         examList.add(new Exam(2, "Thị lực C", R.drawable.eyetestc, true));
-        examList.add(new Exam(3, "Loạn thị", R.drawable.eyetestc, true));
-        examList.add(new Exam(4, "Áp lực mắt", R.drawable.eyeteste, true));
+        examList.add(new Exam(3, "Loạn thị", R.drawable.eyetestc, false));
+        examList.add(new Exam(4, "Mù màu", R.drawable.eyeteste, false));
 
         // Hiển thị dữ liệu trên GridView
         ExamGridAdapter adapter = new ExamGridAdapter(getContext(), examList);
@@ -291,7 +295,7 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
                     JSONArray jsonArray = new JSONObject(response.toString()).getJSONArray("data");
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject profileObject = jsonArray.getJSONObject(i);
-                        profiles.add(new Profile(
+                        Profile profile = new Profile(
                                 profileObject.getInt("id"),
                                 profileObject.getInt("accountID"),
                                 profileObject.getString("fullName"),
@@ -300,7 +304,11 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
                                 profileObject.optString("urlImage", ""),
                                 profileObject.getString("birthday"),
                                 profileObject.getBoolean("status")
-                        ));
+                        );
+                        // Only add profiles with status true
+                        if (profile.isStatus()) {
+                            profiles.add(profile);
+                        }
                     }
                 } else {
                     Log.e("ProfileFragment", "Failed to fetch profiles. Response Code: " + responseCode);
@@ -320,7 +328,17 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
                 profileAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 binding.spinnerProfileID.setAdapter(profileAdapter);
             } else {
-                showError("Không có hồ sơ nào khả dụng.");
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Bạn chưa có hồ sơ nào")
+                        .setMessage("Vui lòng tạo hồ sơ trước khi thực hiện kiểm tra.")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.nav_view);
+                                bottomNavigationView.setSelectedItemId(R.id.navigation_profile); // Optional: adds the transaction to the back stack
+                            }
+                        })
+                        .show();
             }
         }
     }

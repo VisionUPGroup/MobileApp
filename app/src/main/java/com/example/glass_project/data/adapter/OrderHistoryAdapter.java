@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.model.order.OrderHistoryItem;
 import com.example.glass_project.product.ui.order.history.ListOrderHistoryActivity;
 import com.example.glass_project.product.ui.order.history.OrderDetailActivity;
@@ -52,7 +52,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         holder.txtOrderId.setText("Mã đơn: " + order.getId());
         holder.txtOrderStatus.setText(getOrderStatus(order.getProcess()));
         holder.txtOrderTime.setText(order.getFormattedOrderTime());
-        holder.txtTotalAmount.setText("Tiền cần thanh toán: đ" + decimalFormat.format(order.getTotal()));
+        holder.txtTotalAmount.setText("Tiền cần thanh toán: đ" + decimalFormat.format(order.getRemainingAmount()));
 
         // Hiển thị trạng thái Đặt cọc nếu có
         holder.txtIsDeposit.setVisibility(order.isDeposit() ? View.VISIBLE : View.GONE);

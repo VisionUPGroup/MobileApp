@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,7 +23,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.config.services.MyFirebaseMessagingService;
 import com.example.glass_project.data.adapter.BannerAdapter;
 import com.example.glass_project.data.adapter.OrderHistoryAdapter;
@@ -254,14 +255,24 @@ public class HomeFragment extends Fragment {
             }
 
             try {
+                requireActivity().runOnUiThread(() -> {
+                    ProgressBar progressBar = requireView().findViewById(R.id.progressBar);
+                    progressBar.setVisibility(View.VISIBLE);
+
+                    View noDataView = requireView().findViewById(R.id.noDataView);
+                    noDataView.setVisibility(View.GONE); // Ẩn noDataView khi bắt đầu tải dữ liệu
+                });
+
                 SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 String accountId = sharedPreferences.getString("id", "");
                 String accessToken = sharedPreferences.getString("accessToken", "");
 
                 if (accountId.isEmpty() || accessToken.isEmpty()) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(getContext(), "Vui lòng đăng nhập lại.", Toast.LENGTH_SHORT).show()
-                    );
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Vui lòng đăng nhập lại.", Toast.LENGTH_SHORT).show();
+                        ProgressBar progressBar = requireView().findViewById(R.id.progressBar);
+                        progressBar.setVisibility(View.GONE);
+                    });
                     Intent intent = new Intent(getActivity(), MainActivity.class);
                     startActivity(intent);
                     requireActivity().finish();
@@ -290,16 +301,36 @@ public class HomeFragment extends Fragment {
 
                     if (isAdded()) {
                         requireActivity().runOnUiThread(() -> {
-                            orderHistoryItems.clear();
-                            orderHistoryItems.addAll(newItems);
-                            orderHistoryAdapter.notifyDataSetChanged();
+                            ProgressBar progressBar = requireView().findViewById(R.id.progressBar);
+                            View noDataView = requireView().findViewById(R.id.noDataView);
+                            TextView txtNoDataMessage = noDataView.findViewById(R.id.txtNoDataMessage);
+                            txtNoDataMessage.setText("Không có đơn hàng nào gần đây");
+                            progressBar.setVisibility(View.GONE);
+
+                            if (newItems.isEmpty()) {
+                                // Hiển thị noDataView nếu không có dữ liệu
+                                noDataView.setVisibility(View.VISIBLE);
+                                orderHistoryItems.clear();
+                                orderHistoryAdapter.notifyDataSetChanged();
+                            } else {
+                                // Hiển thị RecyclerView nếu có dữ liệu
+                                noDataView.setVisibility(View.GONE);
+                                orderHistoryItems.clear();
+                                orderHistoryItems.addAll(newItems);
+                                orderHistoryAdapter.notifyDataSetChanged();
+                            }
                         });
                     }
                 } else {
                     if (isAdded()) {
                         requireActivity().runOnUiThread(() -> {
+                            ProgressBar progressBar = requireView().findViewById(R.id.progressBar);
+                            View noDataView = requireView().findViewById(R.id.noDataView);
+                            progressBar.setVisibility(View.GONE);
+
                             Toast.makeText(getContext(), "Lỗi kết nối: " + responseCode, Toast.LENGTH_SHORT).show();
-                            signOutAndStartSignInActivityFromHomeFragment(); // Gọi phương thức từ AccountFragment
+                            noDataView.setVisibility(View.VISIBLE); // Hiển thị noDataView khi xảy ra lỗi
+                            signOutAndStartSignInActivityFromHomeFragment();
                         });
                     }
                 }
@@ -307,14 +338,20 @@ public class HomeFragment extends Fragment {
             } catch (Exception e) {
                 Log.e(TAG, "fetchOrderHistory: ", e);
                 if (isAdded()) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(getContext(), "Lỗi khi tải dữ liệu.", Toast.LENGTH_SHORT).show()
+                    requireActivity().runOnUiThread(() -> {
+                        ProgressBar progressBar = requireView().findViewById(R.id.progressBar);
+                        View noDataView = requireView().findViewById(R.id.noDataView);
+                        progressBar.setVisibility(View.GONE);
 
-                    );
+                        Toast.makeText(getContext(), "Lỗi khi tải dữ liệu.", Toast.LENGTH_SHORT).show();
+                        noDataView.setVisibility(View.VISIBLE); // Hiển thị noDataView khi xảy ra lỗi ngoại lệ
+                    });
                 }
             }
         }).start();
     }
+
+
     private void signOutAndStartSignInActivityFromHomeFragment() {
         // Lấy reference của AccountFragment từ FragmentManager
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);

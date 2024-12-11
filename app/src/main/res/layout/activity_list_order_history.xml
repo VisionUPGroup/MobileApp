@@ -30,17 +30,95 @@
         android:orientation="horizontal"
         android:background="@color/white" />
 
+    <!-- EditText cho ID -->
+    <android.widget.EditText
+        android:id="@+id/editTextID"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="ID"
+        android:inputType="number"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/recyclerViewProcess"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="8dp"
+        android:textSize="14sp" />
+
+    <!-- TextView cho FromDate -->
+    <TextView
+        android:id="@+id/textViewFromDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="Từ ngày"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/editTextID"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/textViewToDate" />
+
+    <!-- TextView cho ToDate -->
+    <TextView
+        android:id="@+id/textViewToDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="Dến ngày"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/editTextID"
+        app:layout_constraintStart_toEndOf="@id/textViewFromDate"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Nút Search -->
+    <android.widget.Button
+        android:id="@+id/buttonSearch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Tìm kiếm"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textViewToDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="8dp"
+        android:backgroundTint="@color/blue"
+        android:textSize="14sp" />
+
     <!-- RecyclerView cho Order History -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewOrderHistory"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="2dp"
-        app:layout_constraintTop_toBottomOf="@id/recyclerViewProcess"
+        app:layout_constraintTop_toBottomOf="@id/buttonSearch"
         app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- No Data View -->
     <include
         android:id="@+id/noDataView"
         layout="@layout/no_data_view"
         android:visibility="gone" />
+
+    <!-- Progress Bar -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:id="@+id/progressBar"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:outlineSpotShadowColor="@color/blue" />
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

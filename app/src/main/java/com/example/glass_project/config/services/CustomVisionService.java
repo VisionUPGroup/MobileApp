@@ -1,4 +1,4 @@
-package com.example.glass_project.config;
+package com.example.glass_project.config.services;
 
 import com.example.glass_project.data.model.camera.PredictionResponse;
 

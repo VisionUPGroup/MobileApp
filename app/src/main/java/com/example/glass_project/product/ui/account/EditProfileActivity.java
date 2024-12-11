@@ -16,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 
 import org.json.JSONObject;
 
@@ -116,8 +116,6 @@ public class EditProfileActivity extends AppCompatActivity {
                     // Kiểm tra sự tồn tại của đối tượng "role" và hiển thị "name"
                     if (profileData.has("role") && !profileData.isNull("role")) {
                         JSONObject role = profileData.getJSONObject("role");
-                        String roleName = role.optString("name", "No role specified");
-                        roleTextView.setText(roleName);
                     } else {
                         roleTextView.setText("Role not available");
                     }
@@ -182,10 +180,10 @@ public class EditProfileActivity extends AppCompatActivity {
                     }
 
                     // Check if the error message contains the specific text
-                    if (errorResponse.toString().contains("Username or Email or PhoneNumber is already exist")) {
-                        return "Username, Email, or Phone Number already exists. Please try again with different details.";
+                    if (errorResponse.toString().contains("[\"Username, Email, or PhoneNumber already exists.\"]")) {
+                        return "Tên đăng nhập hoặc số điện thoại đã tồn tại.";
                     } else {
-                        return "Failed to update profile. Please check your information.";
+                        return "Không cập nhật được hồ sơ. Vui lòng kiểm tra thông tin của bạn..";
                     }
                 } else {
                     return "Unexpected error occurred. Response code: " + responseCode;

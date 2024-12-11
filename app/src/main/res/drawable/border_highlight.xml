@@ -1,0 +1,9 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Màu viền nổi bật -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF"/> <!-- Màu nền -->
+            <stroke android:width="2dp" android:color="#FF0000"/> <!-- Màu viền nổi bật -->
+        </shape>
+    </item>
+</layer-list>

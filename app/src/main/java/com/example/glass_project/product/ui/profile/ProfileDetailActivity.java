@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.model.profile.Profile;
 
 import org.json.JSONObject;
@@ -64,7 +64,7 @@ public class ProfileDetailActivity extends AppCompatActivity {
             return;
         }
         btnListVisualAcuityRecord.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileDetailActivity.this, com.example.glass_project.product.ui.VisualAcuityRecord.VisualAcuityRecordActivity.class);
+            Intent intent = new Intent(ProfileDetailActivity.this, com.example.glass_project.product.ui.visualAcuityRecord.VisualAcuityRecordActivity.class);
             intent.putExtra("profileID", profile.getId());
             startActivity(intent);
         });

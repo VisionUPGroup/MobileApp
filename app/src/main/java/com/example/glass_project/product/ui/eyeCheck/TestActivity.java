@@ -12,10 +12,13 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +34,6 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.caverock.androidsvg.SVG;
 import com.example.glass_project.R;
@@ -74,45 +76,42 @@ public class TestActivity extends AppCompatActivity {
     private List<ExamItem> examItems = new ArrayList<>();
     private List<ExamItem> currentLevelItems = new ArrayList<>();
     private int currentIndex = 0;
-    private int initialLevel = 1;
+    private int initialLevel = 8;
     private int numberOfTest = 0;
     private int numberOfSuccess = 0;
     private int numberOfFail = 0;
-    private int numberOfFailLv8 = 0;
     private double testDistance = 5;
-    private double result = 0.0;
+    private int result = 0;
     private ExamItem currentItem;
 
     private static final Map<Integer, Double> heightValues = new HashMap<Integer, Double>() {{
-        put(1, 0.173 + 0.1);
-        put(2, 0.26 + 0.1);
-        put(3, 0.35 + 0.2);
-        put(4, 0.44 + 0.3);
-        put(5, 0.6 + 0.5);
-        put(6, 0.86 + 0.5);
-        put(7, 1.73 + 0.5);
-        put(8, 2.5 + 0.5);
+        put(1, 0.15);
+        put(2, 0.22);
+        put(3, 0.3);
+        put(4, 0.45);
+        put(5, 0.58);
+        put(6, 0.88);
+        put(7, 1.45);
+        put(8, 1.74);
     }};
 
     private static final Map<Integer, Double> widthValues = new HashMap<Integer, Double>() {{
-        put(1, 0.173 + 0.1);
-        put(2, 0.26 + 0.1);
-        put(3, 0.35 + 0.2);
-        put(4, 0.44 + 0.3);
-        put(5, 0.6 + 0.5);
-        put(6, 0.86 + 0.5);
-        put(7, 1.73 + 0.5);
-        put(8, 2.5 + 0.5);
+        put(1, 0.15);
+        put(2, 0.22);
+        put(3, 0.3);
+        put(4, 0.45);
+        put(5, 0.58);
+        put(6, 0.88);
+        put(7, 1.45);
+        put(8, 1.74);
     }};
     private static final String TAG = "TestActivity";
     private static final long FRAME_INTERVAL_MS = 1000;
     private ExecutorService cameraExecutor;
     private PreviewView previewView;
-    private RecyclerView recyclerView;
     private List<Prediction> predictionList;
     private CustomVisionClient customVisionClient;
     private long lastFrameTime = 0;
-    CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -128,7 +127,7 @@ public class TestActivity extends AppCompatActivity {
         btnLeft = findViewById(R.id.btnLeft);
         btnRight = findViewById(R.id.btnRight);
         Button btnFinish = findViewById(R.id.btnFinish);
-        btnFinish.setOnClickListener(v -> finishTestAndReturn());
+        btnFinish.setOnClickListener(v -> showContinueDialog());
         Log.d("TestActivity", "Starting TestActivity...");
         loadExamItems();
 
@@ -143,7 +142,7 @@ public class TestActivity extends AppCompatActivity {
 
 
         if (examItems.isEmpty()) {
-            Toast.makeText(this, "No exam items available. Please try again later.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Không có bài kiểm tra nào khả dụng. Vui lòng thử lại sau.", Toast.LENGTH_SHORT).show();
             finish();
         } else {
             selectRandomQuestionsForCurrentLevel();
@@ -316,6 +315,45 @@ public class TestActivity extends AppCompatActivity {
         });
     }
 
+    private void loadImageWithSize(ExamItem item) {
+        int level = item.getLevel();
+        double heightCm = heightValues.get(level);
+        double widthCm = widthValues.get(level);
+        double cmToPixelRatio = 96 / 2.54;
+
+        int heightPx = (int) ((heightCm * cmToPixelRatio) * (testDistance / 2));
+        int widthPx = (int) ((widthCm * cmToPixelRatio) * (testDistance / 2));
+
+        imageViewTest.getLayoutParams().height = heightPx;
+        imageViewTest.getLayoutParams().width = widthPx;
+        imageViewTest.requestLayout();
+
+        int rotation = item.getRotation();
+        imageViewTest.setRotation(rotation);
+
+        loadSvgImage(item.getUrl(), imageViewTest);
+    }
+
+    private void loadSvgImage(String url, ImageView imageView) {
+        new Thread(() -> {
+            try {
+                HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                connection.connect();
+                InputStream inputStream = connection.getInputStream();
+                SVG svg = SVG.getFromInputStream(inputStream);
+
+                runOnUiThread(() -> {
+                    if (imageView != null && svg != null) {
+                        imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+                        imageView.setImageDrawable(new PictureDrawable(svg.renderToPicture()));
+                    }
+                });
+                inputStream.close();
+            } catch (Exception e) {
+                Log.e("SVG Load Error", "Error loading SVG", e);
+            }
+        }).start();
+    }
 
     private static final int STABLE_PREDICTION_THRESHOLD = 3;
     private int stablePredictionCount = 0;
@@ -360,6 +398,37 @@ public class TestActivity extends AppCompatActivity {
         btnLeft.setBackgroundColor(Color.BLUE);
         btnRight.setBackgroundColor(Color.BLUE);
     }
+
+
+    private void updateUI() {
+        if (!currentLevelItems.isEmpty()) {
+            currentItem = currentLevelItems.get(new java.util.Random().nextInt(currentLevelItems.size()));
+            textViewLevel.setText("Cấp độ : " + initialLevel);
+            textViewNumberOfTest.setText("số lần kiểm tra: " + numberOfTest);
+            textViewDiopter.setText("đánh giá: " + result+"/6");
+            loadImageWithSize(currentItem);
+        } else {
+            Toast.makeText(this, "No more questions available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+int decreaseCount;
+    private void setDirectionButtonListeners() {
+        View.OnClickListener directionClickListener = v -> {
+            String userAnswer = "";
+            if (v.getId() == R.id.btnUp) userAnswer = "top";
+            else if (v.getId() == R.id.btnDown) userAnswer = "bottom";
+            else if (v.getId() == R.id.btnLeft) userAnswer = "left";
+            else if (v.getId() == R.id.btnRight) userAnswer = "right";
+            stablePredictionCount = 0;
+            processAnswer(userAnswer);
+        };
+
+        btnUp.setOnClickListener(directionClickListener);
+        btnDown.setOnClickListener(directionClickListener);
+        btnLeft.setOnClickListener(directionClickListener);
+        btnRight.setOnClickListener(directionClickListener);
+    }
     private void selectRandomQuestionsForCurrentLevel() {
         List<ExamItem> sameLevelItems = new ArrayList<>();
         for (ExamItem item : examItems) {
@@ -371,82 +440,20 @@ public class TestActivity extends AppCompatActivity {
         currentLevelItems = sameLevelItems.subList(0, Math.min(4, sameLevelItems.size()));
         currentIndex = 0;
     }
-
-    private void updateUI() {
-        if (!currentLevelItems.isEmpty()) {
-            currentItem = currentLevelItems.get(new java.util.Random().nextInt(currentLevelItems.size()));
-            textViewLevel.setText("Level: " + initialLevel);
-            textViewNumberOfTest.setText("Tests completed: " + numberOfTest);
-
-            calculateMyopia();
-            loadImageWithSize(currentItem);
-        } else {
-            Toast.makeText(this, "No more questions available", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void loadImageWithSize(ExamItem item) {
-        int level = item.getLevel();
-        double heightCm = heightValues.get(level);
-        double widthCm = widthValues.get(level);
-        double cmToPixelRatio = 96 / 2.54;
-
-        int heightPx = (int) ((heightCm * cmToPixelRatio) * (testDistance / 2));
-        int widthPx = (int) ((widthCm * cmToPixelRatio) * (testDistance / 2));
-
-        imageViewTest.getLayoutParams().height = heightPx;
-        imageViewTest.getLayoutParams().width = widthPx;
-        imageViewTest.requestLayout();
-
-        int rotation = item.getRotation();
-        imageViewTest.setRotation(rotation);
-
-        loadSvgImage(item.getUrl(), imageViewTest);
-    }
-
-    private void loadSvgImage(String url, ImageView imageView) {
-        new Thread(() -> {
-            try {
-                HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-                connection.connect();
-                InputStream inputStream = connection.getInputStream();
-                SVG svg = SVG.getFromInputStream(inputStream);
-
-                runOnUiThread(() -> {
-                    if (imageView != null && svg != null) {
-                        imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-                        imageView.setImageDrawable(new PictureDrawable(svg.renderToPicture()));
-                    }
-                });
-                inputStream.close();
-            } catch (Exception e) {
-                Log.e("SVG Load Error", "Error loading SVG", e);
-            }
-        }).start();
-    }
-
-    private void setDirectionButtonListeners() {
-        View.OnClickListener directionClickListener = v -> {
-            String userAnswer = "";
-            if (v.getId() == R.id.btnUp) userAnswer = "top";
-            else if (v.getId() == R.id.btnDown) userAnswer = "bottom";
-            else if (v.getId() == R.id.btnLeft) userAnswer = "left";
-            else if (v.getId() == R.id.btnRight) userAnswer = "right";
-
-            processAnswer(userAnswer);
-        };
-
-        btnUp.setOnClickListener(directionClickListener);
-        btnDown.setOnClickListener(directionClickListener);
-        btnLeft.setOnClickListener(directionClickListener);
-        btnRight.setOnClickListener(directionClickListener);
-    }
-
     private void processAnswer(String userAnswer) {
         if (currentLevelItems.isEmpty()) {
-            Toast.makeText(this, "No more questions available", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Không còn câu hỏi nào nữa", Toast.LENGTH_SHORT).show();
             return;
         }
+        RelativeLayout imageContainer = findViewById(R.id.imageContainer);
+
+        // Đổi màu viền thành nổi bật
+        imageContainer.setBackgroundResource(R.drawable.border_highlight);
+
+        // Đổi lại màu viền sau 1 giây
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            imageContainer.setBackgroundResource(R.drawable.border_default);
+        }, 1000);
 
         boolean isCorrect = userAnswer.equals(currentItem.getExpectedAnswer());
 
@@ -459,41 +466,53 @@ public class TestActivity extends AppCompatActivity {
         }
 
         EyeExamResult.ExamResultItem resultItem = new EyeExamResult.ExamResultItem(
-                numberOfTest, currentItem.getId(), userAnswer
+                0, currentItem.getId(), userAnswer
         );
-        examData.examResultItems.add(resultItem);
+
+        // Kiểm tra xem id của currentItem đã tồn tại trong danh sách chưa
+        boolean itemExists = false;
+        for (int i = 0; i < examData.examResultItems.size(); i++) {
+            EyeExamResult.ExamResultItem item = examData.examResultItems.get(i);
+            if (item.getExamItemID() == currentItem.getId()) {
+                examData.examResultItems.set(i, resultItem);
+                itemExists = true;
+                break;
+            }
+        }
+        if (!itemExists) {
+            examData.examResultItems.add(resultItem);
+        }
 
         saveExamDataToPreferences(examData, eyeSide);
 
         if (isCorrect) {
             numberOfSuccess++;
-            numberOfFail = 0;
-            if (numberOfSuccess == 6) {
-                resetTest();
-            } else if (initialLevel == 1 && numberOfSuccess >= 2) {
-                adjustLevel(1);
-            } else if (initialLevel > 1 && numberOfSuccess == 4) {
-                adjustLevel(-1);
-            }
+            numberOfFail = 0; // Reset số lần sai liên tiếp
         } else {
             numberOfFail++;
-            numberOfSuccess = 0;
-            if (initialLevel < 8 && numberOfFail % 2 == 0) {
-                adjustLevel(1);
-            } else if (initialLevel == 8 && numberOfFail == 2) {
-                adjustLevel(-1);
-            } else if (initialLevel == 8 && numberOfFailLv8 == 4) {
-                calculateSum();
-            } else if (initialLevel == 8) {
-                numberOfFailLv8++;
+            numberOfSuccess = 0; // Reset số lần đúng liên tiếp
+        }
+        int levelResult = getLevelResult(initialLevel);
+        result = levelResult;
+        if (shouldFinishTest()) {
+            if (initialLevel == 1 && numberOfSuccess >= 4) {
+                showFinishDialog(String.format("Sức khoẻ thị lực mắt của bạn được đánh giá tốt (%d/6).",result));
+            } else if (initialLevel == 8 && numberOfFail >= 2) {
+                showFinishDialog(String.format("Sức khoẻ thị lực mắt của bạn được đánh giá rất kém (%d/6).",result));
             }
-            result += (currentItem.getMyopia() >= 1.5 ? currentItem.getMyopia() * 3 : currentItem.getMyopia());
+            return;
+        }
+        // Kiểm tra điều kiện giảm, tăng level hoặc kết thúc
+        if (shouldDecreaseLevel()) {
+            adjustLevel(-1);
+        } else if (shouldIncreaseLevel()) {
+            adjustLevel(1);
         }
 
         numberOfTest++;
         Log.d("TestActivity", String.format(
                 "Current Level: %d, Current Direction: %s, User Answer: %s, Is Correct: %b, " +
-                        "Number of Success: %d, Number of Fail: %d, Number of Test Attempts: %d, Current MyDiopter: %.2f, " +
+                        "Number of Success: %d, Number of Fail: %d, Number of Test Attempts: %d, Current MyDiopter: %d, " +
                         "Current Rotation: %d",
                 initialLevel,
                 currentItem.getExpectedAnswer(),
@@ -502,50 +521,126 @@ public class TestActivity extends AppCompatActivity {
                 numberOfSuccess,
                 numberOfFail,
                 numberOfTest,
-                result / (numberOfTest == 0 ? 1 : numberOfTest),
+                result,
                 currentItem.getRotation()
         ));
+        updateUI();
 
-        if (numberOfTest % 20 == 0) {
-            showContinueDialog();
-        } else {
-            updateUI();
+    }
+
+    private boolean hasIncreased = false; // Đánh dấu đã tăng level
+
+    private void adjustLevel(int levelChange) {
+        int previousLevel = initialLevel; // Lưu trạng thái level trước khi thay đổi
+        initialLevel += levelChange;
+
+        // Đảm bảo level không vượt quá giới hạn
+        if (initialLevel < 1) {
+            initialLevel = 1; // Không giảm dưới level 1
+        } else if (initialLevel > 8) {
+            initialLevel = 8; // Không tăng trên level 8
+        }
+
+        // Xử lý logic tăng và giảm level
+        if (levelChange > 0) { // Khi tăng level
+            hasIncreased = true; // Đánh dấu đã tăng level
+            decreaseCount = 0; // Reset số lần giảm
+        } else if (levelChange < 0) { // Khi giảm level
+            if (hasIncreased) {
+                // Kết thúc nếu đã tăng level trước đó và giờ giảm
+
+                if(initialLevel == 2 ||initialLevel == 3){
+                    showFinishDialog(String.format("Sức khoẻ thị lực mắt của bạn được đánh giá khá (%d/6).",result));
+                }else if(initialLevel == 4 || initialLevel == 5){
+                    showFinishDialog(String.format("Sức khoẻ thị lực mắt của bạn được đánh giá trung bình (%d/6).",result));
+                }else if(initialLevel == 6 || initialLevel == 7){
+                    showFinishDialog(String.format("Sức khoẻ thị lực mắt của bạn được đánh giá kém (%d/6).",result));
+                }
+                return;
+            }
+        }
+
+        resetCounters(); // Reset số lần đúng/sai liên tiếp
+        selectRandomQuestionsForCurrentLevel(); // Lấy câu hỏi mới
+    }
+
+
+
+    private void resetCounters() {
+        numberOfSuccess = 0;
+        numberOfFail = 0;
+    }
+    private boolean shouldDecreaseLevel() {
+        if (initialLevel == 7 || initialLevel == 8) {
+            return numberOfSuccess >= 2; // Level 7 và 8: đúng 2 lần liên tiếp
+        } else if (initialLevel >= 4 && initialLevel <= 6) {
+            return numberOfSuccess >= 3 || (numberOfSuccess + numberOfFail >= 5 && numberOfSuccess >= 4);
+        } else if (initialLevel == 3 || initialLevel == 2) {
+            return numberOfSuccess >= 3 || (numberOfSuccess + numberOfFail >= 5 && numberOfSuccess >= 4);
+        } else if (initialLevel == 1) {
+            return numberOfSuccess + numberOfFail >= 5 && numberOfSuccess >= 4; // Level 1: đúng 4/5 lần thì kết thúc
+        }
+        return false;
+    }
+    private boolean shouldIncreaseLevel() {
+        if (initialLevel == 7 || initialLevel == 8) {
+            return numberOfFail >= 2 || (numberOfSuccess + numberOfFail >= 5 && numberOfFail >= 3); // Không tăng trên level 7, 8
+        } else if (initialLevel >= 4 && initialLevel <= 6) {
+            return numberOfFail >= 3 || (numberOfSuccess + numberOfFail >= 5 && numberOfFail >= 3);
+        } else if (initialLevel >= 1 && initialLevel <= 3) {
+            return numberOfSuccess + numberOfFail >= 5 && numberOfFail >= 3;
+        }
+        return false;
+    }
+    private boolean shouldFinishTest() {
+        return (initialLevel == 1 && numberOfSuccess + numberOfFail >= 5 && numberOfSuccess >= 4) // Level 1: đúng 4/5 lần
+                || (initialLevel == 8 && numberOfSuccess + numberOfFail >= 3 && numberOfFail >= 2) ; // Giảm 2 lần liên tiếp rồi tăng
+    }
+
+
+    private boolean hasLevelDecreasedTwiceAndIncreased() {
+        return decreaseCount >= 2; // Đã giảm level 2 lần liên tiếp
+    }
+    private void showFinishDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message) // Nội dung thông báo
+                .setCancelable(false) // Không thể hủy khi bấm ra ngoài
+                .setPositiveButton("OK", (dialog, id) -> {
+                    dialog.dismiss();
+                    finishTest(); // Kết thúc bài kiểm tra khi bấm "OK"
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private int getLevelResult(int level) {
+        switch (level) {
+            case 1: return 6;
+            case 2: return 9;
+            case 3: return 12;
+            case 4: return 18;
+            case 5: return 24;
+            case 6: return 36;
+            case 7: return 60;
+            case 8: return 72;
+            default: return 0; // Nếu không phải cấp độ hợp lệ
         }
     }
 
-    private void adjustLevel(int levelChange) {
-        initialLevel += levelChange;
-        selectRandomQuestionsForCurrentLevel();
-    }
 
-    private void resetTest() {
-        numberOfSuccess = 0;
-        result = 0.0;
-        calculateSum();
-    }
 
     private void showContinueDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Tiếp tục thực hiện")
-                .setMessage("Bạn có muốn tiếp tục thực hiện bài kiểm tra không ?")
+                .setTitle("Kết thúc thực hiện")
+                .setMessage("Bạn có muốn kết thúc thực hiện bài kiểm tra không ?")
                 .setPositiveButton("Có", (dialog, which) -> updateUI())
                 .setNegativeButton("Không", (dialog, which) -> finishTest())
                 .show();
     }
-
     private void finishTest() {
         saveProgress();
         finish();
     }
-
-    private void calculateSum() {
-        double sum = result / numberOfTest;
-        calculateMyopia();
-        if (sum > 2) {
-            finishTestAndReturn();
-        }
-    }
-
     private void finishTestAndReturn() {
         saveProgress();
         Intent intent = new Intent(this, EyeSelectionActivity.class);
@@ -558,16 +653,16 @@ public class TestActivity extends AppCompatActivity {
         String eyeSide = sharedPreferences.getString("eyeSide", "left");
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("numberOfTest_" + eyeSide, numberOfTest);
-        editor.putFloat("myopia_" + eyeSide, (float) (result / numberOfTest));
+        editor.putInt("myopia_" + eyeSide,  (result ));
         editor.apply();
         Log.d("TestActivity", "Saving Progress for eye side: " + eyeSide);
         Log.d("TestActivity", "numberOfTest_" + eyeSide + ": " + numberOfTest);
-        Log.d("TestActivity", "myopia_" + eyeSide + ": " + (float) (result / numberOfTest));
+        Log.d("TestActivity", "myopia_" + eyeSide + ": " +  result);
     }
 
     private void calculateMyopia() {
-        double myopia = result / numberOfTest;
-        textViewDiopter.setText("Diopter: " + String.format("%.2f", myopia));
+        int myopia = result ;
+        textViewDiopter.setText("Diopter: " +  myopia);
     }
 
     private EyeExamResult loadExamDataFromPreferences(String eyeSide) {

@@ -2,12 +2,23 @@ package com.example.glass_project.data.model.order;
 
 public class Payment {
     private int id;
+
+    private long code;
     private double totalAmount;
     private String date;
     private String paymentMethod;
 
-    public Payment(int id, double totalAmount, String date, String paymentMethod) {
+    public long getCode() {
+        return code;
+    }
+
+    public void setCode(long code) {
+        this.code = code;
+    }
+
+    public Payment(int id, long code, double totalAmount, String date, String paymentMethod) {
         this.id = id;
+        this.code = code;
         this.totalAmount = totalAmount;
         this.date = date;
         this.paymentMethod = paymentMethod;

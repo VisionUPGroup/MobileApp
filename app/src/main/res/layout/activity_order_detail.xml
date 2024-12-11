@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:title="Chi tiết đặt hàng"
+        app:title="Chi tiết đơn hàng"
         android:background="@drawable/gradient_background"
         app:titleTextColor="@color/white"
         app:navigationIcon="@drawable/backwhite"
@@ -43,9 +43,10 @@
                 android:layout_height="20dp"
                 android:src="@drawable/searchalt" />
             <TextView
+                android:id="@+id/txtPending"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pending"
+                android:text="Chờ xử lý"
                 android:textSize="10sp"
                 android:textColor="@android:color/black" />
         </LinearLayout>
@@ -70,9 +71,10 @@
                 android:layout_height="20dp"
                 android:src="@drawable/boxalt" />
             <TextView
+                android:id="@+id/txtProcessing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Processing"
+                android:text="Đã xử lý"
                 android:textSize="10sp"
                 android:textColor="@android:color/black" />
         </LinearLayout>
@@ -97,9 +99,10 @@
                 android:layout_height="20dp"
                 android:src="@drawable/shippingfast" />
             <TextView
+                android:id="@+id/txtShipping"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Shipping"
+                android:text="Đang giao"
                 android:textSize="10sp"
                 android:textColor="@android:color/black" />
         </LinearLayout>
@@ -124,9 +127,10 @@
                 android:layout_height="20dp"
                 android:src="@drawable/sellerstore" />
             <TextView
+                android:id="@+id/txtDelivered"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Delivered"
+                android:text="Đã giao"
                 android:textSize="10sp"
                 android:textColor="@android:color/black" />
         </LinearLayout>
@@ -151,9 +155,10 @@
                 android:layout_height="20dp"
                 android:src="@drawable/checkcircle" />
             <TextView
+                android:id="@+id/txtCompleted"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Completed"
+                android:text="Hoàn thành"
                 android:textSize="10sp"
                 android:textColor="@android:color/black" />
         </LinearLayout>
@@ -162,11 +167,11 @@
     <!-- ScrollView for the content -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toBottomOf="@id/linearLayoutProgressBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="120dp">
 
         <!-- LinearLayout to hold content inside ScrollView -->
         <LinearLayout
@@ -175,7 +180,42 @@
             android:orientation="vertical"
             android:padding="8dp"
             android:background="@android:color/white">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/ShiperCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@android:color/white"
+                    android:padding="9dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thông Tin người giao hàng "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:paddingBottom="8dp" />
+                    <TextView
+                        android:id="@+id/txtShipperName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tên Shipper: "
+                        android:textSize="14sp"
+                        android:paddingBottom="8dp" />
+                    <TextView
+                        android:id="@+id/txtShipperPhone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SDT Shiper:"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
             <!-- Order Information Section -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/orderInformationCard"
@@ -191,6 +231,13 @@
                     android:orientation="vertical"
                     android:background="@android:color/white"
                     android:padding="9dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thông Tin nhận hàng"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:paddingBottom="8dp" />
                     <TextView
                         android:id="@+id/txtReceiverAddress"
                         android:layout_width="wrap_content"
@@ -209,10 +256,22 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=""
+                        android:textStyle="bold"
                         android:textSize="14sp"
                         android:paddingBottom="16dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <!-- RecyclerView for Order Details -->
+            <TextView
+                android:id="@+id/txtOrderDetailsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chi tiết đơn hàng"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:paddingStart="8dp" />
 
             <!-- RecyclerView for Order Details -->
             <androidx.recyclerview.widget.RecyclerView
@@ -221,12 +280,31 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp" />
 
+            <!-- Add TextViews above the second RecyclerView -->
+
+            <TextView
+                android:id="@+id/txtTimelineTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dòng thời gian"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"
+                android:paddingStart="8dp" />
+
+            <!-- RecyclerView for Timeline -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewTimeline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="100dp"
+                android:layout_marginTop="16dp" />
             <!-- Total Amount Section -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/totalAmountCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
+                android:layout_marginBottom="50dp"
                 android:layout_marginLeft="1dp"
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="15dp"
@@ -323,6 +401,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@color/white">
         <Button
+            android:id="@+id/button_payment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Thanh Toán"
+            android:backgroundTint="@color/blue"
+            android:textColor="@android:color/white"
+            android:layout_marginStart="8dp"
+            android:visibility="gone" />
+        <Button
             android:id="@+id/button_review"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -348,7 +436,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/red"
-            android:text="Report"
+            android:text="Báo cáo"
             android:visibility="visible" />
     </LinearLayout>
 

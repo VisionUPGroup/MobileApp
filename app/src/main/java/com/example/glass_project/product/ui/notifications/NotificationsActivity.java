@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.adapter.NotificationAdapter;
 import com.example.glass_project.data.model.other.Notification;
 import com.example.glass_project.product.ui.order.history.OrderDetailActivity;

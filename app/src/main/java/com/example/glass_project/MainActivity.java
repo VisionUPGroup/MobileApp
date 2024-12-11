@@ -9,7 +9,7 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.glass_project.auth.ViewFragmentApdater;
+import com.example.glass_project.product.ui.auth.ViewFragmentApdater;
 import com.example.glass_project.product.ui.other.ProductsActivity;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;

@@ -13,7 +13,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.product.ui.order.history.OrderDetailActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -45,15 +45,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void showNotification(String title, String body, String targetActivity, String extraData) {
         Intent intent;
 
-        if ("OrderDetailsActivity".equals(targetActivity)) {
+        if ("OrderDetailActivity".equals(targetActivity)) {
             intent = new Intent(this, OrderDetailActivity.class);
 
             // Parse `extraData`
             if (extraData != null && !extraData.isEmpty()) {
                 try {
                     JSONObject extraDataJson = new JSONObject(extraData);
-                    if (extraDataJson.has("orderId")) {
-                        String orderId = extraDataJson.getString("orderId"); // Lấy `orderId` dưới dạng chuỗi
+                    if (extraDataJson.has("Id")) {
+                        String orderId = extraDataJson.getString("Id"); // Lấy `orderId` dưới dạng chuỗi
                         intent.putExtra("orderId", orderId); // Truyền vào Intent
                     }
                 } catch (Exception e) {

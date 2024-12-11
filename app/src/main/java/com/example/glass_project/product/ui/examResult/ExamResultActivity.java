@@ -1,4 +1,4 @@
-package com.example.glass_project.product.ui.ExamResult;
+package com.example.glass_project.product.ui.examResult;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.adapter.ExamResultAdapter;
 import com.example.glass_project.data.model.VisualAcuity.ExamResult;
 import org.json.JSONArray;

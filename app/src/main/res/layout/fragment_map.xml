@@ -37,6 +37,7 @@
             android:id="@+id/btn_nearby_kiosks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/green"
             android:text="Tìm gần đây"
             android:layout_marginStart="8dp"
             android:layout_alignParentEnd="true" />
@@ -47,6 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Lấy tất cả"
+            android:backgroundTint="@color/blue"
             android:layout_marginStart="8dp"
             android:layout_alignParentEnd="true" />
     </LinearLayout>

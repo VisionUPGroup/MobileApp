@@ -1,4 +1,4 @@
-package com.example.glass_project.auth;
+package com.example.glass_project.product.ui.auth;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.glass_project.R;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.product.ui.other.ProductsActivity;
 
 import org.json.JSONObject;
@@ -106,36 +107,36 @@ public class RegisterFragment extends Fragment {
         String phoneInput = phoneNumber.getText().toString().trim();
 
         if (usernameInput.isEmpty()) {
-            username.setError("Username is required");
+            username.setError("Tên đăng nhập là bắt buộc");
             return false;
         }
 
         if (emailInput.isEmpty()) {
-            email.setError("Email is required");
+            email.setError("Email là bắt buộc");
             return false;
         } else if (!Patterns.EMAIL_ADDRESS.matcher(emailInput).matches()) {
-            email.setError("Please enter a valid email address");
+            email.setError("Vui lòng nhập địa chỉ email hợp lệ");
             return false;
         }
 
         if (phoneInput.isEmpty()) {
-            phoneNumber.setError("Phone number is required");
+            phoneNumber.setError("Số điện thoại là bắt buộc");
             return false;
         } else if (!Patterns.PHONE.matcher(phoneInput).matches() || phoneInput.length() != 10) {
-            phoneNumber.setError("Please enter a valid 10-digit phone number");
+            phoneNumber.setError("Vui lòng nhập số điện thoại hợp lệ gồm 10 chữ số");
             return false;
         }
 
         if (passwordInput.isEmpty()) {
-            password.setError("Password is required");
+            password.setError("Mật khẩu là bắt buộc");
             return false;
         } else if (passwordInput.length() < 6) {
-            password.setError("Password should be at least 6 characters");
+            password.setError("Mật khẩu phải có ít nhất 6 ký tự");
             return false;
         }
 
         if (!passwordInput.equals(confirmPasswordInput)) {
-            confirmPassword.setError("Passwords do not match");
+            confirmPassword.setError("Mật khẩu không khớp");
             return false;
         }
 
@@ -180,7 +181,7 @@ public class RegisterFragment extends Fragment {
 
                 int responseCode = urlConnection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
-                    return "Registration successful";
+                    return "Đăng kí thành công";
                 } else {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
                     StringBuilder errorMessage = new StringBuilder();
@@ -188,7 +189,11 @@ public class RegisterFragment extends Fragment {
                     while ((line = reader.readLine()) != null) {
                         errorMessage.append(line);
                     }
-                    return "Registration failed: " + errorMessage.toString();
+                    String message ="";
+                    if (errorMessage.toString().contains("[\"Username or Email or PhoneNumber is already exist.\"]")) {
+                        message=" Tên đăng nhập hoặc số điện thoại đã tồn tại";
+                    }
+                    return  message.toString();
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Exception: " + e.getMessage(), e);

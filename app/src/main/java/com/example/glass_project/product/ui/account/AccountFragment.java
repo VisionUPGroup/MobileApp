@@ -18,7 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
 import com.example.glass_project.config.services.MyFirebaseMessagingService;
-import com.example.glass_project.product.ui.Report.ListReportActivity;
+import com.example.glass_project.product.ui.report.ListReportActivity;
 import com.example.glass_project.product.ui.notifications.NotificationsActivity;
 import com.example.glass_project.product.ui.order.history.ListOrderHistoryActivity;
 import com.zeugmasolutions.localehelper.LocaleHelper;
@@ -39,6 +39,7 @@ public class AccountFragment extends Fragment {
 
         TextView usernameView = view.findViewById(R.id.username);
         TextView emailView = view.findViewById(R.id.email);
+        TextView phoneView = view.findViewById(R.id.phone);
         TextView userOrdersButton = view.findViewById(R.id.user_order);
         TextView editProfileButton = view.findViewById(R.id.edit_profile);
         TextView changePasswordTextView = view.findViewById(R.id.changepassword);
@@ -51,9 +52,10 @@ public class AccountFragment extends Fragment {
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("username", "");
         String email = sharedPreferences.getString("email", "");
-
+        String phone = sharedPreferences.getString("phone", "");
         usernameView.setText(username);
         emailView.setText(email);
+        phoneView.setText(phone);
 
         // Set language switch state based on current language
         String currentLanguage = sharedPreferences.getString("Language", "en");

@@ -12,12 +12,13 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
+import com.bumptech.glide.Glide;
 import com.example.glass_project.R;
 import com.example.glass_project.data.model.profile.Profile;
-import com.example.glass_project.product.ui.RefractionRecord.RefractionRecordActivity;
-import com.example.glass_project.product.ui.VisualAcuityRecord.VisualAcuityRecordActivity;
 import com.example.glass_project.product.ui.profile.ProfileFragment;
 import com.example.glass_project.product.ui.profile.UpdateProfileDialogFragment;
+import com.example.glass_project.product.ui.refractionRecord.RefractionRecordActivity;
+import com.example.glass_project.product.ui.visualAcuityRecord.VisualAcuityRecordActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -53,6 +54,7 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
         ImageView dropdownIcon = convertView.findViewById(R.id.dropdownIcon);
         LinearLayout dropdownContent = convertView.findViewById(R.id.dropdownContent);
         CardView cardView = convertView.findViewById(R.id.cardView);
+        ImageView imageUrl = convertView.findViewById(R.id.imageUrl); // ImageView cho hình ảnh
 
         // Set Data
         if (profile != null) {
@@ -62,6 +64,13 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
             // Calculate and set age
             int age = calculateAge(profile.getBirthday());
             textAge.setText("Tuổi: " + age);
+
+            // Tải hình ảnh từ URL bằng Glide
+            Glide.with(context)
+                    .load(profile.getUrlImage()) // URL hình ảnh
+                    .placeholder(R.drawable.default_avt) // Hình hiển thị trong khi tải
+                    .error(R.drawable.default_avt) // Hình hiển thị nếu có lỗi
+                    .into(imageUrl);
 
             // Kiểm tra trạng thái và ẩn nếu `status` là false
             if (!profile.isStatus()) {

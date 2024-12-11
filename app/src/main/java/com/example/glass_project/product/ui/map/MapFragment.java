@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.adapter.KioskAdapter;
 import com.example.glass_project.data.model.kiosk.Kiosk;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -156,16 +156,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void fetchNearbyKiosks() {
-        // Check if location permission is granted
-        Context context = requireContext(); // Sử dụng requireContext() để đảm bảo không null
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // Nếu quyền chưa được cấp, yêu cầu quyền
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-        } else {
-            // Nếu quyền đã được cấp, kiểm tra xem GPS có bật không
-            checkLocationSettings();
+        if (!isAdded() || getActivity() == null) {
+            Log.e("Fragment Error", "Fragment not attached to Activity");
+            return;
         }
-        // Get current location
+        Context context = requireContext(); // Đảm bảo Fragment đã gắn với Activity
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
+        checkLocationSettings();
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(getActivity(), location -> {
                     if (location != null) {
@@ -173,10 +174,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         double longitude = location.getLongitude();
                         fetchNearbyKiosksFromApi(latitude, longitude);
                     } else {
-                        Toast.makeText(getContext(), "Không thể lấy vị trí hiện tại", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Không thể lấy vị trí hiện tại", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
     private void checkAndRequestLocationPermission() {
         // Kiểm tra quyền truy cập vị trí
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

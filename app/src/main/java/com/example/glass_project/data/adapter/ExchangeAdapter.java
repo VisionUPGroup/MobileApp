@@ -42,7 +42,7 @@ public class ExchangeAdapter extends RecyclerView.Adapter<ExchangeAdapter.ViewHo
         holder.staffName.setText("Nhân viên: " + item.getStaff().getUsername());
 
         // Set order code
-        holder.orderCode.setText("Mã đơn hàng: " + item.getOrder().getCode());
+        holder.orderCode.setText("Mã đơn hàng: " + item.getOrder().getId());
 
         // Set reason
         holder.reason.setText("Lý do: " + item.getReason());

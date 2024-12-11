@@ -1,3 +1,4 @@
+<!--activity_create_profile-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -78,7 +79,25 @@
         android:padding="10dp"
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="12dp" />
+    <ImageView
+        android:id="@+id/imgSelected"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:src="@drawable/default_image"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="12dp" />
 
+    <!-- Nút chọn ảnh -->
+    <Button
+        android:id="@+id/btnSelectImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chọn ảnh"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/blue"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
     <!-- Ngày sinh -->
     <TextView
         android:layout_width="wrap_content"

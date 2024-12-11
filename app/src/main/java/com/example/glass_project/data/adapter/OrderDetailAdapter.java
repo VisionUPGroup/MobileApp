@@ -91,19 +91,19 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
 
                     // Set left lens details
                     if (leftLens != null) {
-                        holder.txtLeftLensName.setText( "Tên Lens Trái:"+leftLens.getLensName());
+                        holder.txtLeftLensName.setText( "Lens Trái:"+leftLens.getLensName());
                         Glide.with(context).load(leftLens.getLensImage()).into(holder.imgLeftLens);
                     } else {
-                        holder.txtLeftLensName.setText("Tên Lens Trái: Không có");
+                        holder.txtLeftLensName.setText("Lens Trái: Không có");
                         holder.imgLeftLens.setImageResource(R.drawable.default_image);
                     }
 
                     // Set right lens details
                     if (rightLens != null) {
-                        holder.txtRightLensName.setText( "Tên Lens Phải:"+rightLens.getLensName());
+                        holder.txtRightLensName.setText( "Lens Phải:"+rightLens.getLensName());
                         Glide.with(context).load(rightLens.getLensImage()).into(holder.imgRightLens);
                     } else {
-                        holder.txtRightLensName.setText("Tên Lens Phải: Không có");
+                        holder.txtRightLensName.setText("Lens Phải: Không có");
                         holder.imgRightLens.setImageResource(R.drawable.default_image);
                     }
                     break; // Found matching productGlassID, break loop
@@ -113,16 +113,17 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
 
         // Display sphere, cylinder, axis, add, and PD values for OD and OS
         if (productGlassDetail != null) {
-            holder.txtSphereOD.setText("Sphere OD: " + productGlassDetail.getSphereOD());
-            holder.txtCylinderOD.setText("Cylinder OD: " + productGlassDetail.getCylinderOD());
-            holder.txtAxisOD.setText("Axis OD: " + productGlassDetail.getAxisOD());
-            holder.txtSphereOS.setText("Sphere OS: " + productGlassDetail.getSphereOS());
-            holder.txtCylinderOS.setText("Cylinder OS: " + productGlassDetail.getCylinderOS());
-            holder.txtAxisOS.setText("Axis OS: " + productGlassDetail.getAxisOS());
-            holder.txtAddOD.setText("Add OD: " + productGlassDetail.getAddOD());
-            holder.txtAddOS.setText("Add OS: " + productGlassDetail.getAddOS());
+            holder.txtSphereOD.setText("Cầu OD: " + productGlassDetail.getSphereOD());
+            holder.txtCylinderOD.setText("Trụ OD: " + productGlassDetail.getCylinderOD());
+            holder.txtAxisOD.setText("Trục OD: " + productGlassDetail.getAxisOD());
+            holder.txtSphereOS.setText("Cầu OS: " + productGlassDetail.getSphereOS());
+            holder.txtCylinderOS.setText("Trụ OS: " + productGlassDetail.getCylinderOS());
+            holder.txtAxisOS.setText("Trục OS: " + productGlassDetail.getAxisOS());
+            holder.txtAddOD.setText("Cộng thêm OD: " + productGlassDetail.getAddOD());
+            holder.txtAddOS.setText("Cộng thêm OS: " + productGlassDetail.getAddOS());
             holder.txtPD.setText("Khoảng cách đồng tử (PD): " + productGlassDetail.getPd());
         }
+
     }
 
     @Override
@@ -135,6 +136,7 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
         TextView txtLeftLensName, txtRightLensName;
         ImageView imgProduct, imgLeftLens, imgRightLens;
         TextView txtSphereOD, txtCylinderOD, txtAxisOD, txtSphereOS, txtCylinderOS, txtAxisOS, txtAddOD, txtAddOS, txtPD,txtShowMore;
+
         LinearLayout  layoutOS,layoutOD;
 
         public ViewHolder(@NonNull View itemView) {

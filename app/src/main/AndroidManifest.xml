@@ -29,7 +29,7 @@
         tools:targetApi="31">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDsAbiK__jHbvR7aHjhoDcZpKgBNA6UKCQ" />
+            android:value="AIzaSyCbVkdVxzzshoy2ipqpHFSjzF-WQ3ejNm0" />
 
         <activity
             android:name=".product.ui.account.ExchangeActivity"
@@ -40,6 +40,7 @@
         <activity
             android:name=".product.ui.other.ProductsActivity"
             android:configChanges="locale|layoutDirection" />
+        <activity android:name=".product.ui.other.PaymentActivity"/>
         <activity
             android:name=".product.ui.order.history.OrderDetailActivity"
             android:configChanges="locale|layoutDirection" />
@@ -57,7 +58,7 @@
             android:configChanges="locale|layoutDirection" />
         <activity android:name=".product.ui.eyeCheck.GuideActivity"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
-        <activity android:name=".product.ui.RefractionRecord.RefractionRecordActivity"
+        <activity android:name=".product.ui.refractionRecord.RefractionRecordActivity"
             android:exported="true" />
 <activity android:name=".product.ui.notifications.NotificationsActivity"/>
         <activity
@@ -78,13 +79,13 @@
             android:name=".product.ui.profile.ProfileDetailActivity"
             android:configChanges="locale|layoutDirection" />
         <activity
-            android:name=".product.ui.Report.ListReportActivity"
+            android:name=".product.ui.report.ListReportActivity"
             android:configChanges="locale|layoutDirection" />
         <activity
-            android:name=".product.ui.VisualAcuityRecord.VisualAcuityRecordActivity"
+            android:name=".product.ui.visualAcuityRecord.VisualAcuityRecordActivity"
             android:configChanges="locale|layoutDirection" />
         <activity
-            android:name=".product.ui.ExamResult.ExamResultActivity"
+            android:name=".product.ui.examResult.ExamResultActivity"
             android:configChanges="locale|layoutDirection" />
         <service
             android:name=".config.services.MyFirebaseMessagingService"

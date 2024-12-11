@@ -1,4 +1,4 @@
-package com.example.glass_project.product.ui.VisualAcuityRecord;
+package com.example.glass_project.product.ui.visualAcuityRecord;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.adapter.VisualAcuityRecordAdapter;
 import com.example.glass_project.data.model.VisualAcuity.ExamResult;
 import com.example.glass_project.data.model.VisualAcuity.VisualAcuityRecord;

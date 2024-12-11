@@ -32,4 +32,11 @@
         android:layout_marginTop="16dp"
         android:text="Đánh giá"
         android:backgroundTint="@color/blue" />
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Huỷ"
+        android:backgroundTint="@color/gray"
+        android:layout_marginEnd="8dp"/>
 </LinearLayout>

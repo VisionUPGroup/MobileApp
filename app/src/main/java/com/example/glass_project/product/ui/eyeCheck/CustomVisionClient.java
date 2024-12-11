@@ -1,6 +1,6 @@
 package com.example.glass_project.product.ui.eyeCheck;
 
-import com.example.glass_project.config.CustomVisionService;
+import com.example.glass_project.config.services.CustomVisionService;
 import com.example.glass_project.data.model.camera.PredictionResponse;
 
 import java.io.File;

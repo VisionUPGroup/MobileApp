@@ -8,6 +8,7 @@ public class UserAccount {
     private String username;
     private String password;
     private String email;
+    private  String phoneNumber;
     private boolean status;
     private int roleID;
     private Object role; // Bạn có thể thay đổi kiểu này nếu có thông tin về role
@@ -31,6 +32,14 @@ public class UserAccount {
         this.payments = payments;
         this.ratingEyeGlasses = ratingEyeGlasses;
         this.ratingLens = ratingLens;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     // Getters and Setters

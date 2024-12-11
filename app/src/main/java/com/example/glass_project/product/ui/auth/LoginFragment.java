@@ -1,4 +1,4 @@
-package com.example.glass_project.auth;
+package com.example.glass_project.product.ui.auth;
 
 import android.content.Context;
 import android.content.Intent;
@@ -190,7 +190,7 @@ public class LoginFragment extends Fragment {
 
                 if (response.isSuccessful() && loginResponse != null) {
                     Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
-                    saveUserDetails(String.valueOf(loginResponse.getUser().getId()), loginResponse.getUser().getUsername(), loginResponse.getUser().getEmail(), loginResponse.getAccessToken(), loginResponse.getRefreshToken());
+                    saveUserDetails(String.valueOf(loginResponse.getUser().getId()), loginResponse.getUser().getUsername(), loginResponse.getUser().getEmail(), loginResponse.getUser().getPhoneNumber(), loginResponse.getAccessToken(), loginResponse.getRefreshToken());
                     navigateToMainActivity();
                 } else {
                     Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
@@ -208,7 +208,7 @@ public class LoginFragment extends Fragment {
 
     private void login(String username, String pass, String email) {
         if (username.isEmpty() || pass.isEmpty()) {
-            Toast.makeText(getActivity(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Vui lòng điền vào tất cả các trường", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -217,22 +217,23 @@ public class LoginFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 if (!response.isSuccessful() && response.body() == null) {
-                    RegisterRequest registerRequest = new RegisterRequest(username, pass, email,"");
-
-                    register(registerRequest);
+                    Toast.makeText(getActivity(), "Đăng nhập không thành công: Tên người dùng hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
                 if (response.body() != null && response.isSuccessful()) {
-                    Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
+                    if(response.body().getUser().getRoleID() !=1 || !response.body().getUser().isStatus()){
+                        Toast.makeText(getActivity(), "Bạn không có quyền truy cập bằng tài khoản này", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Toast.makeText(getActivity(), "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
                     LoginResponse loginResponse = response.body();
                     saveDeviceTokenToFirestore(loginResponse.getUser().getEmail());
                     Log.d("LoginFragment", "Login successful: " + loginResponse.getUser().getUsername() + " " + loginResponse.getUser().getEmail() + " " + loginResponse.getUser().getId());
-
-                    saveUserDetails(String.valueOf(loginResponse.getUser().getId()), loginResponse.getUser().getUsername(), loginResponse.getUser().getEmail(), loginResponse.getAccessToken(), loginResponse.getRefreshToken());
+                    saveUserDetails(String.valueOf(loginResponse.getUser().getId()), loginResponse.getUser().getUsername(), loginResponse.getUser().getEmail(), loginResponse.getUser().getPhoneNumber(), loginResponse.getAccessToken(), loginResponse.getRefreshToken());
                     navigateToMainActivity();
                 }
             }
-
             @Override
             public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable throwable) {
                 Toast.makeText(getActivity(), "An error occurred: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
@@ -248,7 +249,7 @@ public class LoginFragment extends Fragment {
                     Toast.makeText(getActivity(), "Register successful", Toast.LENGTH_SHORT).show();
                     LoginResponse loginResponse = response.body();
 
-                    saveUserDetails(String.valueOf(loginResponse.getUser().getId()), loginResponse.getUser().getUsername(), loginResponse.getUser().getEmail(), loginResponse.getAccessToken(), loginResponse.getRefreshToken());
+                    saveUserDetails(String.valueOf(loginResponse.getUser().getId()), loginResponse.getUser().getUsername(), loginResponse.getUser().getEmail(), loginResponse.getUser().getPhoneNumber(), loginResponse.getAccessToken(), loginResponse.getRefreshToken());
                     saveDeviceTokenToFirestore(loginResponse.getUser().getEmail());
                     navigateToMainActivity();
                 } else {
@@ -262,66 +263,6 @@ public class LoginFragment extends Fragment {
             }
         });
     }
-
-
-    // Method to initiate Google sign in flow
-//    private void signIn(GoogleSignInCallback callback) {
-//        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-////                .requestIdToken(getString(R.string.default_web_client_id))
-//                .requestEmail()
-//                .build();
-//
-//        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
-//        Intent signInIntent = googleSignInClient.getSignInIntent();
-//        startActivityForResult(signInIntent, RC_SIGN_IN);
-//
-//        // Save the callback to handle Google sign in result
-//        this.googleSignInCallback = callback;
-//    }
-
-    // Handle Google sign in result
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (requestCode == RC_SIGN_IN) {
-//            try {
-//                GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
-//                if (account != null) {
-//                    firebaseAuthWithGoogle(account.getIdToken()); // Authenticate with Firebase using Google credentials
-//                    if (googleSignInCallback != null) {
-//                        googleSignInCallback.onGoogleSignInSuccess(account.getDisplayName(), account.getEmail()); // Callback on success
-//                    }
-//                }
-//            } catch (ApiException e) {
-//                Toast.makeText(getActivity(), "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                if (googleSignInCallback != null) {
-//                    googleSignInCallback.onGoogleSignInFailure("Google sign in failed"); // Callback on failure
-//                }
-//            }
-//        }
-//    }
-
-//    // Authenticate with Firebase using Google credentials
-//    private void firebaseAuthWithGoogle(String idToken) {
-//        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-//        auth.signInWithCredential(credential)
-//                .addOnCompleteListener(requireActivity(), task -> {
-//                    if (task.isSuccessful()) {
-//                        FirebaseUser user = auth.getCurrentUser();
-//                        Toast.makeText(getActivity(), "Signed in as " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
-//
-//                        // Save DEVICE_TOKEN to Firestore
-////                        saveDeviceTokenToFirestore(user.getUid());
-//
-//                        navigateToMainActivity();
-//                    } else {
-//                        Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//    }
-
-    // Handle login with email and password
 
     // Save FCM token to Firestore
     private void saveDeviceTokenToFirestore(String userId) {
@@ -368,7 +309,7 @@ public class LoginFragment extends Fragment {
     }
 
     // Save user details to SharedPreferences
-    private void saveUserDetails(String id, String username, String email, String accessToken, String refreshToken) {
+    private void saveUserDetails(String id, String username, String email,String phone, String accessToken, String refreshToken) {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
@@ -376,6 +317,7 @@ public class LoginFragment extends Fragment {
         editor.putString("id", id);
         editor.putString("username", username);
         editor.putString("email", email);
+        editor.putString("phone", phone);
         editor.putString("accessToken", accessToken); // Lưu accessToken
         editor.putString("refreshToken", refreshToken);
         editor.apply();

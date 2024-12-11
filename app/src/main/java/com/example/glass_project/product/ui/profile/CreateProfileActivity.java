@@ -2,23 +2,29 @@ package com.example.glass_project.product.ui.profile;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -31,8 +37,12 @@ import java.util.regex.Pattern;
 
 public class CreateProfileActivity extends AppCompatActivity {
 
+    private static final int REQUEST_IMAGE_PICK = 101;
+
     private EditText editFullName, editPhoneNumber, editAddress, editBirthday;
-    private Button btnCreateProfile, btnCancel;
+    private ImageView imgSelected;
+    private Button btnCreateProfile, btnCancel, btnSelectImage;
+    private Uri selectedImageUri;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,8 +54,10 @@ public class CreateProfileActivity extends AppCompatActivity {
         editPhoneNumber = findViewById(R.id.editPhoneNumber);
         editAddress = findViewById(R.id.editAddress);
         editBirthday = findViewById(R.id.editBirthday);
+        imgSelected = findViewById(R.id.imgSelected);
         btnCreateProfile = findViewById(R.id.btnCreateProfile);
         btnCancel = findViewById(R.id.btnCancel);
+        btnSelectImage = findViewById(R.id.btnSelectImage);
 
         // Xử lý sự kiện khi nhấn vào editBirthday để hiển thị DatePickerDialog
         editBirthday.setOnClickListener(v -> {
@@ -65,68 +77,104 @@ public class CreateProfileActivity extends AppCompatActivity {
             datePickerDialog.show();
         });
 
-        // Xử lý sự kiện nút "Create"
+        // Xử lý sự kiện nút "Chọn ảnh"
+        btnSelectImage.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, REQUEST_IMAGE_PICK);
+        });
+
+        // Xử lý sự kiện nút "Tạo hồ sơ"
         btnCreateProfile.setOnClickListener(v -> {
             String fullName = editFullName.getText().toString().trim();
             String phoneNumber = editPhoneNumber.getText().toString().trim();
             String address = editAddress.getText().toString().trim();
-            String urlImage = "testinmobile.com";
             String birthday = editBirthday.getText().toString().trim();
 
             if (validateInputs(fullName, phoneNumber, address, birthday)) {
-                // Gọi API tạo profile
-                new CreateProfileTask().execute(fullName, phoneNumber, address, urlImage, birthday);
+                disableAllInputs();
+                new CreateProfileTask().execute(fullName, phoneNumber, address, birthday);
             }
         });
 
-        // Xử lý sự kiện nút "Cancel"
+        // Xử lý sự kiện nút "Hủy"
         btnCancel.setOnClickListener(v -> {
             setResult(RESULT_CANCELED);
             finish();
         });
     }
 
+    // Xử lý kết quả trả về từ trình chọn ảnh
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_PICK && resultCode == RESULT_OK && data != null) {
+            selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                imgSelected.setImageURI(selectedImageUri); // Hiển thị ảnh đã chọn
+            }
+        }
+    }
+
+    // Vô hiệu hóa tất cả input và nút
+    private void disableAllInputs() {
+        editFullName.setEnabled(false);
+        editPhoneNumber.setEnabled(false);
+        editAddress.setEnabled(false);
+        editBirthday.setEnabled(false);
+        btnCreateProfile.setEnabled(false);
+        btnCancel.setEnabled(false);
+        btnSelectImage.setEnabled(false);
+    }
+
+    // Kích hoạt lại tất cả input và nút
+    private void enableAllInputs() {
+        editFullName.setEnabled(true);
+        editPhoneNumber.setEnabled(true);
+        editAddress.setEnabled(true);
+        editBirthday.setEnabled(true);
+        btnCreateProfile.setEnabled(true);
+        btnCancel.setEnabled(true);
+        btnSelectImage.setEnabled(true);
+    }
+
     // Hàm kiểm tra tính hợp lệ của dữ liệu
     private boolean validateInputs(String fullName, String phoneNumber, String address, String birthday) {
         if (fullName.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập họ và tên", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Vui lòng nhập họ và tên.", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        // Kiểm tra số điện thoại (dùng regex để kiểm tra định dạng)
         Pattern phonePattern = Pattern.compile("^[0-9]{10,11}$");
         if (phoneNumber.isEmpty() || !phonePattern.matcher(phoneNumber).matches()) {
-            Toast.makeText(this, "Vui lòng nhập số điện thoại hợp lệ (10-11 chữ số)", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Vui lòng nhập số điện thoại hợp lệ (10-11 chữ số).", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if (address.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập địa chỉ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Vui lòng nhập địa chỉ.", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        // Kiểm tra ngày sinh (không được để trống và phải hợp lệ)
         if (birthday.isEmpty()) {
-            Toast.makeText(this, "Vui lòng chọn ngày sinh", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Vui lòng chọn ngày sinh.", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        // Kiểm tra định dạng ngày (yyyy-MM-dd)
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             dateFormat.setLenient(false);
-            dateFormat.parse(birthday); // Ném lỗi nếu ngày không hợp lệ
+            dateFormat.parse(birthday);
         } catch (Exception e) {
-            Toast.makeText(this, "Ngày sinh không hợp lệ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Ngày sinh không hợp lệ.", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         return true;
     }
 
-    private class CreateProfileTask extends AsyncTask<String, Void, Boolean> {
+    private class CreateProfileTask extends AsyncTask<String, Void, Integer> {
         @Override
-        protected Boolean doInBackground(String... params) {
+        protected Integer doInBackground(String... params) {
             try {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
@@ -134,7 +182,7 @@ public class CreateProfileActivity extends AppCompatActivity {
 
                 if (accessToken.isEmpty() || accountId.isEmpty()) {
                     Log.e("CreateProfileActivity", "Access token or account ID not found");
-                    return false;
+                    return null;
                 }
 
                 String BaseUrl = baseUrl.BASE_URL;
@@ -150,9 +198,7 @@ public class CreateProfileActivity extends AppCompatActivity {
                 profileData.put("fullName", params[0]);
                 profileData.put("phoneNumber", params[1]);
                 profileData.put("address", params[2]);
-                profileData.put("urlImage", params[3].isEmpty() ? "default_image_url" : params[3]);
-                String formattedBirthday = formatDate(params[4]);
-                profileData.put("birthday", formattedBirthday);
+                profileData.put("birthday", formatDate(params[3]));
 
                 try (OutputStream os = urlConnection.getOutputStream()) {
                     byte[] input = profileData.toString().getBytes("utf-8");
@@ -160,26 +206,17 @@ public class CreateProfileActivity extends AppCompatActivity {
                 }
 
                 int responseCode = urlConnection.getResponseCode();
-                Log.d("CreateProfileActivity", "Response Code: " + responseCode);
-
                 if (responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK) {
-                    return true;
-                } else {
                     BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                    StringBuilder response = new StringBuilder();
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine);
-                    }
-                    in.close();
-                    Log.e("CreateProfileActivity", "Response: " + response.toString());
-                    return false;
+                    String response = in.readLine();
+                    JSONObject jsonResponse = new JSONObject(response);
+                    return jsonResponse.getInt("id"); // Lấy ID từ response
                 }
 
             } catch (Exception e) {
                 Log.e("CreateProfileActivity", "Exception: " + e.getMessage(), e);
-                return false;
             }
+            return null;
         }
 
         private String formatDate(String date) {
@@ -198,13 +235,88 @@ public class CreateProfileActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onPostExecute(Integer profileId) {
+            if (profileId != null) {
+                if (selectedImageUri != null) {
+                    new UploadImageTask(profileId).execute(selectedImageUri);
+                } else {
+                    Toast.makeText(CreateProfileActivity.this, "Tạo hồ sơ thành công.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            } else {
+                Toast.makeText(CreateProfileActivity.this, "Tạo hồ sơ thất bại.", Toast.LENGTH_SHORT).show();
+                enableAllInputs();
+            }
+        }
+    }
+
+    private class UploadImageTask extends AsyncTask<Uri, Void, Boolean> {
+        private int profileId;
+
+        public UploadImageTask(int profileId) {
+            this.profileId = profileId;
+        }
+
+        @Override
+        protected Boolean doInBackground(Uri... uris) {
+            try {
+                Uri imageUri = uris[0];
+                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
+
+                String uploadUrl = baseUrl.BASE_URL + "/api/accounts/profiles/upload_image";
+                HttpURLConnection connection = (HttpURLConnection) new URL(uploadUrl).openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+                connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundary");
+                connection.setDoOutput(true);
+
+                String boundary = "----WebKitFormBoundary";
+
+                try (DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream())) {
+                    // Thêm phần dữ liệu Id
+                    outputStream.writeBytes("--" + boundary + "\r\n");
+                    outputStream.writeBytes("Content-Disposition: form-data; name=\"Id\"\r\n\r\n");
+                    outputStream.writeBytes(profileId + "\r\n");
+
+                    // Thêm phần dữ liệu hình ảnh
+                    outputStream.writeBytes("--" + boundary + "\r\n");
+                    outputStream.writeBytes("Content-Disposition: form-data; name=\"Image\"; filename=\"image.jpg\"\r\n");
+                    outputStream.writeBytes("Content-Type: image/jpeg\r\n\r\n");
+
+                    // Ghi dữ liệu file hình ảnh
+                    InputStream inputStream = getContentResolver().openInputStream(imageUri);
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                    inputStream.close();
+                    outputStream.writeBytes("\r\n");
+
+                    // Kết thúc multipart
+                    outputStream.writeBytes("--" + boundary + "--\r\n");
+                    outputStream.flush();
+                }
+
+                int responseCode = connection.getResponseCode();
+                return responseCode == HttpURLConnection.HTTP_OK;
+
+            } catch (Exception e) {
+                Log.e("UploadImageTask", "Error uploading image", e);
+                return false;
+            }
+        }
+
+        @Override
         protected void onPostExecute(Boolean success) {
             if (success) {
-                Toast.makeText(CreateProfileActivity.this, "Profile created successfully", Toast.LENGTH_SHORT).show();
-                setResult(RESULT_OK);
+                Toast.makeText(CreateProfileActivity.this, "Tạo hồ sơ thành công.", Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK); // Trả về kết quả thành công
                 finish();
             } else {
-                Toast.makeText(CreateProfileActivity.this, "Failed to create profile", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CreateProfileActivity.this, "Tải ảnh thất bại.", Toast.LENGTH_SHORT).show();
+                enableAllInputs();
             }
         }
     }

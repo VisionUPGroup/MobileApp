@@ -1,4 +1,4 @@
-package com.example.glass_project.product.ui.Report;
+package com.example.glass_project.product.ui.report;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.adapter.ReportAdapter;
 import com.example.glass_project.data.model.report.ReportData;
 import com.example.glass_project.data.model.report.ReportResponse;

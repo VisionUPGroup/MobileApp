@@ -35,6 +35,7 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
     @Override
     public void onBindViewHolder(ReportViewHolder holder, int position) {
         ReportData reportData = reportDataList.get(position);
+
         holder.bind(reportData);
     }
 
@@ -51,8 +52,8 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
     }
 
     public static class ReportViewHolder extends RecyclerView.ViewHolder {
-        private TextView textViewId, textViewOrderID, textViewDescription, textViewFeedback, textViewStatus, textViewType;
-        private TextView textViewHandlerId, textViewHandlerUsername;
+        private TextView textViewId, textViewOrderID, textViewDescription, textViewFeedback, textViewStatus, textViewType,textviewCreateDate;
+        private TextView textViewHandlerId, textViewHandlerUsername,textviewUpdateDate;
         private LinearLayout feedbackGroup;
 
         public ReportViewHolder(View itemView) {
@@ -66,27 +67,34 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
             textViewHandlerId = itemView.findViewById(R.id.textview_handler_id); // Handler ID
             textViewHandlerUsername = itemView.findViewById(R.id.textview_handler_username); // Handler Username
             feedbackGroup = itemView.findViewById(R.id.feedback_group); // Group view feedback, handler info, etc.
+            textviewCreateDate = itemView.findViewById(R.id.textview_create_date);
+            textviewUpdateDate = itemView.findViewById(R.id.textview_update_date);
+
         }
 
         public void bind(ReportData reportData) {
             textViewId.setText("ID: " + reportData.getId());
-            textViewOrderID.setText("Order ID: " + reportData.getOrderID());
-            textViewDescription.setText("Description: " + reportData.getDescription());
-            textViewFeedback.setText("Feedback: " + (reportData.getFeedback() != null ? reportData.getFeedback() : "No feedback"));
+            textViewOrderID.setText("Mã Đơn Hàng: " + reportData.getOrderID());
+            textViewDescription.setText("Mô Tả: " + reportData.getDescription());
+            textViewFeedback.setText("Phản Hồi: " + (reportData.getFeedback() != null ? reportData.getFeedback() : "Chưa có phản hồi"));
             textViewStatus.setText(getStatusText(reportData.getStatus()));
             textViewStatus.setBackgroundResource(getStatusBackground(reportData.getStatus()));
-            textViewType.setText("Type: " + getTypeText(reportData.getType()));
+            textViewType.setText("Loại Báo Cáo: " + getTypeText(reportData.getType()));
+            textviewCreateDate.setText("Ngày Tạo: " + reportData.getFormattedCreateAt());
 
-            // Hiển thị thông tin Handler
+            // Hiển thị thông tin người xử lý (Handler)
             if (reportData.getHandler() != null) {
                 textViewHandlerId.setText("Mã Nhân Viên: " + reportData.getHandler().getId());
-                textViewHandlerUsername.setText("Nhân Viên: " + reportData.getHandler().getUsername());
-                textViewFeedback.setText("Phản hồi: " + (reportData.getFeedback() != null ? reportData.getFeedback() : "No feedback"));
-
-                // Make feedback group visible
+                textViewHandlerUsername.setText("Tên Nhân Viên: " + reportData.getHandler().getUsername());
+                textViewFeedback.setText("Phản Hồi: " + (reportData.getFeedback() != null ? reportData.getFeedback() : "Chưa có phản hồi"));
+                if (reportData.getUpdateAt() != null) {
+                    textviewUpdateDate.setText("Ngày Cập Nhật: " + reportData.getFormattedUpdateAt());
+                }
+                textviewUpdateDate.setVisibility(View.GONE);
+                // Hiển thị nhóm phản hồi
                 feedbackGroup.setVisibility(View.VISIBLE);
             } else {
-                // Hide feedback group if handler is null
+                // Ẩn nhóm phản hồi nếu không có người xử lý
                 feedbackGroup.setVisibility(View.GONE);
             }
         }
@@ -94,30 +102,30 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
         private String getStatusText(int status) {
             switch (status) {
                 case 0:
-                    return "Pending";
+                    return "Đang Chờ Xử Lý";
                 case 1:
-                    return "Rejected";
+                    return "Bị Từ Chối";
                 case 2:
-                    return "Accepted";
+                    return "Đã Chấp Nhận";
                 default:
-                    return "Unknown";
+                    return "Không Xác Định";
             }
         }
 
         private String getTypeText(int type) {
             switch (type) {
                 case 0:
-                    return "Product Issue";
+                    return "Vấn Đề Sản Phẩm";
                 case 1:
-                    return "Delivery Issue";
+                    return "Vấn Đề Giao Hàng";
                 case 2:
-                    return "Customer Issue";
+                    return "Vấn Đề Khách Hàng";
                 case 3:
-                    return "Customer Service";
+                    return "Dịch Vụ Khách Hàng";
                 case 4:
-                    return "Other";
+                    return "Khác";
                 default:
-                    return "Unknown";
+                    return "Không Xác Định";
             }
         }
 

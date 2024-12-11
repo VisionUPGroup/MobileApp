@@ -43,12 +43,38 @@
                 android:id="@+id/guideText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Để thực hiện bài test Snellen, bạn cần sử dụng hướng ngón tay của mình để AI nhận diện hướng chữ hiển thị. Dưới đây là cách chuẩn bị:"
-                android:textSize="16sp"
+                android:paddingBottom="16dp"
+                android:textStyle="bold"
+                android:text="Các bước chuẩn bị trước khi kiểm tra thị lực mắt:"
                 android:textColor="@android:color/black"
-                android:paddingBottom="16dp" />
-
-            <!-- Hàng 1 -->
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="16dp"
+                android:text="- Bước 1:Vị trí đặt điện thoại"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="220dp"
+                android:src="@drawable/guild"
+                android:layout_marginEnd="16dp" />
+            <TextView
+                android:id="@+id/guide1Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="16dp"
+                android:text="+ Bạn cần để điện thoại cách mắt từ 1 - 1.2m ( có thể sử dụng cáp sạc điện thoại tiêu chuẩn sẽ dài 1 - 1.2m) và camera phải ngang tầm mắt.\n + Đảm bảo độ sáng môi trường cao hơn 40% so với ánh sáng của phòng"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="16dp"
+                android:text="- Bước 2:Chuẩn bị trước khi thực hiện kiểm tra"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -65,10 +91,39 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Bạn cần để cho mắt nghỉ ngơi từ 3- 5 phút để mắt nghỉ ngơi."
+                    android:text="+ Bạn cần để cho mắt nghỉ ngơi từ 3- 5 phút để mắt nghỉ ngơi.\n+ Bạn có thể đeo kính khi thực hiện (nếu có)."
                     android:textSize="14sp"
                     android:textColor="@android:color/black" />
             </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="16dp"
+                android:text="- Bước 3:Thực hiện kiểm tra"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="16dp">
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="120dp"
+                    android:src="@drawable/guild1"
+                    android:layout_marginEnd="16dp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="+ Đảm bảo khung camera có thể thấy được chân dung và tay chọn kết quả.\n+ bạn có thể bấm vào các nút để chọn kết quả."
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black" />
+            </LinearLayout>
+
+
 
             <!-- Hàng 2 -->
             <LinearLayout

@@ -19,21 +19,26 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.adapter.OrderDetailAdapter;
 import com.example.glass_project.data.adapter.RatingAdapter;
+import com.example.glass_project.data.adapter.TimelineAdapter;
 import com.example.glass_project.data.model.kiosk.Kiosk;
 import com.example.glass_project.data.model.order.OrderDetail;
 import com.example.glass_project.data.model.order.OrderHistoryItem;
 import com.example.glass_project.data.model.order.OrderPaymentDetail;
+import com.example.glass_project.data.model.order.Payment;
 import com.example.glass_project.data.model.order.ProductGlass;
 import com.example.glass_project.data.model.order.ProductGlasses;
+import com.example.glass_project.data.model.other.TimelineItem;
 import com.example.glass_project.data.model.rating.RatingEyeGlass;
+import com.example.glass_project.product.ui.other.PaymentActivity;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -50,17 +55,22 @@ import java.util.concurrent.CountDownLatch;
 
 public class OrderDetailActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerViewOrderDetails;
+    private RecyclerView recyclerViewOrderDetails,recyclerViewTimeline;
     private OrderDetailAdapter orderDetailAdapter;
     private List<OrderDetail> orderDetailsList = new ArrayList<>();
     private OrderPaymentDetail orderPaymentDetail; // Store payment details
     private TextView txtTotalAmount, txtTotalPaid, txtRemainingAmount;
     private TextView txtReceiverAddress, txtKiosks, txtIsDeposit;
+    private TextView txtShipperName,txtShipperPhone;
+
+    private TextView txtPending, txtProcessing, txtShipping, txtDelivered, txtCompleted;
+
+    private CardView ShiperCard;
     private DecimalFormat decimalFormat = new DecimalFormat("#,###");
     private static final String TAG = "OrderDetailActivity";
-    Button buttonReview, buttonConfirmOrder,buttonReport;
+    Button buttonReview, buttonConfirmOrder,buttonReport,buttonPayment,btnBack;
     ImageView icon_pending, icon_processing, icon_shipping, icon_delivered, icon_completed;
-
+    OrderHistoryItem orderHistoryItem;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,9 +78,13 @@ public class OrderDetailActivity extends AppCompatActivity {
 
         recyclerViewOrderDetails = findViewById(R.id.recyclerViewOrderDetails);
         recyclerViewOrderDetails.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewTimeline = findViewById(R.id.recyclerViewTimeline);
+        recyclerViewTimeline.setLayoutManager(new LinearLayoutManager(OrderDetailActivity.this));
         buttonReview = findViewById(R.id.button_review);
         buttonConfirmOrder = findViewById(R.id.button_confirm_order);
         buttonReport = findViewById(R.id.buttonReport);
+
+        buttonPayment = findViewById(R.id.button_payment);
         txtTotalAmount = findViewById(R.id.txtTotalAmount);
         txtTotalPaid = findViewById(R.id.txtTotalPaid);
         txtRemainingAmount = findViewById(R.id.txtRemainingAmount);
@@ -82,6 +96,13 @@ public class OrderDetailActivity extends AppCompatActivity {
         icon_shipping = findViewById(R.id.icon_shipping);
         icon_delivered = findViewById(R.id.icon_delivered);
         icon_completed = findViewById(R.id.icon_completed);
+
+        txtPending = findViewById(R.id.txtPending);
+        txtProcessing = findViewById(R.id.txtProcessing);
+        txtShipping = findViewById(R.id.txtShipping);
+        txtDelivered = findViewById(R.id.txtDelivered);
+        txtCompleted = findViewById(R.id.txtCompleted);
+
         int orderId = getIntent().getIntExtra("orderId", -1);
         fetchOrderDetails(orderId);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -89,9 +110,373 @@ public class OrderDetailActivity extends AppCompatActivity {
         buttonReview.setOnClickListener(v -> showRatingDialog());
         buttonReport.setOnClickListener(v -> showConfirmDialog(orderId,4));
         buttonConfirmOrder.setOnClickListener(v -> showConfirmDialog(orderId,3));
+        buttonPayment.setOnClickListener(v -> showConfirmDialog(orderId,2));
+
+        CardView totalAmountCard = findViewById(R.id.totalAmountCard);
+        totalAmountCard.setVisibility(View.VISIBLE);  // Đảm bảo CardView này luôn hiển thị
+
+        txtShipperPhone = findViewById(R.id.txtShipperPhone);
+        txtShipperName= findViewById(R.id.txtShipperName);
+        ShiperCard=findViewById(R.id.ShiperCard);
+        ShiperCard.setVisibility(View.GONE);
         // Hiển thị nút quay lại
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setTitle("Chi tiết đơn hàng #"+ orderId);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Gọi lại phương thức fetchOrderDetails khi Activity được mở lại
+        int orderId = getIntent().getIntExtra("orderId", -1);
+        if (orderId != -1) {
+            fetchOrderDetails(orderId);
+        }
+    }
+
+    // Fetch order details
+    private void fetchOrderDetails(int orderId) {
+        new Thread(() -> {
+            try {
+                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
+
+                URL url = new URL(baseUrl.BASE_URL + "/api/accounts/orders/" + orderId);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    orderHistoryItem = new Gson().fromJson(response.toString(), OrderHistoryItem.class);
+                    orderDetailsList = orderHistoryItem.getOrderDetails();
+
+                    runOnUiThread(() -> {
+                        // Check if there's a receiver address
+                        if (orderHistoryItem.getReceiverAddress() != null && !orderHistoryItem.getReceiverAddress().isEmpty()) {
+                            // Display receiver address and hide kiosk information
+                            txtReceiverAddress.setText("Địa chỉ: " + orderHistoryItem.getReceiverAddress());
+                            txtKiosks.setVisibility(View.GONE);
+                        }
+
+                        else {
+                            // If no receiver address, fetch and display kiosk information
+                            txtReceiverAddress.setVisibility(View.GONE);
+                            fetchKioskDetails(orderHistoryItem.getKiosks().getId());
+                        }
+                        int orderStatus = orderHistoryItem.getProcess(); // Lấy giá trị process từ API
+                        updateProgressBar(orderStatus);
+
+                        txtIsDeposit.setText("Tiền cọc: " + (orderHistoryItem.isDeposit() ? "Có" : "Không"));
+                        if (orderHistoryItem.getShipper() != null) {
+                            txtShipperName.setText("Tên nhân viên: "+ orderHistoryItem.getShipper().getProfiles().get(0).getFullName());
+                            txtShipperPhone.setText("Số điện thoại: "+ orderHistoryItem.getShipper().getProfiles().get(0).getPhoneNumber());
+                         if (orderStatus > 1){
+                                ShiperCard.setVisibility(View.VISIBLE);
+                            }
+                        }
+                        fetchPaymentDetails(orderId);
+                        if (orderStatus == 2) {
+                        }else if (orderStatus == 3){
+                            buttonReport.setVisibility(View.VISIBLE);
+                            buttonConfirmOrder.setVisibility(View.VISIBLE);
+                        }else if (orderStatus == 4){
+                            buttonReport.setVisibility(View.VISIBLE);
+                        }else if (orderStatus == 0){
+                            buttonReport.setVisibility(View.GONE);
+                            buttonPayment.setVisibility(View.VISIBLE);
+                        }else {
+                            buttonConfirmOrder.setVisibility(View.GONE); // Ẩn nút xác nhận nếu process không phải là 4
+                            buttonReport.setVisibility(View.GONE);
+                            buttonPayment.setVisibility(View.GONE);
+                        }
+
+                    });
+
+                } else {
+                    runOnUiThread(() -> Toast.makeText(this, "Không tải được thông tin chi tiết đơn hàng.", Toast.LENGTH_SHORT).show());
+                }
+                connection.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, "fetchOrderDetails: ", e);
+                runOnUiThread(() -> Toast.makeText(this, "Không tải được thông tin chi tiết đơn hàng.", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
+
+    private void fetchPaymentDetails(int orderId) {
+        new Thread(() -> {
+            try {
+                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
+
+                URL url = new URL(baseUrl.BASE_URL + "/api/orders/payment/" + orderId);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    orderPaymentDetail = new Gson().fromJson(response.toString(), OrderPaymentDetail.class);
+
+                    runOnUiThread(() -> {
+                        // Hiển thị thông tin thanh toán lên giao diện
+                        txtTotalAmount.setText("đ" + decimalFormat.format(orderPaymentDetail.getTotalAmount()));
+                        txtTotalPaid.setText("đ" + decimalFormat.format(orderPaymentDetail.getTotalPaid()));
+                        txtRemainingAmount.setText("đ" + decimalFormat.format(orderPaymentDetail.getRemainingAmount()));
+
+                        setTimeline(orderHistoryItem);
+                        // Sau khi có thông tin thanh toán, ta sẽ lấy thông tin về sản phẩm (nếu có)
+                        fetchProductGlassDetails();
+                    });
+
+                } else {
+                    runOnUiThread(() -> Toast.makeText(this, "Failed to load payment details.", Toast.LENGTH_SHORT).show());
+                }
+                connection.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, "fetchPaymentDetails: ", e);
+                runOnUiThread(() -> Toast.makeText(this, "Error loading payment details.", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+    private void setTimeline(OrderHistoryItem orderHistoryItem) {
+        List<TimelineItem> timelineItems = new ArrayList<>();
+
+
+        // Thêm ảnh xác nhận giao hàng nếu có
+
+        // Thêm thông tin thanh toán vào timeline
+        if (orderPaymentDetail != null && orderPaymentDetail.getPayments() != null && !orderPaymentDetail.getPayments().isEmpty()) {
+            List<Payment> payments = orderPaymentDetail.getPayments();
+
+            // Kiểm tra Payment 2
+            if (payments.size() > 1) {
+                Payment payment2 = payments.get(1); // payment[1]
+                String paymentDetails2 = "Mã giao dịch: " + payment2.getCode() ;
+                timelineItems.add(new TimelineItem("Thanh toán "+decimalFormat.format(payment2.getTotalAmount())+" còn lại", paymentDetails2, payment2.getDate(), ""));
+            }
+        }
+
+        // Thêm thời gian giao hàng vào timeline
+        if (orderHistoryItem.getDeliveriedStartTime() != null) {
+            timelineItems.add(new TimelineItem("Đã giao hàng", "", orderHistoryItem.getDeliveriedStartTime(), ""));
+            float density = getResources().getDisplayMetrics().density;
+            int minHeight = (int) (400 * density); // 400 dp -> pixels
+
+// Áp dụng chiều cao cho RecyclerView
+            recyclerViewTimeline.setMinimumHeight(minHeight);
+        }
+        if (orderHistoryItem.getDeliveryConfirmationImage() != null && !orderHistoryItem.getDeliveryConfirmationImage().isEmpty()) {
+            timelineItems.add(new TimelineItem("Xác nhận giao hàng", "Hình ảnh xác nhận giao hàng", "", orderHistoryItem.getDeliveryConfirmationImage()));
+            float density = getResources().getDisplayMetrics().density;
+            int minHeight = (int) (500 * density); // 400 dp -> pixels
+
+// Áp dụng chiều cao cho RecyclerView
+            recyclerViewTimeline.setMinimumHeight(minHeight);
+        }
+
+// Thêm thời gian bắt đầu giao hàng vào timeline
+        if (orderHistoryItem.getShippingStartTime() != null) {
+            timelineItems.add(new TimelineItem("Bắt đầu giao", "", orderHistoryItem.getShippingStartTime(), ""));
+        }
+// Thêm thông tin thanh toán vào timeline
+        if (orderPaymentDetail != null && orderPaymentDetail.getPayments() != null && !orderPaymentDetail.getPayments().isEmpty()) {
+            List<Payment> payments = orderPaymentDetail.getPayments();
+
+            // Kiểm tra Payment 1
+            if (payments.size() > 0) {
+                Payment payment1 = payments.get(0); // payment[0]
+                String paymentDetails1 = "Mã giao dịch: " + payment1.getCode() ;
+
+                if(orderPaymentDetail.getTotalAmount() == payment1.getTotalAmount()){
+                    timelineItems.add(new TimelineItem("Đã Thanh toán " +decimalFormat.format(payment1.getTotalAmount()) , paymentDetails1, payment1.getDate(), ""));
+                }else{
+                    timelineItems.add(new TimelineItem("Thanh toán "+decimalFormat.format(payment1.getTotalAmount()) +" tiền cọc", paymentDetails1, payment1.getDate(), ""));
+                }
+
+            }
+
+
+        }
+
+// Thêm thời gian đặt hàng vào timeline
+        if (orderHistoryItem.getOrderTime() != null ) {
+            String placeByOrder = "Đặt hàng trực tuyến";
+            if(orderHistoryItem.getPlacedByKiosk() != null){
+                placeByOrder = "Đặt hàng tại ki-ốt " + orderHistoryItem.getPlacedByKiosk().getName();
+            }
+            timelineItems.add(new TimelineItem("Bạn đã đặt đơn hàng", placeByOrder, orderHistoryItem.getOrderTime(), ""));
+        }
+        // Cập nhật Adapter cho RecyclerView
+        TimelineAdapter timelineAdapter = new TimelineAdapter(timelineItems);
+        recyclerViewTimeline.setAdapter(timelineAdapter);
+    }
+    private void showConfirmDialog(int orderId, int actionType) {
+        String message = "";
+        String positiveButtonText = "";
+
+        switch (actionType) {
+            case 1:
+                message = "Bạn có chắc chắn muốn thanh toán?";
+                positiveButtonText = "Thanh toán";
+                break;
+            case 2:
+                message = "Bạn đã chắc chắn xác nhận thanh toán?";
+                positiveButtonText = "Xác nhận";
+                break;
+            case 3:
+                message = "Bạn đã chắc chắn xác nhận đã nhận được hàng ?";
+                positiveButtonText = "Xác nhận";
+                break;
+            case 4:
+                message = "Bạn có chắc chắn muốn báo cáo?";
+                positiveButtonText = "Báo cáo";
+                break;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Xác nhận")
+                .setMessage(message)
+                .setPositiveButton(positiveButtonText, (dialog, which) -> {
+                    // Khi chọn Yes, thực hiện hành động tương ứng
+                    if (actionType == 1) {
+                        // Gọi API tạo URL thanh toán
+                    } else if (actionType == 2) {
+                        createPaymentUrl(orderId);
+                    } else if (actionType == 3) {
+                        // Cập nhật trạng thái đơn hàng thành 3 (báo cáo)
+                        confirmOrder(orderId);
+                    }else if (actionType == 4) {
+                        showCreateReportDialog(orderId);
+
+                    }
+                })
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+    private void createPaymentUrl(int orderId) {
+        new Thread(() -> {
+            try {
+                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
+                String paymentUrl;
+                URL url = new URL(baseUrl.BASE_URL + "/api/payments/create-payment-url");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+                connection.setRequestProperty("Content-Type", "application/json");
+
+                String payload = "{ \"orderID\": " + orderId + " }";
+                connection.setDoOutput(true);
+                connection.getOutputStream().write(payload.getBytes());
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    JSONObject responseJson = new JSONObject(response.toString());
+                    paymentUrl = responseJson.getString("paymentUrl");
+
+                    runOnUiThread(() -> {
+                        // Kiểm tra URL hợp lệ trước khi mở Activity
+                        if (paymentUrl != null && !paymentUrl.isEmpty()) {
+                            Intent intent = new Intent(this, PaymentActivity.class);
+                            intent.putExtra("paymentUrl", paymentUrl);
+                            intent.putExtra("orderId", orderId);// Truyền URL vào Intent
+                            startActivity(intent);  // Mở PaymentActivity
+                        } else {
+                            Toast.makeText(this, " Thanh toán không hợp lệ", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                } else {
+                    runOnUiThread(() -> Toast.makeText(this, "Lỗi khi tạo thanh toán", Toast.LENGTH_SHORT).show());
+                }
+                connection.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, "createPaymentUrl: ", e);
+                runOnUiThread(() -> Toast.makeText(this, "Lỗi khi tạo thanh toán", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+    private void showCreateReportDialog(int orderId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_create_report, null);
+        builder.setView(dialogView);
+
+        EditText editTextOrderId = dialogView.findViewById(R.id.editText_orderID);
+        EditText editTextDescription = dialogView.findViewById(R.id.editText_description);
+        Spinner spinnerType = dialogView.findViewById(R.id.spinner_type);
+        Button btnBack = dialogView.findViewById(R.id.btn_back);
+        Button btnSubmit = dialogView.findViewById(R.id.btn_submit);
+
+        editTextOrderId.setText(String.valueOf(orderId));
+
+        // Thiết lập Spinner với các lựa chọn
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.report_types, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerType.setAdapter(adapter);
+
+        // Tạo đối tượng AlertDialog
+        AlertDialog dialog = builder.create();
+
+        btnBack.setOnClickListener(v -> {
+            // Đóng hộp thoại
+            dialog.dismiss();
+        });
+
+        btnSubmit.setOnClickListener(v -> {
+            String orderID = editTextOrderId.getText().toString();
+            String description = editTextDescription.getText().toString();
+            String type = spinnerType.getSelectedItem().toString();
+
+            int typeValue = getTypeValue(type); // Lấy giá trị type (số)
+
+            // Gọi API tạo báo cáo
+            createReport(orderId, description, typeValue);
+
+            dialog.dismiss(); // Đóng hộp thoại sau khi gửi báo cáo
+        });
+
+        dialog.show(); // Hiển thị dialog
+    }
+    private int getTypeValue(String type) {
+        switch (type) {
+            case "Vấn đề sản phẩm":
+                return 0;
+            case "Vấn đề giao hàng":
+                return 1;
+            case "Vấn đề khách hàng":
+                return 2;
+            case "Dịch vụ khách hàng":
+                return 3;
+            case "Khác":
+                return 4;
+            default:
+                return -1; // Mặc định không chọn
         }
     }
     private void confirmOrder(int orderId) {
@@ -142,7 +527,7 @@ public class OrderDetailActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = dialog.findViewById(R.id.recyclerViewRatings);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        Button btnBack = dialog.findViewById(R.id.btn_back);
         SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
         String accountIdString = sharedPreferences.getString("id", "0");
         int accountId = Integer.parseInt(accountIdString);
@@ -165,7 +550,10 @@ public class OrderDetailActivity extends AppCompatActivity {
         fetchExistingRatings(ratingList, adapter -> {
             // Sau khi fetch xong, gán Adapter
             recyclerView.setAdapter(adapter);
-
+            btnBack.setOnClickListener(v -> {
+                // Đóng hộp thoại
+                dialog.dismiss();
+            });
             // Nút Submit Rating
             Button btnSubmit = dialog.findViewById(R.id.btnSubmitRating);
             btnSubmit.setOnClickListener(v -> {
@@ -285,6 +673,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                     int responseCode = connection.getResponseCode();
                     if (responseCode == HttpURLConnection.HTTP_OK) {
                         Log.d(TAG, "Rating submitted for: " + rating.getName());
+                        Toast.makeText(this, "Cảm ơn bạn đã đánh giá sản phẩm!", Toast.LENGTH_SHORT).show();
                     } else {
                         Log.e(TAG, "Failed to submit rating for: " + rating.getName() + ". Code: " + responseCode);
                     }
@@ -306,217 +695,6 @@ public class OrderDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    // Fetch order details
-    private void fetchOrderDetails(int orderId) {
-        new Thread(() -> {
-            try {
-                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
-                String accessToken = sharedPreferences.getString("accessToken", "");
-
-                URL url = new URL(baseUrl.BASE_URL + "/api/accounts/orders/" + orderId);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
-
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-
-                    OrderHistoryItem orderHistoryItem = new Gson().fromJson(response.toString(), OrderHistoryItem.class);
-                    orderDetailsList = orderHistoryItem.getOrderDetails();
-
-                    runOnUiThread(() -> {
-                        // Check if there's a receiver address
-                        if (orderHistoryItem.getReceiverAddress() != null && !orderHistoryItem.getReceiverAddress().isEmpty()) {
-                            // Display receiver address and hide kiosk information
-                            txtReceiverAddress.setText("Địa chỉ: " + orderHistoryItem.getReceiverAddress());
-                            txtKiosks.setVisibility(View.GONE);
-                        }
-
-                        else {
-                            // If no receiver address, fetch and display kiosk information
-                            txtReceiverAddress.setVisibility(View.GONE);
-                            fetchKioskDetails(orderHistoryItem.getKiosks().getId());
-                        }
-                        int orderStatus = orderHistoryItem.getProcess(); // Lấy giá trị process từ API
-                        updateProgressBar(orderStatus);
-
-                        txtIsDeposit.setText("Tiền cọc: " + (orderHistoryItem.isDeposit() ? "Có" : "Không"));
-                        fetchPaymentDetails(orderId); // Fetch payment details after order details
-                        if (orderStatus == 2) {
-
-                        }  else if (orderStatus == 3){
-                            buttonReport.setVisibility(View.VISIBLE);
-                            buttonConfirmOrder.setVisibility(View.VISIBLE);
-                        }else if (orderStatus == 4){
-                            buttonReport.setVisibility(View.VISIBLE);
-
-                        }else {
-                            buttonConfirmOrder.setVisibility(View.GONE); // Ẩn nút xác nhận nếu process không phải là 4
-                            buttonReport.setVisibility(View.GONE);
-                        }
-                    });
-
-                } else {
-                    runOnUiThread(() -> Toast.makeText(this, "Failed to load order details.", Toast.LENGTH_SHORT).show());
-                }
-                connection.disconnect();
-            } catch (Exception e) {
-                Log.e(TAG, "fetchOrderDetails: ", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error loading order details.", Toast.LENGTH_SHORT).show());
-            }
-        }).start();
-    }
-    private void fetchPaymentDetails(int orderId) {
-        new Thread(() -> {
-            try {
-                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
-                String accessToken = sharedPreferences.getString("accessToken", "");
-
-                URL url = new URL(baseUrl.BASE_URL + "/api/orders/payment/" + orderId);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
-
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-
-                    orderPaymentDetail = new Gson().fromJson(response.toString(), OrderPaymentDetail.class);
-
-                    runOnUiThread(() -> {
-                        // Set payment details in UI with DecimalFormat
-                        txtTotalAmount.setText("đ" + decimalFormat.format(orderPaymentDetail.getTotalAmount()));
-                        txtTotalPaid.setText("đ" + decimalFormat.format(orderPaymentDetail.getTotalPaid()));
-                        txtRemainingAmount.setText("đ" + decimalFormat.format(orderPaymentDetail.getRemainingAmount()));
-
-                        // Fetch ProductGlass details after payment details are fetched
-                        fetchProductGlassDetails();
-                    });
-
-                } else {
-                    runOnUiThread(() -> Toast.makeText(this, "Failed to load payment details.", Toast.LENGTH_SHORT).show());
-                }
-                connection.disconnect();
-            } catch (Exception e) {
-                Log.e(TAG, "fetchPaymentDetails: ", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error loading payment details.", Toast.LENGTH_SHORT).show());
-            }
-        }).start();
-    }
-    private void showConfirmDialog(int orderId, int actionType) {
-        String message = "";
-        String positiveButtonText = "";
-
-        switch (actionType) {
-            case 1:
-                message = "Bạn có chắc chắn muốn thanh toán?";
-                positiveButtonText = "Thanh toán";
-                break;
-            case 2:
-                message = "Bạn đã chắc chắn xác nhận bắt đầu giao hàng?";
-                positiveButtonText = "Xác nhận";
-                break;
-            case 3:
-                message = "Bạn đã chắc chắn xác nhận đã nhận được hàng ?";
-                positiveButtonText = "Xác nhận";
-                break;
-            case 4:
-                message = "Bạn có chắc chắn muốn báo cáo?";
-                positiveButtonText = "Báo cáo";
-                break;
-        }
-
-        new AlertDialog.Builder(this)
-                .setTitle("Xác nhận")
-                .setMessage(message)
-                .setPositiveButton(positiveButtonText, (dialog, which) -> {
-                    // Khi chọn Yes, thực hiện hành động tương ứng
-                    if (actionType == 1) {
-                        // Gọi API tạo URL thanh toán
-                    } else if (actionType == 2) {
-                        // Cập nhật trạng thái đơn hàng thành 2 (xác nhận)
-                        updateOrderProcess(orderId, 2);
-                    } else if (actionType == 3) {
-                        // Cập nhật trạng thái đơn hàng thành 3 (báo cáo)
-                        confirmOrder(orderId);
-                    }else if (actionType == 4) {
-                        showCreateReportDialog(orderId);
-
-                    }
-                })
-                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
-                .show();
-    }
-    private void showCreateReportDialog(int orderId) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_create_report, null);
-        builder.setView(dialogView);
-
-        EditText editTextOrderId = dialogView.findViewById(R.id.editText_orderID);
-        EditText editTextDescription = dialogView.findViewById(R.id.editText_description);
-        Spinner spinnerType = dialogView.findViewById(R.id.spinner_type);
-        Button btnBack = dialogView.findViewById(R.id.btn_back);
-        Button btnSubmit = dialogView.findViewById(R.id.btn_submit);
-
-        editTextOrderId.setText(String.valueOf(orderId));
-
-        // Thiết lập Spinner với các lựa chọn
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.report_types, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerType.setAdapter(adapter);
-
-        // Tạo đối tượng AlertDialog
-        AlertDialog dialog = builder.create();
-
-        btnBack.setOnClickListener(v -> {
-            // Đóng hộp thoại
-            dialog.dismiss();
-        });
-
-        btnSubmit.setOnClickListener(v -> {
-            String orderID = editTextOrderId.getText().toString();
-            String description = editTextDescription.getText().toString();
-            String type = spinnerType.getSelectedItem().toString();
-
-            int typeValue = getTypeValue(type); // Lấy giá trị type (số)
-
-            // Gọi API tạo báo cáo
-            createReport(orderId, description, typeValue);
-
-            dialog.dismiss(); // Đóng hộp thoại sau khi gửi báo cáo
-        });
-
-        dialog.show(); // Hiển thị dialog
-    }
-    private int getTypeValue(String type) {
-        switch (type) {
-            case "Vấn đề sản phẩm":
-                return 0;
-            case "Vấn đề giao hàng":
-                return 1;
-            case "Vấn đề khách hàng":
-                return 2;
-            case "Dịch vụ khách hàng":
-                return 3;
-            case "Khác":
-                return 4;
-            default:
-                return -1; // Mặc định không chọn
-        }
-    }
-
     private void createReport(int orderId, String description, int type) {
         new Thread(() -> {
             try {
@@ -613,6 +791,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         switch (status) {
             case 0: // Pending
                 icon_pending.setColorFilter(pendingColor);
+                buttonPayment.setVisibility(View.VISIBLE);
                 break;
             case 1: // Processing
                 icon_pending.setColorFilter(pendingColor);
@@ -659,6 +838,11 @@ public class OrderDetailActivity extends AppCompatActivity {
                 findViewById(R.id.view_progress_2).setBackgroundColor(canceledColor);
                 findViewById(R.id.view_progress_3).setBackgroundColor(canceledColor);
                 findViewById(R.id.view_progress_4).setBackgroundColor(canceledColor);
+                txtPending.setText("Đã hủy");
+                txtProcessing.setText("Đã hủy");
+                txtShipping.setText("Đã hủy");
+                txtDelivered.setText("Đã hủy");
+                txtCompleted.setText("Đã hủy");
                 break;
         }
     }

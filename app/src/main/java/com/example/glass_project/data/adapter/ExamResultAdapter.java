@@ -69,8 +69,9 @@ public class ExamResultAdapter extends RecyclerView.Adapter<ExamResultAdapter.Vi
 
         public void bind(ExamResult examResult) {
             examDateText.setText("Ngày kiểm tra: " + formatDate(examResult.getExamDate())); // Ngày kiểm tra
-            String formattedDiopter = String.format(Locale.getDefault(), "%.2f", examResult.getDiopter());
-            diopterText.setText("Độ cận thị: " + formattedDiopter);
+            int diopterInt = (int) examResult.getDiopter();
+
+            diopterText.setText("Thị lực: 6/" + diopterInt);
             eyeSideText.setText("Bên mắt: " + (examResult.getEyeSide().equalsIgnoreCase("left") ? "Trái" : "Phải")); // Bên mắt (Trái hoặc Phải)
 
         }

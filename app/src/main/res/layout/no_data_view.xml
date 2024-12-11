@@ -19,7 +19,7 @@
         android:id="@+id/txtNoDataMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Không tìm tấy dữ liệu"
+        android:text="Không tìm thấy dữ liệu"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold" />

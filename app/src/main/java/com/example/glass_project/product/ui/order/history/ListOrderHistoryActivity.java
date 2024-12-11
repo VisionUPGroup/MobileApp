@@ -1,11 +1,16 @@
 package com.example.glass_project.product.ui.order.history;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,7 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.adapter.OrderHistoryAdapter;
 import com.example.glass_project.data.adapter.ProcessAdapter;
 import com.example.glass_project.data.model.order.OrderHistoryItem;
@@ -29,6 +34,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +54,13 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
     private String selectedProcess = "Pending"; // Default process is Pending
 
     private View noDataView;
+    private RelativeLayout progressBar;
+    private EditText editTextID;
+    private TextView textViewFromDate, textViewToDate;
+    private Button buttonSearch;
+
+    private int fromYear, fromMonth, fromDay, toYear, toMonth, toDay;
+    private boolean isSearchClicked = false;
 
 
     @Override
@@ -62,6 +75,38 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
         recyclerViewOrderHistory.setLayoutManager(layoutManager);
         orderHistoryAdapter = new OrderHistoryAdapter(this, orderHistoryItems);
         recyclerViewOrderHistory.setAdapter(orderHistoryAdapter);
+        progressBar = findViewById(R.id.progressBar);
+
+
+        editTextID = findViewById(R.id.editTextID);
+        textViewFromDate = findViewById(R.id.textViewFromDate);
+        textViewToDate = findViewById(R.id.textViewToDate);
+        buttonSearch = findViewById(R.id.buttonSearch);
+
+        // Khởi tạo ngày mặc định cho FromDate và ToDate
+        Calendar calendar = Calendar.getInstance();
+        fromYear = calendar.get(Calendar.YEAR);
+        fromMonth = calendar.get(Calendar.MONTH);
+        fromDay = calendar.get(Calendar.DAY_OF_MONTH);
+        toYear = calendar.get(Calendar.YEAR);
+        toMonth = calendar.get(Calendar.MONTH);
+        toDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+        // Thiết lập sự kiện click cho TextView để mở DatePickerDialog
+        textViewFromDate.setOnClickListener(v -> showDatePickerDialog(true));  // From Date
+        textViewToDate.setOnClickListener(v -> showDatePickerDialog(false));  // To Date
+
+        // Thiết lập sự kiện cho nút Search
+        buttonSearch.setOnClickListener(v -> {
+            String id = editTextID.getText().toString().trim();
+            String fromDate = fromYear + "-" + (fromMonth + 1) + "-" + fromDay;
+            String toDate = toYear + "-" + (toMonth + 1) + "-" + toDay;
+            isSearchClicked = true;
+            orderHistoryItems.clear();
+            // Gọi phương thức fetchOrderHistory với các tham số này
+            fetchOrderHistory(selectedProcess, currentPage, id, fromDate, toDate);
+        });
+
 
         recyclerViewOrderHistory.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -73,15 +118,24 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
                     int visibleItemCount = layoutManager.getChildCount();
                     int totalItemCount = layoutManager.getItemCount();
                     int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-
-                    // Kiểm tra điều kiện để tải thêm dữ liệu
-                    if (!isLoading && (firstVisibleItemPosition + visibleItemCount >= totalItemCount) && dy > 0) {
-                        currentPage++; // Tăng số trang
-                        fetchOrderHistory(selectedProcess, currentPage); // Gọi API để tải thêm dữ liệu
+                    String id = editTextID.getText().toString().trim();
+                    String fromDate = fromYear + "-" + (fromMonth + 1) + "-" + fromDay;
+                    String toDate = toYear + "-" + (toMonth + 1) + "-" + toDay;
+                    // Kiểm tra khi cuộn đến gần cuối
+                    if (!isLoading && (firstVisibleItemPosition + visibleItemCount) >= totalItemCount) {
+                        // Điều kiện khi cuộn đến cuối và đã nhấn Search
+                        if (!isSearchClicked) {
+                            id = "";
+                            fromDate = "";
+                            toDate = "";
+                        }
+                        currentPage++;  // Tăng trang
+                        fetchOrderHistory(selectedProcess, currentPage, id, fromDate, toDate);  // Gọi API để tải thêm dữ liệu
                     }
                 }
             }
         });
+
 
 
         // Configure RecyclerView for Process list (horizontal layout)
@@ -99,32 +153,21 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
 
         // Initialize processAdapter
         processAdapter = new ProcessAdapter(processList, process -> {
-            if (!selectedProcess.equals(process)) { // Chỉ xử lý khi chọn trạng thái khác
-                selectedProcess = process; // Lưu trạng thái tiếng Việt
-                processAdapter.setSelectedProcess(selectedProcess); // Cập nhật giao diện Process
+            if (!selectedProcess.equals(process)) {
+                selectedProcess = processMap.get(process); // Cập nhật trạng thái được chọn dưới dạng mã số
+                processAdapter.setSelectedProcess(process);  // Cập nhật lại giao diện của Process
 
-                currentPage = 1; // Đặt lại trang về 1
-                orderHistoryItems.clear(); // Xóa danh sách cũ
-                orderHistoryAdapter.notifyDataSetChanged(); // Làm mới giao diện ngay lập tức
+                currentPage = 1;  // Đặt lại trang về 1
+                orderHistoryItems.clear();  // Xóa dữ liệu cũ
+                orderHistoryAdapter.notifyDataSetChanged();  // Làm mới giao diện
 
-                String englishProcess = processMap.get(process); // Lấy tên Process tiếng Anh
-                if (englishProcess != null) {
-                    fetchOrderHistory(englishProcess, currentPage); // Gọi API với tên Process tiếng Anh
-                } else {
-                    Toast.makeText(this, "Trạng thái không hợp lệ.", Toast.LENGTH_SHORT).show();
-                }
+                fetchOrderHistory(selectedProcess, currentPage, "", "", "");  // Gọi API để tải lại dữ liệu
             }
         });
-
-
-
         recyclerViewProcess.setAdapter(processAdapter);
-
-        // Set initial process as selected
-        processAdapter.setSelectedProcess(selectedProcess);
-
+        processAdapter.setSelectedProcess(processList.get(0));
         // Fetch data for the initial process
-        fetchOrderHistory(selectedProcess, currentPage);
+        fetchOrderHistory(selectedProcess, currentPage, "", "", "");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -134,25 +177,49 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
-    private final Map<String, String> processMap = new HashMap<String, String>() {{
-        put("Đang chờ xử lý", "0");
-        put("Đang xử lý", "1");
-        put("Đang giao hàng", "2");
-        put("Đã giao hàng", "3");
-        put("Hoàn thành", "4");
-        put("Đã hủy", "5");
-    }};
+    private void showDatePickerDialog(final boolean isFromDate) {
+        Calendar calendar = Calendar.getInstance();
+        int year = isFromDate ? fromYear : toYear;
+        int month = isFromDate ? fromMonth : toMonth;
+        int day = isFromDate ? fromDay : toDay;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
+        // Giới hạn ngày chọn cho ToDate không vượt quá ngày hiện tại
+        if (!isFromDate) {
+            // Nếu là To Date, set ngày tối đa là hôm nay
+            calendar.set(Calendar.YEAR, fromYear);
+            calendar.set(Calendar.MONTH, fromMonth);
+            calendar.set(Calendar.DAY_OF_MONTH, fromDay);
         }
-        return super.onOptionsItemSelected(item);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year1, monthOfYear, dayOfMonth) -> {
+            if (isFromDate) {
+                fromYear = year1;
+                fromMonth = monthOfYear;
+                fromDay = dayOfMonth;
+                textViewFromDate.setText(String.format("%d-%d-%d", fromYear, fromMonth + 1, fromDay));
+            } else {
+                toYear = year1;
+                toMonth = monthOfYear;
+                toDay = dayOfMonth;
+                textViewToDate.setText(String.format("%d-%d-%d", toYear, toMonth + 1, toDay));
+            }
+        }, year, month, day);
+
+        // Đặt ngày tối đa là ngày hiện tại cho To Date
+        if (!isFromDate) {
+            Calendar currentCalendar = Calendar.getInstance();
+            datePickerDialog.getDatePicker().setMaxDate(currentCalendar.getTimeInMillis());
+        }
+
+        datePickerDialog.show();
     }
-    private void fetchOrderHistory(String process, int page) {
-        isLoading = true; // Đặt trạng thái đang tải
+
+
+    private void fetchOrderHistory(String process, int page, String id, String fromDate, String toDate) {
+        if (isLoading) return;
+        isLoading = true;
+        showLoading(true); // Show loading indicator
+
         new Thread(() -> {
             try {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
@@ -166,7 +233,13 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
 
                 String BaseUrl = baseUrl.BASE_URL;
                 URL url = new URL(BaseUrl + "/api/accounts/orders?AccountID=" + accountId
-                        + "&Process=" + process + "&PageIndex=" + page + "&PageSize=" + pageSize + "&Descending=true");
+                        + "&Process=" + process
+                        + "&PageIndex=" + page
+                        + "&PageSize=" + pageSize
+                        + "&ID=" + id
+                        + "&FromDate=" + fromDate
+                        + "&ToDate=" + toDate
+                        + "&Descending=true");
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
@@ -187,22 +260,21 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
                     List<OrderHistoryItem> newItems = orderHistoryResponse.getData();
 
                     runOnUiThread(() -> {
+                        showLoading(false);
                         if (page == 1) {
                             orderHistoryItems.clear();
                             if (newItems.isEmpty()) {
-                                Log.d(TAG, "No data available, showing noDataView");
                                 recyclerViewOrderHistory.setVisibility(View.GONE);
                                 noDataView.setVisibility(View.VISIBLE);
                             } else {
-                                Log.d(TAG, "Data available, hiding noDataView");
                                 recyclerViewOrderHistory.setVisibility(View.VISIBLE);
                                 noDataView.setVisibility(View.GONE);
                             }
                         }
 
-                        orderHistoryItems.addAll(newItems); // Thêm dữ liệu mới
-                        orderHistoryAdapter.notifyDataSetChanged(); // Cập nhật giao diện
-                        isLoading = false; // Kết thúc tải
+                        orderHistoryItems.addAll(newItems);
+                        orderHistoryAdapter.notifyDataSetChanged();
+                        isLoading = false;
                     });
 
                 } else {
@@ -218,6 +290,29 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
             }
         }).start();
     }
+    private final Map<String, String> processMap = new HashMap<String, String>() {{
+        put("Đang chờ xử lý", "0");
+        put("Đang xử lý", "1");
+        put("Đang giao hàng", "2");
+        put("Đã giao hàng", "3");
+        put("Hoàn thành", "4");
+        put("Đã hủy", "5");
+    }};
+    private void showLoading(boolean isLoading) {
+        if (progressBar != null) {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        }
+        recyclerViewOrderHistory.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
 
 }

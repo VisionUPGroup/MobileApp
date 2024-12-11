@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.glass_project.R;
-import com.example.glass_project.auth.baseUrl;
+import com.example.glass_project.config.baseUrl;
 import com.example.glass_project.data.adapter.ProfileAdapter;
 import com.example.glass_project.data.model.profile.Profile;
 
@@ -121,6 +121,18 @@ public class ProfileFragment extends Fragment implements UpdateProfileDialogFrag
         }
         listView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
     }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CREATE_PROFILE_REQUEST_CODE && resultCode == getActivity().RESULT_OK) {
+            // Reset danh sách và tải lại dữ liệu sau khi tạo hồ sơ thành công
+            pageIndex = 1;
+            profileList.clear();
+            adapter.notifyDataSetChanged();
+            loadProfiles(currentSearchQuery); // Tải lại danh sách hồ sơ
+        }
+    }
 
     // Hàm tải dữ liệu hồ sơ
     private void loadProfiles(String fullname) {
@@ -136,7 +148,7 @@ public class ProfileFragment extends Fragment implements UpdateProfileDialogFrag
                 String accountId = sharedPreferences.getString("id", "");
 
                 if (accountId.isEmpty() || accessToken.isEmpty()) {
-                    Log.e("ProfileFragment", "Account ID or Access Token not found");
+                    Log.e("ProfileFragment", "Không tìm thấy ID tài khoản hoặc Access Token");
                     return;
                 }
 
@@ -175,7 +187,16 @@ public class ProfileFragment extends Fragment implements UpdateProfileDialogFrag
                             if (pageIndex == 1) {
                                 profileList.clear(); // Xóa danh sách cũ khi tải trang đầu tiên
                             }
-                            profileList.addAll(newProfiles);
+
+                            // Filter profiles with status false
+                            List<Profile> filteredProfiles = new ArrayList<>();
+                            for (Profile profile : newProfiles) {
+                                if (profile.isStatus()) { // Assuming getStatus() returns boolean
+                                    filteredProfiles.add(profile);
+                                }
+                            }
+
+                            profileList.addAll(filteredProfiles);
                             adapter.notifyDataSetChanged();
 
                             // Hiển thị ListView và ẩn noDataView
@@ -189,7 +210,7 @@ public class ProfileFragment extends Fragment implements UpdateProfileDialogFrag
                                 // Ẩn ListView và hiển thị noDataView
                                 listView.setVisibility(View.GONE);
                                 noDataView.setVisibility(View.VISIBLE);
-                                Toast.makeText(getContext(), "No profiles found", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Không tìm thấy hồ sơ", Toast.LENGTH_SHORT).show();
                             } else {
                                 hasMoreData = false;
                             }
@@ -197,15 +218,16 @@ public class ProfileFragment extends Fragment implements UpdateProfileDialogFrag
                         isLoading = false;
                     });
                 } else {
-                    Log.e("ProfileFragment", "Failed to fetch profiles. Response Code: " + responseCode);
+                    Log.e("ProfileFragment", "Lấy danh sách hồ sơ thất bại. Mã phản hồi: " + responseCode);
                 }
             } catch (Exception e) {
-                Log.e("ProfileFragment", "Exception: " + e.getMessage(), e);
-                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Error loading profiles", Toast.LENGTH_SHORT).show());
+                Log.e("ProfileFragment", "Lỗi: " + e.getMessage(), e);
+                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Lỗi khi tải hồ sơ", Toast.LENGTH_SHORT).show());
                 isLoading = false;
             }
         });
     }
+
 
     // Hàm parse dữ liệu JSON
     private List<Profile> parseProfilesData(String jsonResponse) throws JSONException {

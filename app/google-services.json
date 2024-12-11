@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "439399996015",
-    "project_id": "visionup-5b2bd",
-    "storage_bucket": "visionup-5b2bd.firebasestorage.app"
+    "project_number": "519269369630",
+    "project_id": "swp-vinclean-7b1d3",
+    "storage_bucket": "swp-vinclean-7b1d3.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:439399996015:android:321faac33165207799cb9a",
+        "mobilesdk_app_id": "1:519269369630:android:57bf3945f04750f533eb0f",
         "android_client_info": {
           "package_name": "com.example.glass_project"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "519269369630-2c6scfeb1gaohij30efon35j3mda0us9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCYoIaNXnr7K4M-8VrsR_kI8Hf7XeQ9pF4"
+          "current_key": "AIzaSyCbVkdVxzzshoy2ipqpHFSjzF-WQ3ejNm0"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "519269369630-2c6scfeb1gaohij30efon35j3mda0us9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

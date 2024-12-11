@@ -1,6 +1,10 @@
 package com.example.glass_project.data.model.report;
 
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class ReportData {
     private int id;
     private int orderID;
@@ -9,6 +13,25 @@ public class ReportData {
     private String feedback;
     private int status;
     private int type;
+
+    private String createAt;
+    private String updateAt;
+
+    public String getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(String createAt) {
+        this.createAt = createAt;
+    }
+
+    public String getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(String updateAt) {
+        this.updateAt = updateAt;
+    }
 
     public ReportData(int id, int orderID, Handler handler, String description, String feedback, int status, int type) {
         this.id = id;
@@ -19,7 +42,28 @@ public class ReportData {
         this.status = status;
         this.type = type;
     }
-
+    public String getFormattedCreateAt() {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS");
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            Date date = inputFormat.parse(createAt);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return createAt;
+        }
+    }
+    public String getFormattedUpdateAt() {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS");
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            Date date = inputFormat.parse(updateAt);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return updateAt;
+        }
+    }
     // Getters and Setters
     public int getId() {
         return id;
