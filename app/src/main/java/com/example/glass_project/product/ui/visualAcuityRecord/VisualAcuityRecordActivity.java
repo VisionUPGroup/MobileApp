@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.adapter.VisualAcuityRecordAdapter;
 import com.example.glass_project.data.model.VisualAcuity.ExamResult;
 import com.example.glass_project.data.model.VisualAcuity.VisualAcuityRecord;
@@ -78,7 +78,7 @@ public class VisualAcuityRecordActivity extends AppCompatActivity {
                     return null;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/visual-acuity-records?ProfileID=" + profileID+"&Descending=true");
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -170,7 +170,7 @@ public class VisualAcuityRecordActivity extends AppCompatActivity {
                     return null;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/visual-acuity/" + recordId + "/exam-results");
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

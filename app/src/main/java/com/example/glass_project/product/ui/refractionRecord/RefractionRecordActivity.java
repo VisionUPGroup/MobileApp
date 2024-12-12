@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.adapter.RefractionRecordAdapter;
 import com.example.glass_project.data.model.Refraction.Kiosk;
 import com.example.glass_project.data.model.Refraction.MeasurementResult;
@@ -78,7 +78,7 @@ public class RefractionRecordActivity extends AppCompatActivity {
                 String accessToken = getAccessToken();
                 if (accessToken.isEmpty()) return null;
 
-                String urlStr = baseUrl.BASE_URL + "/api/refraction-records?ProfileID=" + profileID + "&PageIndex=1&PageSize=10&Descending=false";
+                String urlStr = Config.getBaseUrl() + "/api/refraction-records?ProfileID=" + profileID + "&PageIndex=1&PageSize=10&Descending=false";
                 String response = makeGetRequest(urlStr, accessToken);
                 if (response != null) {
                     records = parseRefractionRecords(response);
@@ -119,7 +119,7 @@ public class RefractionRecordActivity extends AppCompatActivity {
                 String accessToken = getAccessToken();
                 if (accessToken.isEmpty()) return null;
 
-                String urlStr = baseUrl.BASE_URL + "/api/measurement-results?RecordID=" + recordId + "&PageIndex=1&PageSize=10&Descending=false";
+                String urlStr = Config.getBaseUrl() + "/api/measurement-results?RecordID=" + recordId + "&PageIndex=1&PageSize=10&Descending=false";
                 String response = makeGetRequest(urlStr, accessToken);
                 if (response != null) {
                     results = parseMeasurementResults(response);

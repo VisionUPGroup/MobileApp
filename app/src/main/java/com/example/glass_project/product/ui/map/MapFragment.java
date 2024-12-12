@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.adapter.KioskAdapter;
 import com.example.glass_project.data.model.kiosk.Kiosk;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -104,7 +104,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             try {
                 SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
 
                 URL url = new URL(BaseUrl + "/api/kiosks");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -248,7 +248,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             try {
                 SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
 
                 URL url = new URL(BaseUrl + "/api/kiosks");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -314,7 +314,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             try {
                 SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
 
                 URL url = new URL(BaseUrl + "/api/kiosks/get-nearby-kiosks?latitude=" + latitude + "&longitude=" + longitude + "&maxDistanceKm=5");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

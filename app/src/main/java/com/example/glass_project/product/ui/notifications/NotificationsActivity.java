@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.adapter.NotificationAdapter;
 import com.example.glass_project.data.model.other.Notification;
 import com.example.glass_project.product.ui.order.history.OrderDetailActivity;
@@ -107,7 +107,7 @@ public class NotificationsActivity extends AppCompatActivity {
 
             try {
                 // Gọi API
-                String BaseUrl = baseUrl.BASE_URL; // Thay thế bằng URL thực tế
+                String BaseUrl = Config.getBaseUrl(); // Thay thế bằng URL thực tế
                 URL url = new URL(BaseUrl + "/api/notifications/notifications/" + accountId);
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();

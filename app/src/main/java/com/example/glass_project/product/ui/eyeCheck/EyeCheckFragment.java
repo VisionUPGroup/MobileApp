@@ -27,7 +27,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.adapter.ExamGridAdapter;
 import com.example.glass_project.data.model.eyeCheck.Exam;
 import com.example.glass_project.data.model.profile.Profile;
@@ -275,7 +275,7 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
                     return null;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/profiles?AccountID=" + accountId + "&PageIndex=1&PageSize=10&Descending=true");
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

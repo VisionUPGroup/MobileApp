@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.adapter.ExchangeAdapter;
 import com.example.glass_project.data.model.other.ExchangeItem;
 import com.example.glass_project.data.model.other.ExchangeResponse;
@@ -78,7 +78,7 @@ public class ExchangeActivity extends AppCompatActivity {
                     return;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/accounts/exchange-eyeglasses?AccountID=" + accountId
                         + "&PageIndex=1&PageSize=10&Descending=false");
 

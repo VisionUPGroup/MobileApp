@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.model.order.OrderHistoryItem;
 import com.example.glass_project.product.ui.order.history.ListOrderHistoryActivity;
 import com.example.glass_project.product.ui.order.history.OrderDetailActivity;
@@ -86,7 +86,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
                     return;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/orders/confirm/" + orderId);
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();

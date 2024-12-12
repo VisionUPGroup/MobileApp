@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.model.eyeCheck.ExamItem;
 import com.example.glass_project.databinding.ActivityEyeSelectionBinding;
 
@@ -239,7 +239,7 @@ public class EyeSelectionActivity extends AppCompatActivity {
             List<ExamItem> examItemsList = new ArrayList<>();
 
             try {
-                URL url = new URL(baseUrl.BASE_URL + "/api/exam-items/exam/" + examId + "/exam-items?ExamID=" + examId + "&PageIndex=1&PageSize=35");
+                URL url = new URL(Config.getBaseUrl() + "/api/exam-items/exam/" + examId + "/exam-items?ExamID=" + examId + "&PageIndex=1&PageSize=35");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -290,7 +290,7 @@ public class EyeSelectionActivity extends AppCompatActivity {
         @Override
         protected Integer doInBackground(Void... voids) {
             try {
-                URL url = new URL(baseUrl.BASE_URL + "/api/visual-acuity-records");
+                URL url = new URL(Config.getBaseUrl() + "/api/visual-acuity-records");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -370,7 +370,7 @@ public class EyeSelectionActivity extends AppCompatActivity {
             @Override
             protected Integer doInBackground(Void... voids) {
                 try {
-                    URL url = new URL(baseUrl.BASE_URL + "/api/exam-results/create-from-client");
+                    URL url = new URL(Config.getBaseUrl() + "/api/exam-results/create-from-client");
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("POST");
                     connection.setRequestProperty("Authorization", "Bearer " + accessToken);

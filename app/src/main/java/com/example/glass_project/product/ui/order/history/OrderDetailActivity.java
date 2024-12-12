@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.adapter.OrderDetailAdapter;
 import com.example.glass_project.data.adapter.RatingAdapter;
 import com.example.glass_project.data.adapter.TimelineAdapter;
@@ -143,7 +143,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
 
-                URL url = new URL(baseUrl.BASE_URL + "/api/accounts/orders/" + orderId);
+                URL url = new URL(Config.getBaseUrl() + "/api/accounts/orders/" + orderId);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -220,7 +220,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
 
-                URL url = new URL(baseUrl.BASE_URL + "/api/orders/payment/" + orderId);
+                URL url = new URL(Config.getBaseUrl() + "/api/orders/payment/" + orderId);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -378,7 +378,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
                 String paymentUrl;
-                URL url = new URL(baseUrl.BASE_URL + "/api/payments/create-payment-url");
+                URL url = new URL(Config.getBaseUrl() + "/api/payments/create-payment-url");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -485,7 +485,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
 
-                URL url = new URL(baseUrl.BASE_URL + "/api/orders/confirm/" + orderId);
+                URL url = new URL(Config.getBaseUrl() + "/api/orders/confirm/" + orderId);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("PUT");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -575,7 +575,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                     return;
                 }
 
-                URL url = new URL(baseUrl.BASE_URL + "/api/rating-eyeglasses");
+                URL url = new URL(Config.getBaseUrl() + "/api/rating-eyeglasses");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -658,7 +658,7 @@ public class OrderDetailActivity extends AppCompatActivity {
 
             for (RatingEyeGlass rating : ratingList) {
                 try {
-                    URL url = new URL(baseUrl.BASE_URL + "/api/rating-eyeglasses");
+                    URL url = new URL(Config.getBaseUrl() + "/api/rating-eyeglasses");
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("POST");
                     connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -701,7 +701,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
 
-                URL url = new URL(baseUrl.BASE_URL + "/api/reports");
+                URL url = new URL(Config.getBaseUrl() + "/api/reports");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -735,7 +735,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
 
-                URL url = new URL(baseUrl.BASE_URL + "/api/orders/update-process");
+                URL url = new URL(Config.getBaseUrl() + "/api/orders/update-process");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("PUT");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -857,7 +857,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
 
-                URL url = new URL(baseUrl.BASE_URL + "/api/kiosks/" + kioskId);
+                URL url = new URL(Config.getBaseUrl() + "/api/kiosks/" + kioskId);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -902,7 +902,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                     SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
                     String accessToken = sharedPreferences.getString("accessToken", "");
 
-                    URL url = new URL(baseUrl.BASE_URL + "/api/product-glasses/" + productGlassId);
+                    URL url = new URL(Config.getBaseUrl() + "/api/product-glasses/" + productGlassId);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.setRequestProperty("Authorization", "Bearer " + accessToken);

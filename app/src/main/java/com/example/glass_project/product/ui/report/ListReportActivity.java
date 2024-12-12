@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.adapter.ReportAdapter;
 import com.example.glass_project.data.model.report.ReportData;
 import com.example.glass_project.data.model.report.ReportResponse;
@@ -161,7 +161,7 @@ public class ListReportActivity extends AppCompatActivity {
         }
 
         // Build the API URL
-        StringBuilder apiUrl = new StringBuilder(baseUrl.BASE_URL + "/api/reports?PageIndex=" + currentPage + "&PageSize=" + pageSize + "&Descending=true");
+        StringBuilder apiUrl = new StringBuilder(Config.getBaseUrl() + "/api/reports?PageIndex=" + currentPage + "&PageSize=" + pageSize + "&Descending=true");
 
         // Add filters based on user selection
         if (!selectedStatus.equals("Chưa chọn")) {

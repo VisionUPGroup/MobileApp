@@ -23,7 +23,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.config.services.MyFirebaseMessagingService;
 import com.example.glass_project.data.adapter.BannerAdapter;
 import com.example.glass_project.data.adapter.OrderHistoryAdapter;
@@ -123,7 +123,7 @@ public class HomeFragment extends Fragment {
         new Thread(() -> {
             HttpURLConnection connection = null;
             try {
-                String BaseUrl = baseUrl.BASE_URL;// Tạo kết nối tới API
+                String BaseUrl = Config.getBaseUrl();// Tạo kết nối tới API
                 String apiUrl = BaseUrl +"/api/notifications/device-tokens";
 
                 // Tạo JSON request body
@@ -279,7 +279,7 @@ public class HomeFragment extends Fragment {
                     return;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/accounts/orders?AccountID=" + accountId
                         + "&PageIndex=1&PageSize=3&Descending=true");
 

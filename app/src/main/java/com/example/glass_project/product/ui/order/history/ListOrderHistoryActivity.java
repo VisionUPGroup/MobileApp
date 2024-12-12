@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.adapter.OrderHistoryAdapter;
 import com.example.glass_project.data.adapter.ProcessAdapter;
 import com.example.glass_project.data.model.order.OrderHistoryItem;
@@ -231,7 +231,7 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
                     return;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/accounts/orders?AccountID=" + accountId
                         + "&Process=" + process
                         + "&PageIndex=" + page

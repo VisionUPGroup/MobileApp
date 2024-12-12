@@ -23,7 +23,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.bumptech.glide.Glide;
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.model.profile.Profile;
 
 import org.json.JSONObject;
@@ -163,7 +163,7 @@ public class UpdateProfileDialogFragment extends DialogFragment {
                 String accessToken = sharedPreferences.getString("accessToken", "");
                 if (accessToken.isEmpty()) return false;
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/accounts/profiles/" + profileIds[0]);
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -228,7 +228,7 @@ public class UpdateProfileDialogFragment extends DialogFragment {
                     return false;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/profiles");
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -297,7 +297,7 @@ public class UpdateProfileDialogFragment extends DialogFragment {
                     return false;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/accounts/profiles/upload_image");
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();

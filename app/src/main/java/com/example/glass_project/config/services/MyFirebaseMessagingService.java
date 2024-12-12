@@ -13,7 +13,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.glass_project.MainActivity;
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.product.ui.order.history.OrderDetailActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -91,7 +91,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(0, builder.build());
     }
     public void deleteNotification(String accountId, String deviceToken) {
-        String BaseUrl = baseUrl.BASE_URL;// Tạo kết nối tới API
+        String BaseUrl = Config.getBaseUrl();// Tạo kết nối tới API
         String url = BaseUrl + "/api/notifications/device-tokens/" + accountId + "/" + deviceToken;
 
         // Sử dụng OkHttpClient để gửi yêu cầu DELETE

@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.product.ui.other.ProductsActivity;
 
 import org.json.JSONObject;
@@ -158,7 +158,7 @@ public class RegisterFragment extends Fragment {
             String phoneNumber = params[3];
 
             try {
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 String baseUrl = BaseUrl + "/api/accounts/register";
                 URL url = new URL(baseUrl);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -181,7 +181,9 @@ public class RegisterFragment extends Fragment {
 
                 int responseCode = urlConnection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
+
                     return "Đăng kí thành công";
+
                 } else {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
                     StringBuilder errorMessage = new StringBuilder();
@@ -204,7 +206,7 @@ public class RegisterFragment extends Fragment {
         @Override
         protected void onPostExecute(String result) {
             Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
-            if (result.equals("Registration successful")) {
+            if (result.equals("Đăng kí thành công")) {
                 navigateToMainActivity();
             }
         }

@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 
 import org.json.JSONObject;
 
@@ -185,7 +185,7 @@ public class CreateProfileActivity extends AppCompatActivity {
                     return null;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 URL url = new URL(BaseUrl + "/api/accounts/profiles");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
@@ -264,7 +264,7 @@ public class CreateProfileActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
 
-                String uploadUrl = baseUrl.BASE_URL + "/api/accounts/profiles/upload_image";
+                String uploadUrl = Config.getBaseUrl() + "/api/accounts/profiles/upload_image";
                 HttpURLConnection connection = (HttpURLConnection) new URL(uploadUrl).openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);

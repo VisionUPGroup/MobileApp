@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.glass_project.R;
-import com.example.glass_project.config.baseUrl;
+import com.example.glass_project.config.Config;
 import com.example.glass_project.data.adapter.ProfileAdapter;
 import com.example.glass_project.data.model.profile.Profile;
 
@@ -152,7 +152,7 @@ public class ProfileFragment extends Fragment implements UpdateProfileDialogFrag
                     return;
                 }
 
-                String BaseUrl = baseUrl.BASE_URL;
+                String BaseUrl = Config.getBaseUrl();
                 StringBuilder urlBuilder = new StringBuilder(BaseUrl + "/api/profiles?");
                 urlBuilder.append("AccountID=").append(accountId);
                 urlBuilder.append("&PageIndex=").append(pageIndex);
