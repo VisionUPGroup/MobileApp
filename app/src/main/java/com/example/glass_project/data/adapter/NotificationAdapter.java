@@ -15,6 +15,7 @@ import com.example.glass_project.R;
 import com.example.glass_project.data.model.other.Notification;
 import com.example.glass_project.product.ui.notifications.NotificationsActivity;
 import com.example.glass_project.product.ui.order.history.OrderDetailActivity;
+import com.example.glass_project.product.ui.report.ListReportActivity;
 
 import org.json.JSONObject;
 
@@ -69,7 +70,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemCount() {
-        return notifications.size() + 1; // +1 cho nút "Xem thêm"
+        return notifications.size(); // +1 cho nút "Xem thêm"
     }
 
     /**
@@ -130,22 +131,42 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             if (extraData != null) {
                 try {
                     JSONObject extraDataJson = new JSONObject(extraData);
-                      if (extraDataJson.has("Id")) {
-                        intent = new Intent(context, OrderDetailActivity.class); // Chuyển tới OrderDetailActivity
-                        int orderId = extraDataJson.getInt("Id");  // Lấy orderId từ extraData
-                        intent.putExtra("orderId", orderId);  // Truyền orderId vào Intent
-                        context.startActivity(intent);
+
+                    if (extraDataJson.has("activity")) {
+                        String activityName = extraDataJson.getString("activity");
+
+                        if (activityName.equals("OrderDetailsActivity") && extraDataJson.has("Id")) {
+                            // Điều hướng tới OrderDetailsActivity
+                            intent = new Intent(context, OrderDetailActivity.class);
+                            int orderId = extraDataJson.getInt("Id");
+                            intent.putExtra("orderId", orderId);
+                            context.startActivity(intent);
+
+                            // Log thông báo tiếng Việt
+                            Log.i("NotificationAdapter", "Mở chi tiết đơn hàng với mã: " + orderId);
+                        } else if (activityName.equals("ListReportActivity") && extraDataJson.has("Id")) {
+                            // Điều hướng tới ListReportActivity
+                            intent = new Intent(context, ListReportActivity.class);
+                            int reportId = extraDataJson.getInt("Id");
+                            intent.putExtra("reportId", reportId);
+                            context.startActivity(intent);
+
+                            // Log thông báo tiếng Việt
+                            Log.i("NotificationAdapter", "Mở danh sách báo cáo với mã: " + reportId);
+                        } else {
+                            Log.e("NotificationAdapter", "Hoạt động không được nhận diện hoặc thiếu Id");
+                        }
                     } else {
-                        // Nếu không có "orderId" trong extraData, có thể xử lý thêm, chẳng hạn mở màn hình khác
-                        Log.e("NotificationAdapter", "No orderId found in extraData");
+                        Log.e("NotificationAdapter", "Thiếu trường 'activity' trong extraData");
                     }
                 } catch (Exception e) {
-                    Log.e("NotificationAdapter", "Error parsing extraData", e);
+                    Log.e("NotificationAdapter", "Lỗi khi phân tích extraData", e);
                 }
             } else {
-                Log.e("NotificationAdapter", "extraData is null");
+                Log.e("NotificationAdapter", "extraData là null");
             }
         }
+
     }
 
 

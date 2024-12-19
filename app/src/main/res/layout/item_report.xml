@@ -141,6 +141,18 @@
             android:textColor="@android:color/black"/>
 
     </LinearLayout>
+        <Button
+            android:id="@+id/btn_view_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/feedback_group"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_alignParentEnd="true"
+            android:text="Xem chi tiết"
+            android:backgroundTint="@color/blue"
+            android:textColor="@android:color/white"/>
 
-</RelativeLayout>
+
+    </RelativeLayout>
     </androidx.cardview.widget.CardView>

@@ -76,23 +76,67 @@
             android:padding="8dp"
             android:background="@drawable/spinner_background"/>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
 
+        <EditText
+            android:id="@+id/search_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Nhập mã đơn hàng hoặc báo cáo"
+            android:padding="8dp"
+            android:background="@drawable/edit_text_background" />
+
+        <ImageButton
+            android:id="@+id/search_button"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:src="@drawable/search"
+            android:contentDescription="Tìm kiếm"
+            android:background="@null" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- ProgressBar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            style="?android:attr/progressBarStyleLarge" />
+
+        <!-- Nội dung chính -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_reports"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:padding="8dp"
+                android:layout_marginTop="16dp"
+                android:background="@android:color/white"/>
+
+            <!-- View khi không có dữ liệu -->
+            <include
+                android:id="@+id/noDataView"
+                layout="@layout/no_data_view"
+                android:visibility="gone"
+                android:layout_marginTop="16dp"
+                tools:ignore="IncludeLayoutParam" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <!-- RecyclerView hiển thị danh sách báo cáo -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_reports"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="8dp"
-        android:layout_marginTop="16dp"
-        android:background="@android:color/white"/>
 
-    <!-- View khi không có dữ liệu -->
-    <include
-        android:id="@+id/noDataView"
-        layout="@layout/no_data_view"
-        android:visibility="gone"
-        android:layout_marginTop="16dp"
-        tools:ignore="IncludeLayoutParam" />
 </LinearLayout>

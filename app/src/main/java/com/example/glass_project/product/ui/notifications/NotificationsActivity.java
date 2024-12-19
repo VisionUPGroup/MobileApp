@@ -109,10 +109,11 @@ public class NotificationsActivity extends AppCompatActivity {
                 // Gọi API
                 String BaseUrl = Config.getBaseUrl(); // Thay thế bằng URL thực tế
                 URL url = new URL(BaseUrl + "/api/notifications/notifications/" + accountId);
-
+                String accessToken = sharedPreferences.getString("accessToken", "");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Accept", "application/json");
+                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {

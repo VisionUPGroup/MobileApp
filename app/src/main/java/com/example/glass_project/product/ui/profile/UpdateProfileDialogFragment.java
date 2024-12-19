@@ -1,5 +1,6 @@
 package com.example.glass_project.product.ui.profile;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +34,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class UpdateProfileDialogFragment extends DialogFragment {
 
@@ -84,11 +89,30 @@ public class UpdateProfileDialogFragment extends DialogFragment {
 
         // Disable các EditText ban đầu
         setEditTextsEnabled(false, etFullName, etPhoneNumber, etAddress, etBirthday);
+        btnSelectImage.setEnabled(false);
 
         etFullName.setText(profile.getFullName());
         etPhoneNumber.setText(profile.getPhoneNumber());
         etAddress.setText(profile.getAddress());
-        etBirthday.setText(profile.getBirthday());
+        try {
+            // Định dạng lưu trữ ngày (giả sử định dạng là yyyy-MM-dd'T'HH:mm:ss.SSS'Z')
+            SimpleDateFormat storageFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            storageFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+            // Định dạng hiển thị ngày
+            SimpleDateFormat displayFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            // Chuyển đổi định dạng
+            Date date = storageFormat.parse(profile.getBirthday());
+            String displayDate = displayFormat.format(date);
+
+            etBirthday.setText(displayDate); // Gán ngày đã chuyển đổi vào EditText
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Nếu không thể chuyển đổi, hiển thị giá trị gốc
+            etBirthday.setText(profile.getBirthday());
+        }
+
 
         // Hiển thị hình ảnh
         if (profile.getUrlImage() != null && !profile.getUrlImage().isEmpty()) {
@@ -106,7 +130,7 @@ public class UpdateProfileDialogFragment extends DialogFragment {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(intent, 101);
         });
-
+        etBirthday.setOnClickListener(v -> showDatePickerDialog(etBirthday));
         // Nút "Cập nhật" để bật EditText và nút Save
         btnSave.setOnClickListener(v -> {
             if (!isEditing) {
@@ -114,6 +138,7 @@ public class UpdateProfileDialogFragment extends DialogFragment {
                 isEditing = true;
                 setEditTextsEnabled(true, etFullName, etPhoneNumber, etAddress, etBirthday);
                 btnSave.setText("Lưu"); // Thay đổi nhãn nút thành "Lưu"
+                btnSelectImage.setEnabled(true);
             } else {
                 // Nếu đang trong trạng thái chỉnh sửa, gọi API cập nhật
                 String fullName = etFullName.getText().toString().trim();
@@ -149,6 +174,42 @@ public class UpdateProfileDialogFragment extends DialogFragment {
                 .setView(view)
                 .create();
     }
+    private void showDatePickerDialog(EditText etBirthday) {
+        // Lấy giá trị ngày hiện tại từ EditText (nếu có)
+        Calendar calendar = Calendar.getInstance();
+        try {
+            String birthday = etBirthday.getText().toString().trim();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = sdf.parse(birthday);
+            calendar.setTime(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        // Tạo giới hạn ngày tháng năm
+        Calendar maxDate = Calendar.getInstance();
+        maxDate.add(Calendar.YEAR, -4); // Giới hạn tối đa: 4 tuổi
+
+        Calendar minDate = Calendar.getInstance();
+        minDate.add(Calendar.YEAR, -100); // Giới hạn tối thiểu: 100 tuổi
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                requireContext(),
+                (view, selectedYear, selectedMonth, selectedDay) -> {
+                    String selectedDate = String.format("%d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay);
+                    etBirthday.setText(selectedDate);
+                },
+                year, month, day
+        );
+
+        datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
+        datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
+        datePickerDialog.show();
+    }
 
     private void setEditTextsEnabled(boolean enabled, EditText... editTexts) {
         for (EditText editText : editTexts) {
@@ -177,7 +238,20 @@ public class UpdateProfileDialogFragment extends DialogFragment {
                 return false;
             }
         }
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                Toast.makeText(requireContext(), "Xóa hồ sơ thành công.", Toast.LENGTH_SHORT).show();
+                if (listener != null) {
+                    listener.onProfileUpdated();
+                }
+                dismiss(); // Đóng DialogFragment
+            } else {
+                Toast.makeText(requireContext(), "Xóa hồ sơ thất bại.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -340,13 +414,13 @@ public class UpdateProfileDialogFragment extends DialogFragment {
         @Override
         protected void onPostExecute(Boolean success) {
             if (success) {
-                Toast.makeText(getContext(), "Tải lên ảnh thành công", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Cập nhật thành công", Toast.LENGTH_SHORT).show();
                 if (listener != null) {
                     listener.onProfileUpdated();
                 }
                 dismiss();
             } else {
-                Toast.makeText(getContext(), "Tải lên ảnh thất bại", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
             }
         }
     }

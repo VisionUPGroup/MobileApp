@@ -23,6 +23,8 @@ import com.example.glass_project.R;
 import com.example.glass_project.config.Config;
 import com.example.glass_project.data.model.eyeCheck.ExamItem;
 import com.example.glass_project.databinding.ActivityEyeSelectionBinding;
+import com.example.glass_project.product.ui.other.ProductsActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -72,6 +74,7 @@ public class EyeSelectionActivity extends AppCompatActivity {
         binding.buttonRightEye.setOnClickListener(v -> saveEyeSide("right"));
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        String examName = getIntent().getStringExtra("examName");
         Button buttonGuide = findViewById(R.id.buttonGuide);
         buttonGuide.setOnClickListener(v -> {
             Intent intent = new Intent(EyeSelectionActivity.this, GuideActivity.class);
@@ -79,6 +82,7 @@ public class EyeSelectionActivity extends AppCompatActivity {
         });
         // Hiển thị nút quay lại
         if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(examName != null ?"Kiểm tra mắt "+ "("+examName+")" : "Kiểm tra mắt");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         String examDataLeft = sharedPreferences.getString("ExamData_left", null);
@@ -172,7 +176,7 @@ public class EyeSelectionActivity extends AppCompatActivity {
         int myopia = sharedPreferences.getInt("myopia_" + eyeSide, 0);
 
         if (numberOfTest != -1 && myopia != -1) {
-            resultTextView.setText("Số lần kiểm tra: " + numberOfTest + "\nĐộ cận thị: " + String.format("%d", myopia));
+            resultTextView.setText("Số lần kiểm tra: " + numberOfTest + "\nĐộ cận thị: 6/" + String.format("%d", myopia));
         } else {
             resultTextView.setText("Chưa có dữ liệu");
         }
@@ -218,7 +222,6 @@ public class EyeSelectionActivity extends AppCompatActivity {
                     double myopia = item.optDouble("myopia", 0.0);
                     String expectedAnswer = item.optString("expectedAnswer", "");
                     int examID = item.optInt("examID", -1);
-
                     ExamItem examItem = new ExamItem(id, rotation, type, level, standardDistance, imageUrl, content, myopia, expectedAnswer, examID);
                     examItemsList.add(examItem);
                 }
@@ -239,7 +242,7 @@ public class EyeSelectionActivity extends AppCompatActivity {
             List<ExamItem> examItemsList = new ArrayList<>();
 
             try {
-                URL url = new URL(Config.getBaseUrl() + "/api/exam-items/exam/" + examId + "/exam-items?ExamID=" + examId + "&PageIndex=1&PageSize=35");
+                URL url = new URL(Config.getBaseUrl() + "/api/exam-items/exam/exam-items?ExamID=" + examId + "&PageIndex=1&PageSize=35");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
@@ -336,7 +339,26 @@ public class EyeSelectionActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("EyeExamData", Context.MODE_PRIVATE);
         String eyeSideLeftData = sharedPreferences.getString("ExamData_left", null);
         String eyeSideRightData = sharedPreferences.getString("ExamData_right", null);
+        SharedPreferences sharedPreferences1 = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        int myopiaLeft = sharedPreferences1.getInt("myopia_left", 0);
+        int myopiaRight = sharedPreferences1.getInt("myopia_right", 0);
 
+        boolean isSevere = myopiaLeft > 9 || myopiaRight > 9;
+
+        if (isSevere) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Cảnh báo sức khỏe mắt")
+                    .setMessage("Mắt bạn được đánh giá không tốt. Bạn nên đến kiosk gần nhất để kiểm tra thêm.")
+                    .setNegativeButton("OK", (dialog, which) -> {
+                        Intent intent = new Intent(this, ProductsActivity.class);
+                        intent.putExtra("navigate_to", R.id.navigation_map);
+                        startActivity(intent);
+
+                    })
+                    .setCancelable(false)
+                    .show();
+            return; // Stop further processing as the user is advised to visit a kiosk
+        }
         if (eyeSideLeftData != null) {
             postExamResultAsync(eyeSideLeftData, "left", visualAcuityRecordID);
         }
@@ -356,7 +378,8 @@ public class EyeSelectionActivity extends AppCompatActivity {
                         finish(); // Đóng Activity hiện tại
                     })
                     .setNegativeButton("Không", (dialog, which) -> {
-                        // Đóng dialog nếu chọn "Không"
+                        BottomNavigationView bottomNavigationView = this.findViewById(R.id.nav_view);
+                        bottomNavigationView.setSelectedItemId(R.id.navigation_eye_check);
                         dialog.dismiss();
                     })
                     .show();
@@ -460,7 +483,6 @@ public class EyeSelectionActivity extends AppCompatActivity {
         binding.textRightEyeResults.setText("");
         binding.buttonExportResults.setEnabled(false);
 
-        Toast.makeText(this, "Exam data cleared", Toast.LENGTH_SHORT).show();
     }
 
 

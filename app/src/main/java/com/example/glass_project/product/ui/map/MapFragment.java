@@ -11,6 +11,7 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -56,6 +58,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -66,6 +70,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private FusedLocationProviderClient fusedLocationClient;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     @Nullable
     @Override
@@ -86,7 +91,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         // Fetch data from API
-        new FetchKiosksTask().execute();
+        fetchNearbyKiosks();
 
         // Nút để gọi API lấy ki-ốt gần đây
         Button btnNearbyKiosks = view.findViewById(R.id.btn_nearby_kiosks);
@@ -98,11 +103,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         return view;
     }
-    private class FetchKiosksTask extends AsyncTask<Void, Void, List<Kiosk>> {
-        @Override
-        protected List<Kiosk> doInBackground(Void... voids) {
+    private void fetchAllKiosks() {
+        executorService.execute(() -> {
             try {
-                SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
                 String BaseUrl = Config.getBaseUrl();
 
@@ -123,29 +127,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     }
                     in.close();
 
-                    return parseKiosksData(response.toString());
+                    List<Kiosk> kiosks = parseKiosksData(response.toString());
+                    requireActivity().runOnUiThread(() -> updateUIWithKiosks(kiosks));
                 } else {
-                    Log.e("API_ERROR", "Failed to fetch data. Response Code: " + responseCode);
+                    Log.e("API_ERROR", "Failed to fetch all kiosks. Response Code: " + responseCode);
                 }
 
             } catch (Exception e) {
                 Log.e("API_ERROR", "Exception: " + e.getMessage(), e);
             }
-            return null;
-        }
+        });
+    }
+    private void updateUIWithKiosks(List<Kiosk> kiosks) {
+        if (kiosks != null) {
+            kioskList = kiosks;
+            adapter = new KioskAdapter(kioskList, this::onKioskSelected, requireContext());
+            recyclerView.setAdapter(adapter);
 
-        @Override
-        protected void onPostExecute(List<Kiosk> kiosks) {
-            if (kiosks != null) {
-                kioskList = kiosks;
-                adapter = new KioskAdapter(kioskList, MapFragment.this::onKioskSelected, getContext());
-                recyclerView.setAdapter(adapter);
-
-                for (Kiosk kiosk : kioskList) {
-                    LatLng location = getLocationFromAddress(kiosk.getAddress());
-                    if (location != null) {
-                        addMarker(location, kiosk.getName());
-                    }
+            mMap.clear(); // Xóa tất cả marker cũ
+            for (Kiosk kiosk : kioskList) {
+                LatLng location = getLocationFromAddress(kiosk.getAddress());
+                if (location != null) {
+                    addMarker(location, kiosk.getName());
                 }
             }
         }
@@ -153,31 +156,95 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+            addCurrentLocationMarker();
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+    private void addCurrentLocationMarker() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Yêu cầu quyền nếu chưa được cấp
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
+
+        // Nếu quyền đã được cấp, lấy vị trí hiện tại
+        fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
+            if (location != null) {
+                // Lấy tọa độ vị trí hiện tại
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                LatLng currentLocation = new LatLng(latitude, longitude);
+
+                // Thêm marker cho vị trí hiện tại
+                mMap.addMarker(new MarkerOptions()
+                        .position(currentLocation)
+                        .title("Your Current Location")
+                        .snippet("This is your current position"));
+
+                // Di chuyển camera đến vị trí hiện tại
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 14.0f));
+            } else {
+                Toast.makeText(requireContext(), "Không thể lấy vị trí hiện tại", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Nếu người dùng cấp quyền, thêm marker vị trí hiện tại
+                addCurrentLocationMarker();
+            } else {
+                // Nếu người dùng từ chối quyền, thông báo
+                Toast.makeText(requireContext(), "Quyền vị trí bị từ chối. Không thể hiển thị vị trí hiện tại.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void fetchNearbyKiosks() {
-        if (!isAdded() || getActivity() == null) {
+        if (!isAdded()) {
             Log.e("Fragment Error", "Fragment not attached to Activity");
             return;
         }
-        Context context = requireContext(); // Đảm bảo Fragment đã gắn với Activity
 
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        // Check location permission
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
-        checkLocationSettings();
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(getActivity(), location -> {
-                    if (location != null) {
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
-                        fetchNearbyKiosksFromApi(latitude, longitude);
-                    } else {
-                        Toast.makeText(context, "Không thể lấy vị trí hiện tại", Toast.LENGTH_SHORT).show();
-                    }
-                });
+
+        // Attempt to get the last known location
+        fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
+            if (location != null) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                fetchNearbyKiosksFromApi(latitude, longitude);
+            } else {
+                // Show a prompt to enable location
+                showLocationEnableDialog();
+            }
+        });
     }
+
+    // Show a dialog to prompt the user to enable location services
+    private void showLocationEnableDialog() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Bật định vị")
+                .setMessage("Ứng dụng cần quyền truy cập vị trí để hiển thị các kiosk gần bạn. Vui lòng bật định vị.")
+                .setPositiveButton("Cài đặt", (dialog, which) -> {
+                    // Redirect user to location settings
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                .setCancelable(false) // Prevent dismissal by tapping outside
+                .show();
+    }
+
 
     private void checkAndRequestLocationPermission() {
         // Kiểm tra quyền truy cập vị trí
@@ -232,14 +299,45 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void fetchNearbyKiosksFromApi(double latitude, double longitude) {
-        // Asynchronously fetch nearby kiosks from the API
-        new FetchNearbyKiosksTask(latitude, longitude).execute();
+        executorService.execute(() -> {
+            try {
+                SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
+                String BaseUrl = Config.getBaseUrl();
+
+                URL url = new URL(BaseUrl + "/api/kiosks/get-nearby-kiosks?latitude=" + latitude + "&longitude=" + longitude + "&maxDistanceKm=5");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+                urlConnection.setRequestProperty("accept", "*/*");
+
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    List<Kiosk> kiosks = parseKiosksData(response.toString());
+                    requireActivity().runOnUiThread(() -> updateUIWithKiosks(kiosks));
+                } else {
+                    Log.e("API_ERROR", "Failed to fetch nearby kiosks. Response Code: " + responseCode);
+                }
+
+            } catch (Exception e) {
+                Log.e("API_ERROR", "Exception: " + e.getMessage(), e);
+            }
+        });
     }
 
-    private void fetchAllKiosks() {
-        // Asynchronously fetch all kiosks from the API
-        new FetchAllKiosksTask().execute();
-    }
+//    private void fetchAllKiosks() {
+//        // Asynchronously fetch all kiosks from the API
+//        new FetchAllKiosksTask().execute();
+//    }
 
     private class FetchAllKiosksTask extends AsyncTask<Void, Void, List<Kiosk>> {
 

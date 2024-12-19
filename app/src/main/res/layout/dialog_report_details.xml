@@ -1,0 +1,253 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/textview_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chi tiết báo cáo"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Report ID and Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/textview_report_id"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ID: "
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black" />
+
+            <TextView
+                android:id="@+id/textview_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status: "
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:paddingVertical="4dp"
+                android:paddingHorizontal="8dp"
+                android:background="@drawable/status_background"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <!-- Order ID -->
+        <TextView
+            android:id="@+id/textview_order_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Order ID: "
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Order Date -->
+        <TextView
+            android:id="@+id/textview_order_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Order Date: "
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Type -->
+        <TextView
+            android:id="@+id/textview_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Type: "
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_blue_dark"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/textview_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description: "
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Evidence Image -->
+        <TextView
+            android:id="@+id/textview_evidence_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hình Ảnh Bằng Chứng:"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
+
+        <ImageView
+            android:id="@+id/imageview_evidence_image"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Product Glass Details -->
+        <LinearLayout
+            android:id="@+id/layout_product_glass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textview_product_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Product Glass ID: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+            <TextView
+                android:id="@+id/textview_product_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="EyeGlass ID: "
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textview_left_eye"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Left Eye: "
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/textview_right_eye"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Right Eye: "
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="8dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Feedback Section -->
+        <LinearLayout
+            android:id="@+id/feedback_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:padding="8dp"
+            android:background="@drawable/feedback_background"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/textview_feedback_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Phản hồi"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:background="@drawable/feedback_title_background"
+                android:padding="4dp"
+                android:gravity="center" />
+
+            <!-- Handler ID -->
+            <TextView
+                android:id="@+id/textview_handler_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Handler ID: "
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Handler Username -->
+            <TextView
+                android:id="@+id/textview_handler_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Handler Username: "
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Update Date -->
+            <TextView
+                android:id="@+id/textview_update_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Update Date: "
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Feedback Content -->
+            <TextView
+                android:id="@+id/textview_feedback"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Phản hồi: "
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp" />
+        </LinearLayout>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/btn_back"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Quay lại"
+                android:backgroundTint="@color/gray"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btn_view_order"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Xem đơn hàng"
+                android:backgroundTint="@android:color/holo_blue_dark"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

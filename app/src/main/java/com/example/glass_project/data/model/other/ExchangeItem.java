@@ -1,22 +1,35 @@
 package com.example.glass_project.data.model.other;
 
-import com.google.gson.annotations.SerializedName;
+import com.example.glass_project.data.model.exchange.Customer;
+import com.example.glass_project.data.model.exchange.Order;
+import com.example.glass_project.data.model.exchange.ProductGlass;
+import com.example.glass_project.data.model.exchange.Report;
+import com.example.glass_project.data.model.exchange.Staff;
 
 public class ExchangeItem {
-    @SerializedName("id")
     private int id;
-
-    @SerializedName("staff")
     private Staff staff;
-
-    @SerializedName("order")
-    private Order order;
-
-    @SerializedName("reason")
+    private Customer customer;
+    private ProductGlass oldProductGlass;
+    private ProductGlass newProductGlass;
+    private Order oldOrder;
+    private Order newOrder;
+    private Report report;
     private String reason;
-
-    @SerializedName("status")
     private int status;
+
+    public ExchangeItem(int id, Staff staff, Customer customer, ProductGlass oldProductGlass, ProductGlass newProductGlass, Order oldOrder, Order newOrder, Report report, String reason, int status) {
+        this.id = id;
+        this.staff = staff;
+        this.customer = customer;
+        this.oldProductGlass = oldProductGlass;
+        this.newProductGlass = newProductGlass;
+        this.oldOrder = oldOrder;
+        this.newOrder = newOrder;
+        this.report = report;
+        this.reason = reason;
+        this.status = status;
+    }
 
     public int getId() {
         return id;
@@ -34,12 +47,52 @@ public class ExchangeItem {
         this.staff = staff;
     }
 
-    public Order getOrder() {
-        return order;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public ProductGlass getOldProductGlass() {
+        return oldProductGlass;
+    }
+
+    public void setOldProductGlass(ProductGlass oldProductGlass) {
+        this.oldProductGlass = oldProductGlass;
+    }
+
+    public ProductGlass getNewProductGlass() {
+        return newProductGlass;
+    }
+
+    public void setNewProductGlass(ProductGlass newProductGlass) {
+        this.newProductGlass = newProductGlass;
+    }
+
+    public Order getOldOrder() {
+        return oldOrder;
+    }
+
+    public void setOldOrder(Order oldOrder) {
+        this.oldOrder = oldOrder;
+    }
+
+    public Order getNewOrder() {
+        return newOrder;
+    }
+
+    public void setNewOrder(Order newOrder) {
+        this.newOrder = newOrder;
+    }
+
+    public Report getReport() {
+        return report;
+    }
+
+    public void setReport(Report report) {
+        this.report = report;
     }
 
     public String getReason() {
@@ -57,136 +110,6 @@ public class ExchangeItem {
     public void setStatus(int status) {
         this.status = status;
     }
-
-    // Getters and setters...
-
-    public static class Staff {
-        @SerializedName("id")
-        private int id;
-
-        @SerializedName("username")
-        private String username;
-
-        @SerializedName("email")
-        private String email;
-
-        @SerializedName("phoneNumber")
-        private String phoneNumber;
-
-        @SerializedName("status")
-        private boolean status;
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getPhoneNumber() {
-            return phoneNumber;
-        }
-
-        public void setPhoneNumber(String phoneNumber) {
-            this.phoneNumber = phoneNumber;
-        }
-
-        public boolean isStatus() {
-            return status;
-        }
-
-        public void setStatus(boolean status) {
-            this.status = status;
-        }
-
-        // Getters and setters...
-    }
-
-    public static class Order {
-        @SerializedName("id")
-        private int id;
-
-        @SerializedName("status")
-        private boolean status;
-
-        @SerializedName("receiverAddress")
-        private String receiverAddress;
-
-        @SerializedName("total")
-        private double total;
-
-        @SerializedName("code")
-        private String code;
-
-        @SerializedName("process")
-        private int process;
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public boolean isStatus() {
-            return status;
-        }
-
-        public void setStatus(boolean status) {
-            this.status = status;
-        }
-
-        public String getReceiverAddress() {
-            return receiverAddress;
-        }
-
-        public void setReceiverAddress(String receiverAddress) {
-            this.receiverAddress = receiverAddress;
-        }
-
-        public double getTotal() {
-            return total;
-        }
-
-        public void setTotal(double total) {
-            this.total = total;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        public void setCode(String code) {
-            this.code = code;
-        }
-
-        public int getProcess() {
-            return process;
-        }
-
-        public void setProcess(int process) {
-            this.process = process;
-        }
-
-        // Getters and setters...
-    }
 }
+
 

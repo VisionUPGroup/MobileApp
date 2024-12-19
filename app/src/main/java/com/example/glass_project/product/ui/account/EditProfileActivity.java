@@ -198,7 +198,7 @@ public class EditProfileActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             if ("success".equals(result)) {
-                Toast.makeText(EditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditProfileActivity.this, "Tài khoản đã được cập nhật thành công", Toast.LENGTH_SHORT).show();
                 finish();
             } else {
                 // Show specific error message if update failed

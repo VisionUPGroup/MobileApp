@@ -22,9 +22,8 @@ public class ProductsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        com.example.glass_project.databinding.ActivityProductsBinding binding = ActivityProductsBinding.inflate(getLayoutInflater());
+        ActivityProductsBinding binding = ActivityProductsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
 
         // Set up toolbar
         setSupportActionBar(binding.toolbar);
@@ -35,7 +34,27 @@ public class ProductsActivity extends AppCompatActivity {
 
         // Configure navigation and setup BottomNavigationView
         setupNavigation();
+
+        // Kiểm tra Intent để điều hướng
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("navigate_to")) {
+            int destinationId = intent.getIntExtra("navigate_to", -1);
+            if (destinationId != -1) {
+                BottomNavigationView navView = findViewById(R.id.nav_view);
+                navView.setSelectedItemId( R.id.navigation_map); // Chọn mục cần điều hướng
+            }
+        }
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        int navigateTo = getIntent().getIntExtra("navigate_to", -1);
+        if (navigateTo != -1) {
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_products);
+            navController.navigate(navigateTo);
+        }
+    }
+
 
     private void setupNavigation() {
         try {

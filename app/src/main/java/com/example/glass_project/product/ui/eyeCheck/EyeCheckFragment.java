@@ -10,7 +10,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +41,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class EyeCheckFragment extends Fragment implements SensorEventListener {
@@ -50,17 +50,25 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
     private List<Profile> profileList = new ArrayList<>();
     private String profileID = ""; // Giá trị profileID được chọn
     private SensorManager sensorManager;
-    private Sensor accelerometer,gyroscope;
+    private Sensor accelerometer, gyroscope;
     private boolean isTracking = false;
     private float totalDistance = 0f;
     private float initialX = 0f, initialY = 0f, initialZ = 0f; // Tọa độ ban đầu
     private float currentX = 0f, currentY = 0f, currentZ = 0f; // Tọa độ hiện tại
-    private float timeStep = 0.1f;
     private float roll = 0f, pitch = 0f, yaw = 0f;
-    private Handler handler = new Handler();
     private Button btnAct;
     private TextView textViewDistance;
     private float initialDistance = 0f;
+    private long lastTimestamp = 0;
+
+    // Bộ lọc trung bình động
+    private final int FILTER_WINDOW_SIZE = 10; // Kích thước cửa sổ bộ lọc
+    private final LinkedList<Float> accelerationXBuffer = new LinkedList<>();
+    private final LinkedList<Float> accelerationYBuffer = new LinkedList<>();
+    private final LinkedList<Float> accelerationZBuffer = new LinkedList<>();
+
+    private float velocityX = 0f, velocityY = 0f, velocityZ = 0f; // Vận tốc theo từng trục
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEyeCheckBinding.inflate(inflater, container, false);
@@ -75,17 +83,17 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
         textViewDistance = binding.textViewDistance;
         btnAct.setOnClickListener(v -> {
             if (isTracking) {
-                // Dừng theo dõi
                 stopTracking();
             } else {
-                // Bắt đầu theo dõi
                 startTracking();
             }
         });
+
         // Tải danh sách hồ sơ và bài kiểm tra
         loadProfiles();
         loadExams();
         clearExamData();
+
         // Xử lý sự kiện chọn bài kiểm tra từ GridView
         examGridView.setOnItemClickListener((parent, view, position, id) -> {
             Exam selectedExam = examList.get(position);
@@ -93,20 +101,17 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
                 Toast.makeText(getContext(), "Bài kiểm tra này hiện không khả dụng.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // Lấy thông tin hồ sơ được chọn
             Profile selectedProfile = (Profile) profileSpinner.getSelectedItem();
             if (selectedProfile != null) {
                 profileID = String.valueOf(selectedProfile.getId());
-
-                // Lưu thông tin vào SharedPreferences
                 SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("profileID", profileID);
                 editor.putInt("selectedExamType", selectedExam.getId());
                 editor.apply();
                 clearExamData();
-                // Chuyển đến EyeSelectionActivity
                 Intent intent = new Intent(getActivity(), EyeSelectionActivity.class);
+                intent.putExtra("examName", selectedExam.getType());
                 startActivity(intent);
             } else {
                 showError("Vui lòng chọn hồ sơ trước.");
@@ -115,46 +120,102 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
 
         return rootView;
     }
+    private static final float THRESHOLD = 0.1f;
+
+    private float[] applyThreshold(float[] values) {
+        for (int i = 0; i < values.length; i++) {
+            if (Math.abs(values[i]) < THRESHOLD) {
+                values[i] = 0;
+            }
+        }
+        return values;
+    }
+    private static final float ALPHA = 0.8f; // Hệ số lọc trọng lực
+    private float[] gravity = new float[3];
+
+    private float[] removeGravity(float[] values) {
+        gravity[0] = ALPHA * gravity[0] + (1 - ALPHA) * values[0];
+        gravity[1] = ALPHA * gravity[1] + (1 - ALPHA) * values[1];
+        gravity[2] = ALPHA * gravity[2] + (1 - ALPHA) * values[2];
+
+        float[] linearAcceleration = new float[3];
+        linearAcceleration[0] = values[0] - gravity[0];
+        linearAcceleration[1] = values[1] - gravity[1];
+        linearAcceleration[2] = values[2] - gravity[2];
+
+        return linearAcceleration;
+    }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            // Lấy gia tốc hiện tại từ cảm biến (trong không gian thiết bị)
-            float ax = event.values[0];  // Gia tốc theo trục X
-            float ay = event.values[1];  // Gia tốc theo trục Y
-            float az = event.values[2];  // Gia tốc theo trục Z
-            Log.d("EyeCheckFragment", "Initial Acceleration - X: " + ax + ", Y: " + ay + ", Z: " + az);
+            long currentTimestamp = System.currentTimeMillis();
+            if (lastTimestamp == 0) {
+                lastTimestamp = currentTimestamp;
+                return;
+            }
+
+            float deltaTime = (currentTimestamp - lastTimestamp) / 1000.0f;
+            lastTimestamp = currentTimestamp;
+
+            float[] rawAcceleration = event.values;
+            float[] linearAcceleration = removeGravity(rawAcceleration);
+            linearAcceleration = applyThreshold(linearAcceleration);
+
+            addToBuffer(accelerationXBuffer, linearAcceleration[0]);
+            addToBuffer(accelerationYBuffer, linearAcceleration[1]);
+            addToBuffer(accelerationZBuffer, linearAcceleration[2]);
+
+            float filteredAx = getAverage(accelerationXBuffer);
+            float filteredAy = getAverage(accelerationYBuffer);
+            float filteredAz = getAverage(accelerationZBuffer);
 
             if (isTracking) {
-                // Chuyển gia tốc từ không gian thiết bị sang không gian thế giới
-                float[] worldAcc = applyRotationToAcceleration(ax, ay, az, roll, pitch, yaw);
+                float[] worldAcc = applyRotationToAcceleration(filteredAx, filteredAy, filteredAz, roll, pitch, yaw);
 
-                // Cập nhật gia tốc hiện tại
-                currentX = worldAcc[0];
-                currentY = worldAcc[1];
-                currentZ = worldAcc[2];
+                velocityX += worldAcc[0] * deltaTime;
+                velocityY += worldAcc[1] * deltaTime;
+                velocityZ += worldAcc[2] * deltaTime;
 
-                // Tính khoảng cách từ gia tốc đã chuyển đổi
-                float distance = calculateEuclideanDistance(initialX, initialY, initialZ, currentX, currentY, currentZ);
+                applyVelocityDecay(); // Giảm trôi dạt
 
-                // Nếu là lần theo dõi đầu tiên, lưu khoảng cách ban đầu
-                if (initialDistance == 0f) {
-                    initialDistance = distance;
-                }
+                currentX += velocityX * deltaTime;
+                currentY += velocityY * deltaTime;
+                currentZ += velocityZ * deltaTime;
 
-                // Tính tổng khoảng cách đã di chuyển, trừ đi giá trị ban đầu
-                totalDistance = distance - initialDistance;
-
-                // Cập nhật giao diện người dùng
-                textViewDistance.setText("Khoảng cách: " + String.format("%.5f", totalDistance) + " m");
+                totalDistance = calculateEuclideanDistance(initialX, initialY, initialZ, currentX, currentY, currentZ);
+                textViewDistance.setText(String.format("Khoảng cách: %.5f m", totalDistance));
             }
         }
+    }
+    private void applyVelocityDecay() {
+        float decayFactor = 0.99f; // Hệ số giảm
+        velocityX *= decayFactor;
+        velocityY *= decayFactor;
+        velocityZ *= decayFactor;
+    }
+
+
+    // Thêm giá trị mới vào buffer, xóa giá trị cũ nếu vượt quá kích thước
+    private void addToBuffer(LinkedList<Float> buffer, float value) {
+        if (buffer.size() >= FILTER_WINDOW_SIZE) {
+            buffer.poll(); // Xóa giá trị cũ nhất
+        }
+        buffer.add(value);
+    }
+
+    // Tính trung bình của các giá trị trong buffer
+    private float getAverage(LinkedList<Float> buffer) {
+        float sum = 0f;
+        for (float value : buffer) {
+            sum += value;
+        }
+        return buffer.size() > 0 ? sum / buffer.size() : 0f;
     }
 
     private float[] applyRotationToAcceleration(float ax, float ay, float az, float roll, float pitch, float yaw) {
         // Tạo ma trận quay từ Roll, Pitch, Yaw
         float[][] rotationMatrix = new float[3][3];
-
-        // Tạo ma trận quay (3x3) từ góc Roll, Pitch, Yaw (đơn vị radian)
         float cosRoll = (float) Math.cos(roll);
         float sinRoll = (float) Math.sin(roll);
         float cosPitch = (float) Math.cos(pitch);
@@ -162,7 +223,6 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
         float cosYaw = (float) Math.cos(yaw);
         float sinYaw = (float) Math.sin(yaw);
 
-        // Ma trận quay từ các góc Euler (Roll, Pitch, Yaw)
         rotationMatrix[0][0] = cosPitch * cosYaw;
         rotationMatrix[0][1] = cosPitch * sinYaw;
         rotationMatrix[0][2] = -sinPitch;
@@ -175,7 +235,6 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
         rotationMatrix[2][1] = cosRoll * sinPitch * sinYaw - sinRoll * cosYaw;
         rotationMatrix[2][2] = cosRoll * cosPitch;
 
-        // Áp dụng ma trận quay để chuyển gia tốc sang không gian thế giới
         float[] worldAcc = new float[3];
         worldAcc[0] = rotationMatrix[0][0] * ax + rotationMatrix[0][1] * ay + rotationMatrix[0][2] * az;
         worldAcc[1] = rotationMatrix[1][0] * ax + rotationMatrix[1][1] * ay + rotationMatrix[1][2] * az;
@@ -184,7 +243,6 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
         return worldAcc;
     }
 
-    // Tính khoảng cách Euclidean giữa 2 điểm trong không gian 3D
     private float calculateEuclideanDistance(float x1, float y1, float z1, float x2, float y2, float z2) {
         return (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
     }
@@ -195,31 +253,26 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
     private void startTracking() {
         isTracking = true;
         totalDistance = 0f;
+        velocityX = 0f;
+        velocityY = 0f;
+        velocityZ = 0f;
+        lastTimestamp = 0;
 
-        // Đăng ký lắng nghe cảm biến
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_UI);
 
-        // Lưu giá trị gia tốc ban đầu
-        initialX = 0f;
-        initialY = 0f;
-        initialZ = 0f;
-        Log.d("EyeCheckFragment", "Initial Acceleration - X: " + initialX + ", Y: " + initialY + ", Z: " + initialZ);
         btnAct.setText("Dừng");
     }
 
-
-
     private void stopTracking() {
         isTracking = false;
-        // Dừng lắng nghe cảm biến
         sensorManager.unregisterListener(this);
-
         btnAct.setText("Bắt đầu");
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -249,6 +302,7 @@ public class EyeCheckFragment extends Fragment implements SensorEventListener {
         editor.remove("myopia_left");
         editor.remove("numberOfTest_right");
         editor.remove("myopia_right");
+        editor.remove("examItemsJson");
         editor.apply();
         SharedPreferences sharedPreference = requireContext().getSharedPreferences("EyeExamData", Context.MODE_PRIVATE);
         SharedPreferences.Editor editors = sharedPreference.edit();

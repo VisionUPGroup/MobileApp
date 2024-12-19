@@ -47,6 +47,7 @@ public class PaymentActivity extends AppCompatActivity {
                     if (orderId != -1) {
                         intent.putExtra("orderId", orderId);  // Truyền orderId vào Intent
                     }
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                     finish();  // Kết thúc Activity hiện tại
                     return true;  // Đã xử lý URL này, không cần load nữa

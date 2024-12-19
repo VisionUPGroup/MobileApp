@@ -1,30 +1,108 @@
-<!-- dialog_create_report.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/editText_orderID"
+    <!-- Title: Tạo báo cáo -->
+    <TextView
+        android:id="@+id/textView_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Mã đơn hàng"
-        android:inputType="text"/>
+        android:text="Tạo báo cáo"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/editText_description"
+    <!-- ScrollView to wrap content -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Mô tả"
-        android:inputType="text"/>
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <Spinner
-        android:id="@+id/spinner_type"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <!-- Button to go back -->
+            <!-- Order ID (read-only) -->
+            <EditText
+                android:id="@+id/editText_orderID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Mã đơn hàng"
+                android:focusable="false"
+                android:inputType="none"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/gray" />
+
+            <!-- Description Label -->
+            <TextView
+                android:id="@+id/textView_type_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Loại báo cáo"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Spinner for Type -->
+            <Spinner
+                android:id="@+id/spinner_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="8dp"
+                android:background="@drawable/spinner_background" />
+            <TextView
+                android:id="@+id/textView_product_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chọn sản phẩm"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp" />
+            <!-- Dropdown to show orderDetailsList -->
+            <Spinner
+                android:id="@+id/spinner_order_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="8dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/spinner_background" />
+
+            <!-- Description -->
+            <EditText
+                android:id="@+id/editText_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Mô tả chi tiết"
+                android:layout_marginTop="8dp"
+                android:inputType="text"
+                android:minHeight="100dp" />
+
+            <!-- Upload Image Section -->
+            <Button
+                android:id="@+id/btn_upload_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tải ảnh lên"
+                android:layout_marginTop="8dp" />
+
+            <!-- Image Preview -->
+            <ImageView
+                android:id="@+id/imageView_uploaded"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="8dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,15 +115,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Quay lại"
-            android:backgroundTint="@color/gray"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/gray" />
 
-        <!-- Button to submit the report -->
         <Button
             android:id="@+id/btn_submit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/blue"
-            android:text="Gửi"/>
+            android:text="Gửi"
+            android:backgroundTint="@color/blue" />
     </LinearLayout>
 </LinearLayout>

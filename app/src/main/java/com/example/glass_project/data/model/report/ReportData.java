@@ -8,8 +8,10 @@ import java.util.Date;
 public class ReportData {
     private int id;
     private int orderID;
-    private Handler handler;  // Sửa thành kiểu Handler
+    private Handler handler;
     private String description;
+    private String evidenceImage;
+    private int productGlassID;
     private String feedback;
     private int status;
     private int type;
@@ -42,6 +44,23 @@ public class ReportData {
         this.status = status;
         this.type = type;
     }
+
+    public String getEvidenceImage() {
+        return evidenceImage;
+    }
+
+    public void setEvidenceImage(String evidenceImage) {
+        this.evidenceImage = evidenceImage;
+    }
+
+    public int getProductGlassID() {
+        return productGlassID;
+    }
+
+    public void setProductGlassID(int productGlassID) {
+        this.productGlassID = productGlassID;
+    }
+
     public String getFormattedCreateAt() {
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS");

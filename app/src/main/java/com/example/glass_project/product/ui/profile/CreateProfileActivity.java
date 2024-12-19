@@ -62,9 +62,18 @@ public class CreateProfileActivity extends AppCompatActivity {
         // Xử lý sự kiện khi nhấn vào editBirthday để hiển thị DatePickerDialog
         editBirthday.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
+
+            // Lấy ngày hiện tại
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH);
             int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            // Tạo giới hạn ngày (tối thiểu là 4 tuổi, tối đa là 100 tuổi)
+            Calendar maxDate = Calendar.getInstance();
+            maxDate.set(year - 4, month, day); // Giới hạn tối đa: 4 tuổi
+
+            Calendar minDate = Calendar.getInstance();
+            minDate.set(year - 100, month, day); // Giới hạn tối thiểu: 100 tuổi
 
             DatePickerDialog datePickerDialog = new DatePickerDialog(
                     CreateProfileActivity.this,
@@ -74,8 +83,14 @@ public class CreateProfileActivity extends AppCompatActivity {
                     },
                     year, month, day
             );
+
+            // Áp dụng giới hạn
+            datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
+            datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
+
             datePickerDialog.show();
         });
+
 
         // Xử lý sự kiện nút "Chọn ảnh"
         btnSelectImage.setOnClickListener(v -> {
@@ -240,6 +255,8 @@ public class CreateProfileActivity extends AppCompatActivity {
                 if (selectedImageUri != null) {
                     new UploadImageTask(profileId).execute(selectedImageUri);
                 } else {
+                    Uri defaultImageUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.drawable.default_avt);
+                    new UploadImageTask(profileId).execute(defaultImageUri);
                     Toast.makeText(CreateProfileActivity.this, "Tạo hồ sơ thành công.", Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -281,7 +298,7 @@ public class CreateProfileActivity extends AppCompatActivity {
 
                     // Thêm phần dữ liệu hình ảnh
                     outputStream.writeBytes("--" + boundary + "\r\n");
-                    outputStream.writeBytes("Content-Disposition: form-data; name=\"Image\"; filename=\"image.jpg\"\r\n");
+                    outputStream.writeBytes("Content-Disposition: form-data; name=\"Image\"; C\"\r\n");
                     outputStream.writeBytes("Content-Type: image/jpeg\r\n\r\n");
 
                     // Ghi dữ liệu file hình ảnh

@@ -3,18 +3,18 @@ package com.example.glass_project.product.ui.order.history;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +38,7 @@ import com.example.glass_project.data.model.order.ProductGlass;
 import com.example.glass_project.data.model.order.ProductGlasses;
 import com.example.glass_project.data.model.other.TimelineItem;
 import com.example.glass_project.data.model.rating.RatingEyeGlass;
+import com.example.glass_project.product.ui.other.CreateReportDialog;
 import com.example.glass_project.product.ui.other.PaymentActivity;
 import com.google.gson.Gson;
 
@@ -54,7 +55,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class OrderDetailActivity extends AppCompatActivity {
-
+    private CreateReportDialog createReportDialog;
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
     private RecyclerView recyclerViewOrderDetails,recyclerViewTimeline;
     private OrderDetailAdapter orderDetailAdapter;
     private List<OrderDetail> orderDetailsList = new ArrayList<>();
@@ -108,12 +110,26 @@ public class OrderDetailActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         buttonReview.setOnClickListener(v -> showRatingDialog());
-        buttonReport.setOnClickListener(v -> showConfirmDialog(orderId,4));
+        buttonReport.setOnClickListener(v -> {
+            createReportDialog = new CreateReportDialog(this, orderId, orderDetailsList, imagePickerLauncher);
+            createReportDialog.show();
+        });
+
         buttonConfirmOrder.setOnClickListener(v -> showConfirmDialog(orderId,3));
         buttonPayment.setOnClickListener(v -> showConfirmDialog(orderId,2));
 
         CardView totalAmountCard = findViewById(R.id.totalAmountCard);
         totalAmountCard.setVisibility(View.VISIBLE);  // Đảm bảo CardView này luôn hiển thị
+
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri imageUri = result.getData().getData();
+                        createReportDialog.setImageUri(imageUri);
+                    }
+                }
+        );
 
         txtShipperPhone = findViewById(R.id.txtShipperPhone);
         txtShipperName= findViewById(R.id.txtShipperName);
@@ -186,9 +202,11 @@ public class OrderDetailActivity extends AppCompatActivity {
                         }
                         fetchPaymentDetails(orderId);
                         if (orderStatus == 2) {
+                            buttonReport.setVisibility(View.VISIBLE);
                         }else if (orderStatus == 3){
                             buttonReport.setVisibility(View.VISIBLE);
                             buttonConfirmOrder.setVisibility(View.VISIBLE);
+
                         }else if (orderStatus == 4){
                             buttonReport.setVisibility(View.VISIBLE);
                         }else if (orderStatus == 0){
@@ -365,8 +383,8 @@ public class OrderDetailActivity extends AppCompatActivity {
                         // Cập nhật trạng thái đơn hàng thành 3 (báo cáo)
                         confirmOrder(orderId);
                     }else if (actionType == 4) {
-                        showCreateReportDialog(orderId);
-
+                        createReportDialog = new CreateReportDialog(this, orderId, orderDetailsList, imagePickerLauncher);
+                        createReportDialog.show();
                     }
                 })
                 .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
@@ -421,48 +439,49 @@ public class OrderDetailActivity extends AppCompatActivity {
             }
         }).start();
     }
-    private void showCreateReportDialog(int orderId) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_create_report, null);
-        builder.setView(dialogView);
 
-        EditText editTextOrderId = dialogView.findViewById(R.id.editText_orderID);
-        EditText editTextDescription = dialogView.findViewById(R.id.editText_description);
-        Spinner spinnerType = dialogView.findViewById(R.id.spinner_type);
-        Button btnBack = dialogView.findViewById(R.id.btn_back);
-        Button btnSubmit = dialogView.findViewById(R.id.btn_submit);
-
-        editTextOrderId.setText(String.valueOf(orderId));
-
-        // Thiết lập Spinner với các lựa chọn
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.report_types, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerType.setAdapter(adapter);
-
-        // Tạo đối tượng AlertDialog
-        AlertDialog dialog = builder.create();
-
-        btnBack.setOnClickListener(v -> {
-            // Đóng hộp thoại
-            dialog.dismiss();
-        });
-
-        btnSubmit.setOnClickListener(v -> {
-            String orderID = editTextOrderId.getText().toString();
-            String description = editTextDescription.getText().toString();
-            String type = spinnerType.getSelectedItem().toString();
-
-            int typeValue = getTypeValue(type); // Lấy giá trị type (số)
-
-            // Gọi API tạo báo cáo
-            createReport(orderId, description, typeValue);
-
-            dialog.dismiss(); // Đóng hộp thoại sau khi gửi báo cáo
-        });
-
-        dialog.show(); // Hiển thị dialog
-    }
+//    private void showCreateReportDialog(int orderId) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        View dialogView = getLayoutInflater().inflate(R.layout.dialog_create_report, null);
+//        builder.setView(dialogView);
+//
+//        EditText editTextOrderId = dialogView.findViewById(R.id.editText_orderID);
+//        EditText editTextDescription = dialogView.findViewById(R.id.editText_description);
+//        Spinner spinnerType = dialogView.findViewById(R.id.spinner_type);
+//        Button btnBack = dialogView.findViewById(R.id.btn_back);
+//        Button btnSubmit = dialogView.findViewById(R.id.btn_submit);
+//
+//        editTextOrderId.setText(String.valueOf(orderId));
+//
+//        // Thiết lập Spinner với các lựa chọn
+//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+//                R.array.report_types, android.R.layout.simple_spinner_item);
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinnerType.setAdapter(adapter);
+//
+//        // Tạo đối tượng AlertDialog
+//        AlertDialog dialog = builder.create();
+//
+//        btnBack.setOnClickListener(v -> {
+//            // Đóng hộp thoại
+//            dialog.dismiss();
+//        });
+//
+//        btnSubmit.setOnClickListener(v -> {
+//            String orderID = editTextOrderId.getText().toString();
+//            String description = editTextDescription.getText().toString();
+//            String type = spinnerType.getSelectedItem().toString();
+//
+//            int typeValue = getTypeValue(type); // Lấy giá trị type (số)
+//
+//            // Gọi API tạo báo cáo
+//            createReport(orderId, description, typeValue);
+//
+//            dialog.dismiss(); // Đóng hộp thoại sau khi gửi báo cáo
+//        });
+//
+//        dialog.show(); // Hiển thị dialog
+//    }
     private int getTypeValue(String type) {
         switch (type) {
             case "Vấn đề sản phẩm":

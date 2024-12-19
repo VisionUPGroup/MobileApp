@@ -90,10 +90,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         notificationManager.notify(0, builder.build());
     }
-    public void deleteNotification(String accountId, String deviceToken) {
+    public void deleteNotification(String accessToken, String accountId, String deviceToken) {
+
+
         String BaseUrl = Config.getBaseUrl();// Tạo kết nối tới API
         String url = BaseUrl + "/api/notifications/device-tokens/" + accountId + "/" + deviceToken;
-
         // Sử dụng OkHttpClient để gửi yêu cầu DELETE
         OkHttpClient client = new OkHttpClient();
 
@@ -102,6 +103,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .url(url)
                 .delete()  // DELETE request
                 .addHeader("accept", "*/*")
+                .addHeader("Authorization", "Bearer " + accessToken)
                 .build();
 
         // Thực hiện yêu cầu trong một background thread
@@ -113,9 +115,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     Response response = client.newCall(request).execute();
 
                     if (response.isSuccessful()) {
-                        Log.d(TAG, "Xoá thông báo thành công: " + response.body().string());
+                        Log.d(TAG, "Đăng xuất thành công: " );
                     } else {
-                        Log.e(TAG, "Lỗi khi xoá thông báo: " + response.code());
+                        Log.e(TAG, "Lỗi khi đăng xuất: " );
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "Lỗi kết nối: ", e);

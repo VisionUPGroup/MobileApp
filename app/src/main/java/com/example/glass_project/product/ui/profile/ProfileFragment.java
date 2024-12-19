@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,15 +82,11 @@ public class ProfileFragment extends Fragment implements UpdateProfileDialogFrag
         // Nút tìm kiếm
         searchButton.setOnClickListener(v -> {
             String query = searchEditText.getText().toString().trim();
-            if (!TextUtils.isEmpty(query)) {
                 pageIndex = 1; // Reset pageIndex khi tìm kiếm mới
                 currentSearchQuery = query; // Lưu lại giá trị tìm kiếm hiện tại
                 profileList.clear(); // Xóa dữ liệu cũ
                 adapter.notifyDataSetChanged(); // Cập nhật adapter
                 loadProfiles(currentSearchQuery); // Tải dữ liệu mới
-            } else {
-                Toast.makeText(getContext(), "Please enter a search term", Toast.LENGTH_SHORT).show();
-            }
         });
 
         // Tải dữ liệu ban đầu

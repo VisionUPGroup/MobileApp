@@ -1,8 +1,10 @@
 package com.example.glass_project.product.ui.eyeCheck;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -11,9 +13,11 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +26,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.appcompat.app.AlertDialog;
@@ -33,6 +38,7 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.caverock.androidsvg.SVG;
@@ -112,7 +118,7 @@ public class TestActivity extends AppCompatActivity {
     private List<Prediction> predictionList;
     private CustomVisionClient customVisionClient;
     private long lastFrameTime = 0;
-
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,7 +136,7 @@ public class TestActivity extends AppCompatActivity {
         btnFinish.setOnClickListener(v -> showContinueDialog());
         Log.d("TestActivity", "Starting TestActivity...");
         loadExamItems();
-
+        checkCameraPermission();
         previewView = findViewById(R.id.previewView);
         customVisionClient = new CustomVisionClient();
         predictionList = new ArrayList<>();
@@ -183,7 +189,68 @@ public class TestActivity extends AppCompatActivity {
             }
         }, ContextCompat.getMainExecutor(this));
     }
+    private void checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            // Permission already granted
+            startCamera();
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
+            // Show rationale for permission
+            showPermissionRationaleDialog();
+        } else {
+            // Request permission
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
+        }
+    }
 
+    // Show rationale dialog to explain why the app needs camera permission
+    private void showPermissionRationaleDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Yêu cầu quyền camera")
+                .setMessage("Ứng dụng cần quyền truy cập camera để thực hiện kiểm tra mắt. Vui lòng cấp quyền.")
+                .setPositiveButton("OK", (dialog, which) -> {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
+                })
+                .setNegativeButton("Hủy", (dialog, which) -> {
+                    dialog.dismiss();
+                    Toast.makeText(this, "Không thể tiếp tục nếu không có quyền camera.", Toast.LENGTH_SHORT).show();
+                    finish(); // Exit activity if permission is denied
+                })
+                .setCancelable(false) // Prevent dismissal by tapping outside
+                .show();
+    }
+
+    // Handle the result of the permission request
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                startCamera();
+            } else {
+                // Permission denied
+                showDeniedPermissionDialog();
+            }
+        }
+    }
+    private void showDeniedPermissionDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Quyền camera bị từ chối")
+                .setMessage("Ứng dụng không thể hoạt động nếu không có quyền camera. Vui lòng cấp quyền trong phần cài đặt ứng dụng.")
+                .setPositiveButton("Cấp quyền", (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                    intent.setData(uri);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Hủy", (dialog, which) -> {
+                    dialog.dismiss();
+                    Toast.makeText(this, "Không thể tiếp tục nếu không có quyền camera.", Toast.LENGTH_SHORT).show();
+                    finish(); // Exit the activity if permission is denied
+                })
+                .setCancelable(false)
+                .show();
+    }
     private void loadExamItems() {
         SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         String examItemsJson = sharedPreferences.getString("examItemsJson", "");
@@ -321,8 +388,8 @@ public class TestActivity extends AppCompatActivity {
         double widthCm = widthValues.get(level);
         double cmToPixelRatio = 96 / 2.54;
 
-        int heightPx = (int) ((heightCm * cmToPixelRatio) * (testDistance / 2));
-        int widthPx = (int) ((widthCm * cmToPixelRatio) * (testDistance / 2));
+        int heightPx = (int) ((heightCm * cmToPixelRatio) * (testDistance / 1.2));
+        int widthPx = (int) ((widthCm * cmToPixelRatio) * (testDistance / 1.2));
 
         imageViewTest.getLayoutParams().height = heightPx;
         imageViewTest.getLayoutParams().width = widthPx;
@@ -633,8 +700,8 @@ int decreaseCount;
         new AlertDialog.Builder(this)
                 .setTitle("Kết thúc thực hiện")
                 .setMessage("Bạn có muốn kết thúc thực hiện bài kiểm tra không ?")
-                .setPositiveButton("Có", (dialog, which) -> updateUI())
-                .setNegativeButton("Không", (dialog, which) -> finishTest())
+                .setPositiveButton("Có", (dialog, which) -> finishTest())
+                .setNegativeButton("Không", (dialog, which) ->updateUI())
                 .show();
     }
     private void finishTest() {

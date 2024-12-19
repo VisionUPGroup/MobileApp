@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,32 +66,39 @@ public class HomeFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         binding = FragmentHomeBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+        return binding.getRoot(); // Chỉ trả về View, không thực hiện logic ở đây
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("username", "");
+
         fetchFirebaseToken();
+
         // Display greeting with username
-        TextView greetingTextView = binding.greetingText;
-        String greetingMessage = getGreetingMessage();
-        greetingTextView.setText(greetingMessage + username);
+        if (binding != null) {
+            String greetingMessage = getGreetingMessage();
+            binding.greetingText.setText(greetingMessage + username);
 
-        // Set up ViewPager2 for banners
-        setupBanner();
+            // Set up ViewPager2 for banners
+            setupBanner();
 
-        // Initialize RecyclerView for order history
-        setupOrderHistoryRecyclerView();
+            // Initialize RecyclerView for order history
+            setupOrderHistoryRecyclerView();
 
-        // Load GIFs into icons using Glide
-        loadIconsWithGlide();
+            // Load GIFs into icons using Glide
+            loadIconsWithGlide();
 
-        // Fetch order history data with only the three most recent items
-        fetchOrderHistory();
-        setupLinearLayoutClickEvents();
+            // Fetch order history data
+            fetchOrderHistory();
 
-        return root;
+            // Set up click events for LinearLayout
+            setupLinearLayoutClickEvents();
+        }
     }
     private void fetchFirebaseToken() {
         FirebaseMessaging.getInstance().getToken()
@@ -125,7 +133,8 @@ public class HomeFragment extends Fragment {
             try {
                 String BaseUrl = Config.getBaseUrl();// Tạo kết nối tới API
                 String apiUrl = BaseUrl +"/api/notifications/device-tokens";
-
+                SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                String accessToken = sharedPreferences.getString("accessToken", "");
                 // Tạo JSON request body
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("accountId", accountId);
@@ -136,6 +145,7 @@ public class HomeFragment extends Fragment {
                 URL url = new URL(apiUrl);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
+                connection.setRequestProperty("Authorization", "Bearer " + accessToken);
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setRequestProperty("Accept", "*/*");
                 connection.setDoOutput(true);
@@ -359,9 +369,9 @@ public class HomeFragment extends Fragment {
 
         String accountId = sharedPreferences.getString("id", "");
         String deviceToken = sharedPreferences.getString("deviceToken", "");
-
+        String accessToken = sharedPreferences.getString("accessToken", "");
         if (!accountId.isEmpty() && !deviceToken.isEmpty()) {
-            new MyFirebaseMessagingService().deleteNotification(accountId, deviceToken);
+            new MyFirebaseMessagingService().deleteNotification(accessToken,accountId, deviceToken);
         }
         editor.clear();
         editor.apply();

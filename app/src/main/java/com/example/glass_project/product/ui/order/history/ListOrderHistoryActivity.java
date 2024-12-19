@@ -99,16 +99,38 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
         // Thiết lập sự kiện cho nút Search
         buttonSearch.setOnClickListener(v -> {
             String id = editTextID.getText().toString().trim();
-            String fromDate = fromYear + "-" + (fromMonth + 1) + "-" + fromDay;
-            String toDate = toYear + "-" + (toMonth + 1) + "-" + toDay;
+            String fromDate = textViewFromDate.getText().toString().isEmpty() ? "" : textViewFromDate.getText().toString();
+            String toDate = textViewToDate.getText().toString().isEmpty() ? "" : textViewToDate.getText().toString();
+
+            // Reset page number and search status
+            currentPage = 1;
             isSearchClicked = true;
+
+            // Clear existing data before fetching new results
             orderHistoryItems.clear();
-            // Gọi phương thức fetchOrderHistory với các tham số này
+            orderHistoryAdapter.notifyDataSetChanged();
+
+            // Call fetchOrderHistory with updated parameters
             fetchOrderHistory(selectedProcess, currentPage, id, fromDate, toDate);
+        });
+
+        Button buttonReset = findViewById(R.id.buttonReset);
+
+        buttonReset.setOnClickListener(v -> {
+            // Clear the FromDate and ToDate fields
+            textViewFromDate.setText("");
+            textViewToDate.setText("");
+            editTextID.setText("");
+            String id = editTextID.getText().toString().trim();
+            String fromDate = textViewFromDate.getText().toString().isEmpty() ? "" : textViewFromDate.getText().toString();
+            String toDate = textViewToDate.getText().toString().isEmpty() ? "" : textViewToDate.getText().toString();
+            fetchOrderHistory(selectedProcess, currentPage, id, fromDate, toDate);
+            Toast.makeText(this, "Đã xóa bộ lọc ngày.", Toast.LENGTH_SHORT).show();
         });
 
 
         recyclerViewOrderHistory.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            private int lastVisibleItemPosition = -1;
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -118,23 +140,23 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
                     int visibleItemCount = layoutManager.getChildCount();
                     int totalItemCount = layoutManager.getItemCount();
                     int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-                    String id = editTextID.getText().toString().trim();
-                    String fromDate = fromYear + "-" + (fromMonth + 1) + "-" + fromDay;
-                    String toDate = toYear + "-" + (toMonth + 1) + "-" + toDay;
-                    // Kiểm tra khi cuộn đến gần cuối
-                    if (!isLoading && (firstVisibleItemPosition + visibleItemCount) >= totalItemCount) {
-                        // Điều kiện khi cuộn đến cuối và đã nhấn Search
-                        if (!isSearchClicked) {
-                            id = "";
-                            fromDate = "";
-                            toDate = "";
-                        }
-                        currentPage++;  // Tăng trang
-                        fetchOrderHistory(selectedProcess, currentPage, id, fromDate, toDate);  // Gọi API để tải thêm dữ liệu
+
+                    // Ensure conditions for loading more data are correct
+                    if (dy > 0 &&!isLoading && (firstVisibleItemPosition + visibleItemCount) >= totalItemCount) {
+                        lastVisibleItemPosition = firstVisibleItemPosition;
+                        currentPage++;
+
+                        String id = editTextID.getText().toString().trim();
+                        String fromDate = textViewFromDate.getText().toString().isEmpty() ? "" : textViewFromDate.getText().toString();
+                        String toDate = textViewToDate.getText().toString().isEmpty() ? "" : textViewToDate.getText().toString();
+
+                        // Fetch next page of data
+                        fetchOrderHistory(selectedProcess, currentPage, id, fromDate, toDate);
                     }
                 }
             }
         });
+
 
 
 
@@ -156,7 +178,9 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
             if (!selectedProcess.equals(process)) {
                 selectedProcess = processMap.get(process); // Cập nhật trạng thái được chọn dưới dạng mã số
                 processAdapter.setSelectedProcess(process);  // Cập nhật lại giao diện của Process
-
+                editTextID.setText("");
+                textViewFromDate.setText("");
+                textViewToDate.setText("");
                 currentPage = 1;  // Đặt lại trang về 1
                 orderHistoryItems.clear();  // Xóa dữ liệu cũ
                 orderHistoryAdapter.notifyDataSetChanged();  // Làm mới giao diện
@@ -183,36 +207,69 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
         int month = isFromDate ? fromMonth : toMonth;
         int day = isFromDate ? fromDay : toDay;
 
-        // Giới hạn ngày chọn cho ToDate không vượt quá ngày hiện tại
-        if (!isFromDate) {
-            // Nếu là To Date, set ngày tối đa là hôm nay
-            calendar.set(Calendar.YEAR, fromYear);
-            calendar.set(Calendar.MONTH, fromMonth);
-            calendar.set(Calendar.DAY_OF_MONTH, fromDay);
-        }
+        // Thiết lập giới hạn ngày tối đa
+        Calendar maxCalendar = Calendar.getInstance();
+        maxCalendar.add(Calendar.DAY_OF_MONTH, +1); // Ngày hiện tại trừ 1
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year1, monthOfYear, dayOfMonth) -> {
+            Calendar selectedDate = Calendar.getInstance();
+            selectedDate.set(year1, monthOfYear, dayOfMonth);
+
             if (isFromDate) {
+                // Kiểm tra ngày chọn nhỏ hơn ngày hiện tại - 1
+                if (selectedDate.after(maxCalendar)) {
+                    Toast.makeText(this, "Dến ngày phải nhỏ hơn ngày hiện tại 1 ngày.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Calendar today = Calendar.getInstance();
+                if (!selectedDate.before(today)) {
+                    Toast.makeText(this, "Từ ngày phải nhỏ hơn ngày hiện tại.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Cập nhật giá trị From Date
                 fromYear = year1;
                 fromMonth = monthOfYear;
                 fromDay = dayOfMonth;
                 textViewFromDate.setText(String.format("%d-%d-%d", fromYear, fromMonth + 1, fromDay));
             } else {
+                Calendar fromDate = Calendar.getInstance();
+                fromDate.set(fromYear, fromMonth, fromDay);
+
+                // Kiểm tra ngày chọn nhỏ hơn ngày hiện tại - 1
+                if (selectedDate.after(maxCalendar)) {
+                    Toast.makeText(this, "To Date phải nhỏ hơn ngày hiện tại 1 ngày.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Kiểm tra To Date lớn hơn From Date
+                if (selectedDate.before(fromDate)) {
+                    Toast.makeText(this, "To Date phải lớn hơn hoặc bằng From Date.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Cập nhật giá trị To Date
                 toYear = year1;
                 toMonth = monthOfYear;
                 toDay = dayOfMonth;
                 textViewToDate.setText(String.format("%d-%d-%d", toYear, toMonth + 1, toDay));
             }
         }, year, month, day);
-
-        // Đặt ngày tối đa là ngày hiện tại cho To Date
-        if (!isFromDate) {
-            Calendar currentCalendar = Calendar.getInstance();
-            datePickerDialog.getDatePicker().setMaxDate(currentCalendar.getTimeInMillis());
+        Calendar maxCalendar1 = Calendar.getInstance();
+        maxCalendar1.add(Calendar.DAY_OF_MONTH, +0);
+        // Giới hạn ngày tối đa và tối thiểu
+        if (isFromDate) {
+            datePickerDialog.getDatePicker().setMaxDate(maxCalendar1.getTimeInMillis());
+        } else {
+            Calendar fromDate = Calendar.getInstance();
+            fromDate.set(fromYear, fromMonth, fromDay);
+            datePickerDialog.getDatePicker().setMinDate(fromDate.getTimeInMillis());
+            datePickerDialog.getDatePicker().setMaxDate(maxCalendar1.getTimeInMillis());
         }
 
         datePickerDialog.show();
     }
+
 
 
     private void fetchOrderHistory(String process, int page, String id, String fromDate, String toDate) {
@@ -302,8 +359,15 @@ public class ListOrderHistoryActivity extends AppCompatActivity {
         if (progressBar != null) {
             progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         }
-        recyclerViewOrderHistory.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        if (!isLoading && orderHistoryItems.isEmpty() && noDataView != null) {
+            recyclerViewOrderHistory.setVisibility(View.GONE);
+            noDataView.setVisibility(View.VISIBLE);
+        } else {
+            recyclerViewOrderHistory.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+            if (noDataView != null) noDataView.setVisibility(View.GONE);
+        }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {

@@ -43,6 +43,7 @@
         <activity android:name=".product.ui.other.PaymentActivity"/>
         <activity
             android:name=".product.ui.order.history.OrderDetailActivity"
+            android:launchMode="singleTop"
             android:configChanges="locale|layoutDirection" />
         <activity
             android:name=".product.ui.account.ChangePasswordActivity"
@@ -94,6 +95,11 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <receiver android:name=".config.services.BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
 
     </application>
 </manifest>

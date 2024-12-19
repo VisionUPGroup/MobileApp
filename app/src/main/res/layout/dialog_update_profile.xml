@@ -126,7 +126,7 @@
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Caập nhật"
+        android:text="Cập nhật"
         android:textColor="@color/white"
         android:backgroundTint="@color/blue"
         android:textStyle="bold"
