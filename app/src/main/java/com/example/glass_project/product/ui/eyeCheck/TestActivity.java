@@ -562,11 +562,9 @@ int decreaseCount;
         int levelResult = getLevelResult(initialLevel);
         result = levelResult;
         if (shouldFinishTest()) {
-            if (initialLevel == 1 && numberOfSuccess >= 4) {
-                showFinishDialog(String.format("Sức khoẻ thị lực mắt của bạn được đánh giá tốt (%d/6).",result));
-            } else if (initialLevel == 8 && numberOfFail >= 2) {
-                showFinishDialog(String.format("Sức khoẻ thị lực mắt của bạn được đánh giá rất kém (%d/6).",result));
-            }
+            String message = String.format("Sức khỏe thị lực mắt của bạn được đánh giá %s (%d/6).",
+                    initialLevel == 8 ? "rất kém" : "tốt", result);
+            showFinishDialog(message);
             return;
         }
         // Kiểm tra điều kiện giảm, tăng level hoặc kết thúc
@@ -660,9 +658,16 @@ int decreaseCount;
         return false;
     }
     private boolean shouldFinishTest() {
-        return (initialLevel == 1 && numberOfSuccess + numberOfFail >= 5 && numberOfSuccess >= 4) // Level 1: đúng 4/5 lần
-                || (initialLevel == 8 && numberOfSuccess + numberOfFail >= 3 && numberOfFail >= 2) ; // Giảm 2 lần liên tiếp rồi tăng
+        if (initialLevel == 8) {
+            // Cấp 8: Sai liên tiếp 2 lần hoặc 2/3 lần
+            return numberOfFail >= 2 || (numberOfSuccess + numberOfFail >= 3 && numberOfFail >= 2);
+        } else if (initialLevel == 1) {
+            // Cấp 1: Đúng liên tiếp 3 lần hoặc đúng 4/5 lần
+            return numberOfSuccess >= 3 || (numberOfSuccess + numberOfFail >= 5 && numberOfSuccess >= 4);
+        }
+        return false;
     }
+
 
 
     private boolean hasLevelDecreasedTwiceAndIncreased() {
@@ -697,14 +702,27 @@ int decreaseCount;
 
 
     private void showContinueDialog() {
+        // Tính toán kết quả nếu tăng cấp độ
+        int nextLevelResult = initialLevel < 8 ? getLevelResult(initialLevel + 1) : getLevelResult(8);
+
+        // Hiển thị hộp thoại
         new AlertDialog.Builder(this)
                 .setTitle("Kết thúc thực hiện")
-                .setMessage("Bạn có muốn kết thúc thực hiện bài kiểm tra không ?")
-                .setPositiveButton("Có", (dialog, which) -> finishTest())
-                .setNegativeButton("Không", (dialog, which) ->updateUI())
+                .setMessage("Bạn có muốn kết thúc thực hiện bài kiểm tra không? Kết quả sẽ là 6/" + nextLevelResult + ".")
+                .setPositiveButton("Có", (dialog, which) -> {
+                    if (initialLevel < 8) {
+                        result = nextLevelResult; // Cập nhật kết quả cho cấp độ tiếp theo
+                    }else{
+                        result = nextLevelResult;
+                    }
+                    finishTest(); // Kết thúc bài kiểm tra
+                })
+                .setNegativeButton("Không", (dialog, which) -> updateUI()) // Tiếp tục kiểm tra nếu chọn "Không"
                 .show();
     }
+
     private void finishTest() {
+
         saveProgress();
         finish();
     }

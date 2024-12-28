@@ -268,7 +268,7 @@ public class CreateProfileActivity extends AppCompatActivity {
     }
 
     private class UploadImageTask extends AsyncTask<Uri, Void, Boolean> {
-        private int profileId;
+        private final int profileId;
 
         public UploadImageTask(int profileId) {
             this.profileId = profileId;
@@ -281,46 +281,46 @@ public class CreateProfileActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 String accessToken = sharedPreferences.getString("accessToken", "");
 
-                String uploadUrl = Config.getBaseUrl() + "/api/accounts/profiles/upload_image";
-                HttpURLConnection connection = (HttpURLConnection) new URL(uploadUrl).openConnection();
+                if (accessToken.isEmpty()) {
+                    return false;
+                }
+
+                String BaseUrl = Config.getBaseUrl();
+                URL url = new URL(BaseUrl + "/api/accounts/profiles/upload_image");
+
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
-                connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundary");
+                connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=boundary");
                 connection.setDoOutput(true);
 
-                String boundary = "----WebKitFormBoundary";
+                String boundary = "boundary";
+                DataOutputStream os = new DataOutputStream(connection.getOutputStream());
 
-                try (DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream())) {
-                    // Thêm phần dữ liệu Id
-                    outputStream.writeBytes("--" + boundary + "\r\n");
-                    outputStream.writeBytes("Content-Disposition: form-data; name=\"Id\"\r\n\r\n");
-                    outputStream.writeBytes(profileId + "\r\n");
+                os.writeBytes("--" + boundary + "\r\n");
+                os.writeBytes("Content-Disposition: form-data; name=\"Id\"\r\n\r\n" + profileId + "\r\n");
 
-                    // Thêm phần dữ liệu hình ảnh
-                    outputStream.writeBytes("--" + boundary + "\r\n");
-                    outputStream.writeBytes("Content-Disposition: form-data; name=\"Image\"; C\"\r\n");
-                    outputStream.writeBytes("Content-Type: image/jpeg\r\n\r\n");
+                os.writeBytes("--" + boundary + "\r\n");
+                os.writeBytes("Content-Disposition: form-data; name=\"Image\"; filename=\"image.jpg\"\r\n");
+                os.writeBytes("Content-Type: image/jpeg\r\n\r\n");
 
-                    // Ghi dữ liệu file hình ảnh
-                    InputStream inputStream = getContentResolver().openInputStream(imageUri);
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
-                    }
-                    inputStream.close();
-                    outputStream.writeBytes("\r\n");
-
-                    // Kết thúc multipart
-                    outputStream.writeBytes("--" + boundary + "--\r\n");
-                    outputStream.flush();
+                InputStream inputStream = getContentResolver().openInputStream(imageUri);
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    os.write(buffer, 0, bytesRead);
                 }
+                inputStream.close();
+
+                os.writeBytes("\r\n--" + boundary + "--\r\n");
+                os.flush();
+                os.close();
 
                 int responseCode = connection.getResponseCode();
                 return responseCode == HttpURLConnection.HTTP_OK;
 
             } catch (Exception e) {
-                Log.e("UploadImageTask", "Error uploading image", e);
+                e.printStackTrace();
                 return false;
             }
         }

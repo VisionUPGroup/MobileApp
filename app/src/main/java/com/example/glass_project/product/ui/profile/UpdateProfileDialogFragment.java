@@ -417,6 +417,7 @@ public class UpdateProfileDialogFragment extends DialogFragment {
                 Toast.makeText(getContext(), "Cập nhật thành công", Toast.LENGTH_SHORT).show();
                 if (listener != null) {
                     listener.onProfileUpdated();
+
                 }
                 dismiss();
             } else {

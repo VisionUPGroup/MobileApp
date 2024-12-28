@@ -78,7 +78,7 @@ public class RefractionRecordActivity extends AppCompatActivity {
                 String accessToken = getAccessToken();
                 if (accessToken.isEmpty()) return null;
 
-                String urlStr = Config.getBaseUrl() + "/api/refraction-records?ProfileID=" + profileID + "&PageIndex=1&PageSize=10&Descending=false";
+                String urlStr = Config.getBaseUrl() + "/api/refraction-records?ProfileID=" + profileID + "&PageIndex=1&PageSize=10&Descending=true";
                 String response = makeGetRequest(urlStr, accessToken);
                 if (response != null) {
                     records = parseRefractionRecords(response);
@@ -119,7 +119,7 @@ public class RefractionRecordActivity extends AppCompatActivity {
                 String accessToken = getAccessToken();
                 if (accessToken.isEmpty()) return null;
 
-                String urlStr = Config.getBaseUrl() + "/api/measurement-results?RecordID=" + recordId + "&PageIndex=1&PageSize=10&Descending=false";
+                String urlStr = Config.getBaseUrl() + "/api/measurement-results?RecordID=" + recordId + "&PageIndex=1&PageSize=10&Descending=true";
                 String response = makeGetRequest(urlStr, accessToken);
                 if (response != null) {
                     results = parseMeasurementResults(response);

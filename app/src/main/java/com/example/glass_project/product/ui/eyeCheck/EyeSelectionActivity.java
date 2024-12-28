@@ -23,8 +23,6 @@ import com.example.glass_project.R;
 import com.example.glass_project.config.Config;
 import com.example.glass_project.data.model.eyeCheck.ExamItem;
 import com.example.glass_project.databinding.ActivityEyeSelectionBinding;
-import com.example.glass_project.product.ui.other.ProductsActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -345,45 +343,35 @@ public class EyeSelectionActivity extends AppCompatActivity {
 
         boolean isSevere = myopiaLeft > 9 || myopiaRight > 9;
 
-        if (isSevere) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Cảnh báo sức khỏe mắt")
-                    .setMessage("Mắt bạn được đánh giá không tốt. Bạn nên đến kiosk gần nhất để kiểm tra thêm.")
-                    .setNegativeButton("OK", (dialog, which) -> {
-                        Intent intent = new Intent(this, ProductsActivity.class);
-                        intent.putExtra("navigate_to", R.id.navigation_map);
-                        startActivity(intent);
+        boolean dialogShown = false; // Cờ kiểm soát
 
-                    })
-                    .setCancelable(false)
-                    .show();
-            return; // Stop further processing as the user is advised to visit a kiosk
-        }
-        if (eyeSideLeftData != null) {
-            postExamResultAsync(eyeSideLeftData, "left", visualAcuityRecordID);
-        }
-        if (eyeSideRightData != null) {
-            postExamResultAsync(eyeSideRightData, "right", visualAcuityRecordID);
-        }
+        
 
-        if (eyeSideLeftData != null || eyeSideRightData != null) {
-            // Hiển thị AlertDialog để xác nhận
+        if (!dialogShown && (eyeSideLeftData != null || eyeSideRightData != null)) {
+            // Nếu chưa hiển thị dialog nào và có dữ liệu
+            dialogShown = true; // Đánh dấu đã hiển thị dialog
             new AlertDialog.Builder(this)
                     .setTitle("Xác nhận")
                     .setMessage("Bạn có muốn quay lại màn hình chính không?")
                     .setPositiveButton("Có", (dialog, which) -> {
-                        // Chuyển về MainActivity nếu chọn "Có"
                         Intent intent = new Intent(this, MainActivity.class);
                         startActivity(intent);
                         finish(); // Đóng Activity hiện tại
                     })
-                    .setNegativeButton("Không", (dialog, which) -> {
-                        BottomNavigationView bottomNavigationView = this.findViewById(R.id.nav_view);
-                        bottomNavigationView.setSelectedItemId(R.id.navigation_eye_check);
-                        dialog.dismiss();
-                    })
+                    .setNegativeButton("Không", (dialog, which) -> dialog.dismiss())
                     .show();
         }
+
+// Xử lý gửi dữ liệu nếu không có cảnh báo "Severe"
+        if (!dialogShown) {
+            if (eyeSideLeftData != null) {
+                postExamResultAsync(eyeSideLeftData, "left", visualAcuityRecordID);
+            }
+            if (eyeSideRightData != null) {
+                postExamResultAsync(eyeSideRightData, "right", visualAcuityRecordID);
+            }
+        }
+
     }
 
 

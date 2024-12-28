@@ -125,6 +125,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
+                        android:visibility="gone"
                         android:backgroundTint="@color/blue"
                         android:text="Xem báo cáo" />
                 </LinearLayout>

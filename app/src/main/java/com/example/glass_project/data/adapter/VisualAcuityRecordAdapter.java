@@ -60,6 +60,10 @@ public class VisualAcuityRecordAdapter extends RecyclerView.Adapter<VisualAcuity
         holder.bind(record);
 
         holder.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(record); // Gọi listener khi click vào item
+            }
+
             List<ExamResult> examResults = examResultsMap.get(record.getId());
             if (examResults != null && !examResults.isEmpty()) {
                 holder.toggleDropdown();
@@ -67,6 +71,7 @@ public class VisualAcuityRecordAdapter extends RecyclerView.Adapter<VisualAcuity
             }
         });
     }
+
 
     @Override
     public int getItemCount() {
